@@ -1,27 +1,30 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+import { Routes, Route } from 'react-router-dom';
+import { AppLayout } from '@/components/layout/AppLayout';
+import Dashboard from './pages/Dashboard';
+import NotFound from './pages/NotFound';
+import AnimalSearch from './pages/animals/AnimalSearch';
+import AnimalForm from './pages/animals/AnimalForm';
+import AnimalDetails from './pages/animals/AnimalDetails';
+import VaccinationReminders from './pages/vaccinations/VaccinationReminders';
+import InventoryManagement from './pages/inventory/InventoryManagement';
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<AppLayout><Dashboard /></AppLayout>} />
+      <Route path="/animals/new" element={<AppLayout><AnimalForm /></AppLayout>} />
+      <Route path="/animals/search" element={<AppLayout><AnimalSearch /></AppLayout>} />
+      <Route path="/animals/:id" element={<AppLayout><AnimalDetails /></AppLayout>} />
+      <Route path="/animals/dogs" element={<AppLayout><h1>Dogs List</h1></AppLayout>} />
+      <Route path="/animals/cats" element={<AppLayout><h1>Cats List</h1></AppLayout>} />
+      <Route path="/animals/birds" element={<AppLayout><h1>Birds List</h1></AppLayout>} />
+      <Route path="/vaccinations" element={<AppLayout><VaccinationReminders /></AppLayout>} />
+      <Route path="/inventory" element={<AppLayout><InventoryManagement /></AppLayout>} />
+      <Route path="/records" element={<AppLayout><h1>Records</h1></AppLayout>} />
+      <Route path="/medical-history" element={<AppLayout><h1>Medical History</h1></AppLayout>} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
 
 export default App;

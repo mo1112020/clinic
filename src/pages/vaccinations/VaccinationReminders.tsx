@@ -25,7 +25,7 @@ const vaccinationReminders = [
   // Overdue
   { id: 8, animalName: 'Oscar', animalType: 'cat', ownerName: 'Thomas Anderson', ownerPhone: '222-333-4444', vaccineName: 'FeLV Vaccine', date: '2023-10-15' },
   { id: 9, animalName: 'Milo', animalType: 'dog', ownerName: 'Rebecca Johnson', ownerPhone: '666-777-8888', vaccineName: 'Canine Influenza', date: '2023-10-10' },
-  { id: 10, animalName: 'Lily', animalType: 'bird', ownerName: 'Daniel White', ownerPhone: '333-444-5555', vaccineName: 'Pacheco's Disease', date: '2023-10-05' },
+  { id: 10, animalName: 'Lily', animalType: 'bird', ownerName: 'Daniel White', ownerPhone: '333-444-5555', vaccineName: "Pacheco's Disease", date: '2023-10-05' }
 ];
 
 const VaccinationReminders = () => {
