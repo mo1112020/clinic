@@ -10,6 +10,8 @@ export interface Animal {
   age?: string;
   healthNotes?: string;
   owner_id: string;
+  owner?: Owner;
+  owners?: Owner; // For compatibility with existing code
   created_at: string;
   last_visit?: string;
   next_appointment?: string;

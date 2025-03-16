@@ -2,7 +2,7 @@
 import { supabase } from '@/lib/supabase';
 import { Animal, AnimalType } from '@/types/database.types';
 
-interface AnimalFormData {
+export interface AnimalFormData {
   animalType: AnimalType;
   name: string;
   breed: string;
