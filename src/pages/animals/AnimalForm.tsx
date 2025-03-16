@@ -1,5 +1,5 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,14 +9,15 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowRight, Save } from 'lucide-react';
+import { ArrowRight, Save, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { createAnimal, getAnimalById, updateAnimal } from '@/services/animal-service';
+import { AnimalType } from '@/types/database.types';
 
 // Animal form schema
 const formSchema = z.object({
-  animalType: z.enum(['cat', 'dog', 'bird']),
+  animalType: z.enum(['cat', 'dog', 'bird'] as const),
   name: z.string().min(2, 'Name must be at least 2 characters'),
   breed: z.string().min(2, 'Breed must be at least 2 characters'),
   chipNumber: z.string().optional(),
@@ -28,15 +29,15 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface AnimalFormProps {
-  animalId?: string;
-}
-
-const AnimalForm: React.FC<AnimalFormProps> = ({ animalId }) => {
+const AnimalForm = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const { toast } = useToast();
-  const isNewAnimal = !animalId;
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isNewAnimal = !id;
   
-  const defaultValues: Partial<FormValues> = {
+  const defaultValues: FormValues = {
     animalType: 'dog',
     name: '',
     breed: '',
@@ -52,13 +53,81 @@ const AnimalForm: React.FC<AnimalFormProps> = ({ animalId }) => {
     defaultValues,
   });
   
-  const onSubmit = (data: FormValues) => {
-    console.log('Form submitted:', data);
-    toast({
-      title: isNewAnimal ? 'Animal created successfully' : 'Animal updated successfully',
-      description: `${data.name} has been ${isNewAnimal ? 'added to' : 'updated in'} the system.`,
-    });
+  // Fetch animal data if editing
+  useEffect(() => {
+    if (!isNewAnimal) {
+      const fetchAnimal = async () => {
+        setIsLoading(true);
+        try {
+          const animal = await getAnimalById(id!);
+          
+          form.reset({
+            animalType: animal.type as AnimalType,
+            name: animal.name,
+            breed: animal.breed,
+            chipNumber: animal.chipNo || '',
+            ownerName: animal.owner.name,
+            ownerId: animal.owner.id_number,
+            ownerPhone: animal.owner.phone,
+            healthNotes: animal.healthNotes || '',
+          });
+        } catch (error) {
+          console.error('Error fetching animal:', error);
+          toast({
+            title: 'Error',
+            description: 'Failed to load animal data.',
+            variant: 'destructive',
+          });
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      fetchAnimal();
+    }
+  }, [id, isNewAnimal, form, toast]);
+  
+  const onSubmit = async (data: FormValues) => {
+    setIsSubmitting(true);
+    try {
+      if (isNewAnimal) {
+        await createAnimal(data);
+        toast({
+          title: 'Animal created successfully',
+          description: `${data.name} has been added to the system.`,
+        });
+      } else {
+        await updateAnimal(id!, data);
+        toast({
+          title: 'Animal updated successfully',
+          description: `${data.name} has been updated in the system.`,
+        });
+      }
+      
+      // Navigate to the appropriate page
+      navigate('/animals/search');
+    } catch (error) {
+      console.error('Error saving animal:', error);
+      toast({
+        title: 'Error',
+        description: `Failed to ${isNewAnimal ? 'create' : 'update'} animal. Please try again.`,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-[50vh]">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-primary" />
+          <p className="text-muted-foreground">Loading animal data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Card className="max-w-4xl mx-auto glass-card">
@@ -113,7 +182,7 @@ const AnimalForm: React.FC<AnimalFormProps> = ({ animalId }) => {
                   </FormItem>
                 )}
               />
-            
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -236,12 +305,29 @@ const AnimalForm: React.FC<AnimalFormProps> = ({ animalId }) => {
               transition={{ duration: 0.3, delay: 0.4 }}
               className="flex justify-end space-x-4"
             >
-              <Button type="button" variant="outline">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => navigate(-1)}
+              >
                 Cancel
               </Button>
-              <Button type="submit" className="btn-primary">
-                <Save className="mr-2 h-4 w-4" />
-                {isNewAnimal ? 'Register Patient' : 'Update Patient'}
+              <Button 
+                type="submit" 
+                className="btn-primary"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {isNewAnimal ? 'Registering...' : 'Updating...'}
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    {isNewAnimal ? 'Register Patient' : 'Update Patient'}
+                  </>
+                )}
               </Button>
             </motion.div>
           </form>

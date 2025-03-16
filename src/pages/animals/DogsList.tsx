@@ -4,37 +4,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Dog, Calendar, File, Clipboard, Phone } from 'lucide-react';
+import { Search, Dog, Calendar, File, Clipboard, Phone, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-
-// Mock data for dogs
-const mockDogs = [
-  { id: '1', name: 'Max', type: 'dog', breed: 'Labrador', chipNo: 'A12345', owner: 'John Smith', ownerPhone: '123-456-7890', lastVisit: '2023-10-15' },
-  { id: '3', name: 'Charlie', type: 'dog', breed: 'Golden Retriever', chipNo: 'C13579', owner: 'Michael Brown', ownerPhone: '555-123-4567', lastVisit: '2023-09-22' },
-  { id: '5', name: 'Cooper', type: 'dog', breed: 'Beagle', chipNo: 'E34567', owner: 'James Wilson', ownerPhone: '111-222-3333', lastVisit: '2023-10-05' },
-  { id: '7', name: 'Rocky', type: 'dog', breed: 'German Shepherd', chipNo: 'G78901', owner: 'David Johnson', ownerPhone: '444-333-2222', lastVisit: '2023-11-10' },
-  { id: '9', name: 'Buddy', type: 'dog', breed: 'Bulldog', chipNo: 'I23456', owner: 'Thomas Anderson', ownerPhone: '999-888-7777', lastVisit: '2023-10-28' },
-];
+import { useAnimals } from '@/hooks/use-animals';
 
 const DogsList = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredDogs, setFilteredDogs] = useState(mockDogs);
+  const [queryToSearch, setQueryToSearch] = useState('');
+  
+  // Use the custom hook to fetch dogs data from Supabase
+  const { animals: dogs, isLoading, error } = useAnimals('dog', queryToSearch);
   
   const handleSearch = () => {
-    if (!searchQuery.trim()) {
-      setFilteredDogs(mockDogs);
-      return;
-    }
-    
-    const filtered = mockDogs.filter(dog => 
-      dog.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      dog.owner.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      dog.chipNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      dog.breed.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    
-    setFilteredDogs(filtered);
+    setQueryToSearch(searchQuery);
   };
 
   const listVariants = {
@@ -85,7 +68,16 @@ const DogsList = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {filteredDogs.length === 0 ? (
+          {isLoading ? (
+            <div className="text-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-primary" />
+              <p className="text-muted-foreground">Loading dogs...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12 text-destructive">
+              <p>Error loading dogs: {error}</p>
+            </div>
+          ) : dogs.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground">No dogs found. Try a different search.</p>
             </div>
@@ -110,7 +102,7 @@ const DogsList = () => {
                     animate="animate"
                     className="contents"
                   >
-                    {filteredDogs.map((dog) => (
+                    {dogs.map((dog) => (
                       <motion.div 
                         key={dog.id}
                         variants={itemVariants}
@@ -120,23 +112,29 @@ const DogsList = () => {
                           <TableCell className="font-medium">{dog.name}</TableCell>
                           <TableCell>{dog.breed}</TableCell>
                           <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Clipboard className="h-4 w-4 text-muted-foreground" />
-                              <span>{dog.chipNo}</span>
-                            </div>
+                            {dog.chipNo && (
+                              <div className="flex items-center gap-2">
+                                <Clipboard className="h-4 w-4 text-muted-foreground" />
+                                <span>{dog.chipNo}</span>
+                              </div>
+                            )}
                           </TableCell>
-                          <TableCell>{dog.owner}</TableCell>
+                          <TableCell>{dog.owners?.name || 'N/A'}</TableCell>
                           <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Phone className="h-4 w-4 text-muted-foreground" />
-                              <span>{dog.ownerPhone}</span>
-                            </div>
+                            {dog.owners?.phone && (
+                              <div className="flex items-center gap-2">
+                                <Phone className="h-4 w-4 text-muted-foreground" />
+                                <span>{dog.owners.phone}</span>
+                              </div>
+                            )}
                           </TableCell>
                           <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4 text-muted-foreground" />
-                              <span>{dog.lastVisit}</span>
-                            </div>
+                            {dog.last_visit && (
+                              <div className="flex items-center gap-2">
+                                <Calendar className="h-4 w-4 text-muted-foreground" />
+                                <span>{dog.last_visit}</span>
+                              </div>
+                            )}
                           </TableCell>
                           <TableCell>
                             <Link to={`/animals/${dog.id}`}>

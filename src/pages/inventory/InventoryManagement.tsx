@@ -1,29 +1,18 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Package, Search, Plus, ShoppingCart, ArrowUpDown, Pill, Syringe, Thermometer, Scissors, ShoppingBag } from 'lucide-react';
+import { Package, Search, Plus, ShoppingCart, ArrowUpDown, Pill, Syringe, Thermometer, Scissors, ShoppingBag, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { motion } from 'framer-motion';
-
-// Mock data
-const inventoryItems = [
-  { id: 1, name: 'Canine Rabies Vaccine', category: 'vaccine', stock: 45, price: 25.99, sold: 120, reorderLevel: 20 },
-  { id: 2, name: 'Feline Distemper Vaccine', category: 'vaccine', stock: 32, price: 22.50, sold: 85, reorderLevel: 15 },
-  { id: 3, name: 'Antibiotics - Amoxicillin', category: 'medication', stock: 78, price: 15.75, sold: 203, reorderLevel: 30 },
-  { id: 4, name: 'Pain Relief - Metacam', category: 'medication', stock: 12, price: 45.00, sold: 67, reorderLevel: 20 },
-  { id: 5, name: 'Pet Shampoo - Premium', category: 'supplies', stock: 23, price: 18.99, sold: 89, reorderLevel: 10 },
-  { id: 6, name: 'Flea & Tick Control', category: 'medication', stock: 56, price: 35.50, sold: 178, reorderLevel: 25 },
-  { id: 7, name: 'Cat Food - Prescription Diet', category: 'food', stock: 8, price: 42.99, sold: 45, reorderLevel: 15 },
-  { id: 8, name: 'Dog Food - Grain Free', category: 'food', stock: 17, price: 38.75, sold: 62, reorderLevel: 20 },
-  { id: 9, name: 'Dental Cleaning Kit', category: 'supplies', stock: 28, price: 27.50, sold: 53, reorderLevel: 15 },
-  { id: 10, name: 'Avian Vitamin Supplement', category: 'medication', stock: 19, price: 32.25, sold: 37, reorderLevel: 10 },
-];
+import { useInventory } from '@/hooks/use-inventory';
+import { supabase } from '@/lib/supabase';
+import { useToast } from '@/hooks/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const InventoryManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -31,7 +20,27 @@ const InventoryManagement = () => {
   const [stockFilter, setStockFilter] = useState<string | undefined>(undefined);
   const [addItemDialogOpen, setAddItemDialogOpen] = useState(false);
   const [sortBy, setSortBy] = useState('name');
-  const [sortDirection, setSortDirection] = useState('asc');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const { toast } = useToast();
+  
+  // Form state for new inventory item
+  const [newItem, setNewItem] = useState({
+    name: '',
+    category: '',
+    stock: 0,
+    price: 0,
+    reorderLevel: 0
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Use the custom hook to fetch inventory data from Supabase
+  const { inventoryItems, stats, isLoading, error } = useInventory(
+    searchQuery,
+    categoryFilter,
+    stockFilter,
+    sortBy,
+    sortDirection
+  );
   
   const toggleSort = (field: string) => {
     if (sortBy === field) {
@@ -63,44 +72,60 @@ const InventoryManagement = () => {
     return { label: 'In Stock', className: 'bg-emerald-500 text-white' };
   };
   
-  const filteredItems = inventoryItems
-    .filter(item => {
-      // Search filter
-      if (searchQuery && !item.name.toLowerCase().includes(searchQuery.toLowerCase())) {
-        return false;
-      }
+  const handleAddItem = async () => {
+    if (!newItem.name || !newItem.category) {
+      toast({
+        title: 'Missing information',
+        description: 'Please fill in all required fields.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      const { error } = await supabase
+        .from('inventory')
+        .insert({
+          name: newItem.name,
+          category: newItem.category,
+          stock: newItem.stock,
+          price: newItem.price,
+          reorder_level: newItem.reorderLevel,
+          sold: 0
+        });
       
-      // Category filter
-      if (categoryFilter.length > 0 && !categoryFilter.includes(item.category)) {
-        return false;
-      }
+      if (error) throw error;
       
-      // Stock filter
-      if (stockFilter === 'low' && item.stock >= item.reorderLevel) {
-        return false;
-      }
-      if (stockFilter === 'out' && item.stock > 0) {
-        return false;
-      }
+      toast({
+        title: 'Item added',
+        description: `${newItem.name} has been added to inventory.`,
+      });
       
-      return true;
-    })
-    .sort((a, b) => {
-      // Sorting
-      let comparison = 0;
+      setAddItemDialogOpen(false);
+      setNewItem({
+        name: '',
+        category: '',
+        stock: 0,
+        price: 0,
+        reorderLevel: 0
+      });
       
-      if (sortBy === 'name') {
-        comparison = a.name.localeCompare(b.name);
-      } else if (sortBy === 'stock') {
-        comparison = a.stock - b.stock;
-      } else if (sortBy === 'price') {
-        comparison = a.price - b.price;
-      } else if (sortBy === 'sold') {
-        comparison = a.sold - b.sold;
-      }
+      // Refresh the page to show the new item
+      window.location.reload();
       
-      return sortDirection === 'asc' ? comparison : -comparison;
-    });
+    } catch (err) {
+      console.error('Error adding inventory item:', err);
+      toast({
+        title: 'Error',
+        description: 'Failed to add inventory item. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   
   const cardVariants = {
     initial: { opacity: 0, y: 20 },
@@ -127,7 +152,7 @@ const InventoryManagement = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Total Items</p>
-                <p className="text-3xl font-bold">238</p>
+                <p className="text-3xl font-bold">{isLoading ? '-' : stats.totalItems}</p>
               </div>
               <div className="p-2 bg-primary/10 rounded-full">
                 <Package className="h-5 w-5 text-primary" />
@@ -140,7 +165,7 @@ const InventoryManagement = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Low Stock Items</p>
-                <p className="text-3xl font-bold">12</p>
+                <p className="text-3xl font-bold">{isLoading ? '-' : stats.lowStockItems}</p>
               </div>
               <div className="p-2 bg-amber-500/10 rounded-full">
                 <ShoppingCart className="h-5 w-5 text-amber-500" />
@@ -153,7 +178,7 @@ const InventoryManagement = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Total Value</p>
-                <p className="text-3xl font-bold">$9,574</p>
+                <p className="text-3xl font-bold">${isLoading ? '-' : stats.totalValue.toFixed(2)}</p>
               </div>
               <div className="p-2 bg-emerald-500/10 rounded-full">
                 <Thermometer className="h-5 w-5 text-emerald-500" />
@@ -187,38 +212,77 @@ const InventoryManagement = () => {
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
                     <Label htmlFor="item-name">Item Name</Label>
-                    <Input id="item-name" placeholder="Enter item name" />
+                    <Input 
+                      id="item-name" 
+                      placeholder="Enter item name" 
+                      value={newItem.name}
+                      onChange={(e) => setNewItem({...newItem, name: e.target.value})}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label>Category</Label>
-                    <ToggleGroup type="single" className="justify-start">
-                      <ToggleGroupItem value="vaccine">Vaccine</ToggleGroupItem>
-                      <ToggleGroupItem value="medication">Medication</ToggleGroupItem>
-                      <ToggleGroupItem value="supplies">Supplies</ToggleGroupItem>
-                      <ToggleGroupItem value="food">Food</ToggleGroupItem>
-                    </ToggleGroup>
+                    <Select
+                      value={newItem.category}
+                      onValueChange={(value) => setNewItem({...newItem, category: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="vaccine">Vaccine</SelectItem>
+                        <SelectItem value="medication">Medication</SelectItem>
+                        <SelectItem value="supplies">Supplies</SelectItem>
+                        <SelectItem value="food">Food</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="stock">Initial Stock</Label>
-                      <Input id="stock" type="number" placeholder="0" />
+                      <Input 
+                        id="stock" 
+                        type="number" 
+                        placeholder="0" 
+                        value={newItem.stock.toString()}
+                        onChange={(e) => setNewItem({...newItem, stock: parseInt(e.target.value) || 0})}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="price">Price ($)</Label>
-                      <Input id="price" type="number" step="0.01" placeholder="0.00" />
+                      <Input 
+                        id="price" 
+                        type="number" 
+                        step="0.01" 
+                        placeholder="0.00" 
+                        value={newItem.price.toString()}
+                        onChange={(e) => setNewItem({...newItem, price: parseFloat(e.target.value) || 0})}
+                      />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="reorder-level">Reorder Level</Label>
-                    <Input id="reorder-level" type="number" placeholder="Enter quantity" />
+                    <Input 
+                      id="reorder-level" 
+                      type="number" 
+                      placeholder="Enter quantity"
+                      value={newItem.reorderLevel.toString()}
+                      onChange={(e) => setNewItem({...newItem, reorderLevel: parseInt(e.target.value) || 0})}
+                    />
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setAddItemDialogOpen(false)}>
+                  <Button variant="outline" onClick={() => setAddItemDialogOpen(false)} disabled={isSubmitting}>
                     Cancel
                   </Button>
-                  <Button type="submit" onClick={() => setAddItemDialogOpen(false)}>
-                    Add Item
+                  <Button type="submit" onClick={handleAddItem} disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Adding...
+                      </>
+                    ) : (
+                      'Add Item'
+                    )}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -318,7 +382,16 @@ const InventoryManagement = () => {
             </div>
           
             {/* Items */}
-            {filteredItems.length === 0 ? (
+            {isLoading ? (
+              <div className="text-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-primary" />
+                <p className="text-muted-foreground">Loading inventory items...</p>
+              </div>
+            ) : error ? (
+              <div className="text-center py-12 text-destructive">
+                <p>Error loading inventory: {error}</p>
+              </div>
+            ) : inventoryItems.length === 0 ? (
               <div className="text-center py-12">
                 <div className="mx-auto bg-muted rounded-full w-12 h-12 flex items-center justify-center mb-3">
                   <Package className="h-6 w-6 text-muted-foreground" />
@@ -330,8 +403,8 @@ const InventoryManagement = () => {
               </div>
             ) : (
               <div className="space-y-3">
-                {filteredItems.map((item, index) => {
-                  const stockStatus = getStockStatus(item.stock, item.reorderLevel);
+                {inventoryItems.map((item, index) => {
+                  const stockStatus = getStockStatus(item.stock, item.reorder_level);
                   
                   return (
                     <motion.div
@@ -398,7 +471,10 @@ const InventoryManagement = () => {
         
         <CardFooter className="flex justify-between">
           <div className="text-sm text-muted-foreground">
-            Showing {filteredItems.length} of {inventoryItems.length} items
+            {isLoading ? 
+              'Loading items...' : 
+              `Showing ${inventoryItems.length} ${inventoryItems.length === 1 ? 'item' : 'items'}`
+            }
           </div>
         </CardFooter>
       </Card>

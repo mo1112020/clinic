@@ -4,35 +4,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Bird, Calendar, File, Clipboard, Phone } from 'lucide-react';
+import { Search, Bird, Calendar, File, Clipboard, Phone, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-
-// Mock data for birds
-const mockBirds = [
-  { id: '4', name: 'Bella', type: 'bird', breed: 'Cockatiel', chipNo: 'D24680', owner: 'Sophia Miller', ownerPhone: '777-888-9999', lastVisit: '2023-11-08' },
-  { id: '11', name: 'Kiwi', type: 'bird', breed: 'Budgerigar', chipNo: 'K45678', owner: 'Emma Thompson', ownerPhone: '333-444-5555', lastVisit: '2023-10-30' },
-  { id: '13', name: 'Rio', type: 'bird', breed: 'Macaw', chipNo: 'M67890', owner: 'Matthew Smith', ownerPhone: '555-666-7777', lastVisit: '2023-11-15' },
-];
+import { useAnimals } from '@/hooks/use-animals';
 
 const BirdsList = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredBirds, setFilteredBirds] = useState(mockBirds);
+  const [queryToSearch, setQueryToSearch] = useState('');
+  
+  // Use the custom hook to fetch birds data from Supabase
+  const { animals: birds, isLoading, error } = useAnimals('bird', queryToSearch);
   
   const handleSearch = () => {
-    if (!searchQuery.trim()) {
-      setFilteredBirds(mockBirds);
-      return;
-    }
-    
-    const filtered = mockBirds.filter(bird => 
-      bird.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      bird.owner.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      bird.chipNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      bird.breed.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    
-    setFilteredBirds(filtered);
+    setQueryToSearch(searchQuery);
   };
 
   const listVariants = {
@@ -83,7 +68,16 @@ const BirdsList = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {filteredBirds.length === 0 ? (
+          {isLoading ? (
+            <div className="text-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-primary" />
+              <p className="text-muted-foreground">Loading birds...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12 text-destructive">
+              <p>Error loading birds: {error}</p>
+            </div>
+          ) : birds.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground">No birds found. Try a different search.</p>
             </div>
@@ -108,7 +102,7 @@ const BirdsList = () => {
                     animate="animate"
                     className="contents"
                   >
-                    {filteredBirds.map((bird) => (
+                    {birds.map((bird) => (
                       <motion.div 
                         key={bird.id}
                         variants={itemVariants}
@@ -118,23 +112,29 @@ const BirdsList = () => {
                           <TableCell className="font-medium">{bird.name}</TableCell>
                           <TableCell>{bird.breed}</TableCell>
                           <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Clipboard className="h-4 w-4 text-muted-foreground" />
-                              <span>{bird.chipNo}</span>
-                            </div>
+                            {bird.chipNo && (
+                              <div className="flex items-center gap-2">
+                                <Clipboard className="h-4 w-4 text-muted-foreground" />
+                                <span>{bird.chipNo}</span>
+                              </div>
+                            )}
                           </TableCell>
-                          <TableCell>{bird.owner}</TableCell>
+                          <TableCell>{bird.owners?.name || 'N/A'}</TableCell>
                           <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Phone className="h-4 w-4 text-muted-foreground" />
-                              <span>{bird.ownerPhone}</span>
-                            </div>
+                            {bird.owners?.phone && (
+                              <div className="flex items-center gap-2">
+                                <Phone className="h-4 w-4 text-muted-foreground" />
+                                <span>{bird.owners.phone}</span>
+                              </div>
+                            )}
                           </TableCell>
                           <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4 text-muted-foreground" />
-                              <span>{bird.lastVisit}</span>
-                            </div>
+                            {bird.last_visit && (
+                              <div className="flex items-center gap-2">
+                                <Calendar className="h-4 w-4 text-muted-foreground" />
+                                <span>{bird.last_visit}</span>
+                              </div>
+                            )}
                           </TableCell>
                           <TableCell>
                             <Link to={`/animals/${bird.id}`}>
