@@ -38,7 +38,7 @@ export function useInventory(
         }
 
         if (stockFilter === 'low') {
-          query = query.lt('stock', supabase.raw('reorder_level'));
+          query = query.lt('stock', 'reorder_level');
         } else if (stockFilter === 'out') {
           query = query.eq('stock', 0);
         }
