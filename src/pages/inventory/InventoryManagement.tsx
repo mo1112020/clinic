@@ -5,13 +5,17 @@ import { InventoryStatCards } from '@/components/inventory/InventoryStatCards';
 import { InventoryFilters } from '@/components/inventory/InventoryFilters';
 import { InventoryTable } from '@/components/inventory/InventoryTable';
 import { AddInventoryItemDialog } from '@/components/inventory/AddInventoryItemDialog';
+import { EditInventoryItemDialog } from '@/components/inventory/EditInventoryItemDialog';
 import { useInventory } from '@/hooks/use-inventory';
+import { InventoryItem } from '@/types/database.types';
 
 const InventoryManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [stockFilter, setStockFilter] = useState<string | undefined>(undefined);
   const [addItemDialogOpen, setAddItemDialogOpen] = useState(false);
+  const [editItemDialogOpen, setEditItemDialogOpen] = useState(false);
+  const [currentEditItem, setCurrentEditItem] = useState<InventoryItem | null>(null);
   const [sortBy, setSortBy] = useState('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   
@@ -31,6 +35,11 @@ const InventoryManagement = () => {
       setSortBy(field);
       setSortDirection('asc');
     }
+  };
+
+  const handleEditItem = (item: InventoryItem) => {
+    setCurrentEditItem(item);
+    setEditItemDialogOpen(true);
   };
 
   return (
@@ -79,6 +88,7 @@ const InventoryManagement = () => {
               sortBy={sortBy}
               sortDirection={sortDirection}
               toggleSort={toggleSort}
+              onEditItem={handleEditItem}
             />
           </div>
         </CardContent>
@@ -92,6 +102,13 @@ const InventoryManagement = () => {
           </div>
         </CardFooter>
       </Card>
+      
+      {/* Edit Item Dialog */}
+      <EditInventoryItemDialog 
+        open={editItemDialogOpen}
+        onOpenChange={setEditItemDialogOpen}
+        item={currentEditItem}
+      />
     </div>
   );
 };

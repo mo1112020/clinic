@@ -2,9 +2,10 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowUpDown, Syringe, Pill, Scissors, ShoppingBag, Package, Loader2 } from 'lucide-react';
+import { ArrowUpDown, Syringe, Pill, Scissors, ShoppingBag, Package, Loader2, Pencil } from 'lucide-react';
 import { InventoryItem } from '@/types/database.types';
 import { motion } from 'framer-motion';
+import { InventoryLoading } from './InventoryLoading';
 
 type InventoryTableProps = {
   inventoryItems: InventoryItem[];
@@ -13,6 +14,7 @@ type InventoryTableProps = {
   sortBy: string;
   sortDirection: 'asc' | 'desc';
   toggleSort: (field: string) => void;
+  onEditItem: (item: InventoryItem) => void;
 };
 
 export function InventoryTable({
@@ -22,6 +24,7 @@ export function InventoryTable({
   sortBy,
   sortDirection,
   toggleSort,
+  onEditItem,
 }: InventoryTableProps) {
 
   const getCategoryIcon = (category: string) => {
@@ -58,12 +61,7 @@ export function InventoryTable({
   };
 
   if (isLoading) {
-    return (
-      <div className="text-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-primary" />
-        <p className="text-muted-foreground">Loading inventory items...</p>
-      </div>
-    );
+    return <InventoryLoading />;
   }
 
   if (error) {
@@ -125,6 +123,7 @@ export function InventoryTable({
           </Button>
         </div>
         <div className="w-28 text-center font-medium">Status</div>
+        <div className="w-20 text-center font-medium">Actions</div>
       </div>
 
       {/* Items */}
@@ -169,6 +168,13 @@ export function InventoryTable({
                       <p className="font-medium">{item.sold}</p>
                     </div>
                   </div>
+                  
+                  <div className="flex justify-end">
+                    <Button variant="outline" size="sm" onClick={() => onEditItem(item)}>
+                      <Pencil className="h-4 w-4 mr-1" />
+                      Edit
+                    </Button>
+                  </div>
                 </div>
                 
                 {/* Desktop View */}
@@ -185,6 +191,11 @@ export function InventoryTable({
                   <Badge className={stockStatus.className}>
                     {stockStatus.label}
                   </Badge>
+                </div>
+                <div className="hidden md:block md:w-20 text-center">
+                  <Button variant="ghost" size="sm" onClick={() => onEditItem(item)}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             </motion.div>
