@@ -108,7 +108,7 @@ export function EditInventoryItemDialog({ open, onOpenChange, item }: EditInvent
             <Label>Category</Label>
             <Select
               value={editedItem.category}
-              onValueChange={(value) => setEditedItem({...editedItem, category: value})}
+              onValueChange={(value: 'vaccine' | 'medication' | 'supplies' | 'food') => setEditedItem({...editedItem, category: value})}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select category" />
