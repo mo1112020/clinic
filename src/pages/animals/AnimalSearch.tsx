@@ -4,47 +4,23 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Dog, Cat, Bird, Calendar, File, Clipboard, Phone } from 'lucide-react';
+import { Search, Dog, Cat, Bird, Calendar, File, Clipboard, Phone, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-
-// Mock data
-const mockAnimals = [
-  { id: '1', name: 'Max', type: 'dog', breed: 'Labrador', chipNo: 'A12345', owner: 'John Smith', ownerPhone: '123-456-7890' },
-  { id: '2', name: 'Luna', type: 'cat', breed: 'Persian', chipNo: 'B67890', owner: 'Emma Watson', ownerPhone: '098-765-4321' },
-  { id: '3', name: 'Charlie', type: 'dog', breed: 'Golden Retriever', chipNo: 'C13579', owner: 'Michael Brown', ownerPhone: '555-123-4567' },
-  { id: '4', name: 'Bella', type: 'bird', breed: 'Cockatiel', chipNo: 'D24680', owner: 'Sophia Miller', ownerPhone: '777-888-9999' },
-  { id: '5', name: 'Cooper', type: 'dog', breed: 'Beagle', chipNo: 'E34567', owner: 'James Wilson', ownerPhone: '111-222-3333' },
-  { id: '6', name: 'Lucy', type: 'cat', breed: 'Siamese', chipNo: 'F45678', owner: 'Olivia Moore', ownerPhone: '444-555-6666' },
-];
+import { useAnimals } from '@/hooks/use-animals';
+import { AnimalType } from '@/types/database.types';
 
 const AnimalSearch = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchBy, setSearchBy] = useState('name');
-  const [results, setResults] = useState(mockAnimals);
+  const { animals, isLoading, error } = useAnimals(undefined, searchQuery);
   
   const handleSearch = () => {
-    if (!searchQuery.trim()) {
-      setResults(mockAnimals);
-      return;
-    }
-    
-    const filtered = mockAnimals.filter(animal => {
-      const query = searchQuery.toLowerCase();
-      if (searchBy === 'name') {
-        return animal.name.toLowerCase().includes(query);
-      } else if (searchBy === 'chip') {
-        return animal.chipNo.toLowerCase().includes(query);
-      } else if (searchBy === 'owner') {
-        return animal.owner.toLowerCase().includes(query);
-      }
-      return false;
-    });
-    
-    setResults(filtered);
+    // The useAnimals hook will handle the search based on the searchQuery
+    // This function is kept for the Enter key handler
   };
 
-  const getAnimalIcon = (type: string) => {
+  const getAnimalIcon = (type: AnimalType) => {
     switch (type) {
       case 'dog':
         return <Dog className="h-5 w-5 text-amber-500" />;
@@ -107,10 +83,21 @@ const AnimalSearch = () => {
       <Card>
         <CardHeader>
           <CardTitle>Search Results</CardTitle>
-          <CardDescription>Found {results.length} {results.length === 1 ? 'result' : 'results'}</CardDescription>
+          <CardDescription>Found {animals.length} {animals.length === 1 ? 'result' : 'results'}</CardDescription>
         </CardHeader>
         <CardContent>
-          {results.length === 0 ? (
+          {isLoading ? (
+            <div className="flex justify-center items-center h-[200px]">
+              <div className="text-center">
+                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-primary" />
+                <p className="text-muted-foreground">Loading animals...</p>
+              </div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12 text-destructive">
+              <p>{error}</p>
+            </div>
+          ) : animals.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground">No results found. Try a different search.</p>
             </div>
@@ -121,7 +108,7 @@ const AnimalSearch = () => {
               initial="initial"
               animate="animate"
             >
-              {results.map((animal) => (
+              {animals.map((animal) => (
                 <motion.div 
                   key={animal.id}
                   variants={itemVariants}
@@ -138,17 +125,21 @@ const AnimalSearch = () => {
                         </div>
                       </div>
                       <div className="hidden md:flex items-center gap-6">
-                        <div className="flex items-center gap-2">
-                          <Clipboard className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">{animal.chipNo}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Phone className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">{animal.ownerPhone}</span>
-                        </div>
+                        {animal.chipNo && (
+                          <div className="flex items-center gap-2">
+                            <Clipboard className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">{animal.chipNo}</span>
+                          </div>
+                        )}
+                        {animal.owners && (
+                          <div className="flex items-center gap-2">
+                            <Phone className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">{animal.owners.phone}</span>
+                          </div>
+                        )}
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{animal.owner}</span>
+                        <span className="text-sm font-medium">{animal.owners?.name || 'Unknown Owner'}</span>
                       </div>
                     </div>
                   </Link>

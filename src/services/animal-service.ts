@@ -95,6 +95,20 @@ export async function updateAnimal(id: string, data: AnimalFormData) {
   return animalData;
 }
 
+export async function deleteAnimal(id: string) {
+  // Delete the animal record
+  const { error: animalError } = await supabase
+    .from('animals')
+    .delete()
+    .eq('id', id);
+
+  if (animalError) {
+    throw new Error(`Error deleting animal: ${animalError.message}`);
+  }
+
+  return { success: true };
+}
+
 export async function getAnimalById(id: string) {
   const { data, error } = await supabase
     .from('animals')

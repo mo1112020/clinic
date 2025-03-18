@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -6,25 +5,46 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon, Clock, Edit, Phone, Mail, Dog, Cat, Bird, FileText, Upload, Calendar, Clipboard, Activity, FileUp, Loader2 } from 'lucide-react';
+import { 
+  Calendar as CalendarIcon, 
+  Clock, 
+  Edit, 
+  Phone, 
+  Mail, 
+  Dog, 
+  Cat, 
+  Bird, 
+  FileText, 
+  Upload, 
+  Calendar, 
+  Clipboard, 
+  Activity, 
+  FileUp, 
+  Loader2,
+  Trash2,
+  AlertTriangle
+} from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { motion } from 'framer-motion';
 import { useAnimalDetails } from '@/hooks/use-animal-details';
+import { deleteAnimal } from '@/services/animal-service';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 const AnimalDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [documentName, setDocumentName] = useState('');
   const [file, setFile] = useState<File | null>(null);
   
-  // Use the custom hook to fetch animal details from Supabase
   const { animal, owner, vaccinations, medicalHistory, documents, isLoading, error } = useAnimalDetails(id!);
   
   const getAnimalIcon = () => {
@@ -55,7 +75,6 @@ const AnimalDetails = () => {
     setUploading(true);
     
     try {
-      // Upload file to Supabase Storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${id}/${Date.now()}.${fileExt}`;
       
@@ -65,7 +84,6 @@ const AnimalDetails = () => {
         
       if (storageError) throw storageError;
       
-      // Create document record in the database
       const { error: dbError } = await supabase
         .from('documents')
         .insert({
@@ -88,7 +106,6 @@ const AnimalDetails = () => {
       setDocumentName('');
       setFile(null);
       
-      // Refresh the page to show the new document
       window.location.reload();
       
     } catch (err) {
@@ -100,6 +117,32 @@ const AnimalDetails = () => {
       });
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleDeleteAnimal = async () => {
+    if (!id) return;
+    
+    setDeleting(true);
+    try {
+      await deleteAnimal(id);
+      
+      toast({
+        title: 'Animal deleted',
+        description: 'The patient has been successfully removed from the system.',
+      });
+      
+      navigate('/animals/search');
+    } catch (err) {
+      console.error('Error deleting animal:', err);
+      toast({
+        title: 'Delete failed',
+        description: 'There was an error deleting the patient. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setDeleting(false);
+      setDeleteDialogOpen(false);
     }
   };
 
@@ -130,16 +173,57 @@ const AnimalDetails = () => {
           <h1 className="text-3xl font-bold tracking-tight mb-2">{animal.name}</h1>
           <p className="text-muted-foreground capitalize">{animal.type} • {animal.breed}</p>
         </div>
-        <Link to={`/animals/${id}/edit`}>
-          <Button className="btn-primary">
-            <Edit className="mr-2 h-4 w-4" />
-            Edit Details
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link to={`/animals/${id}/edit`}>
+            <Button className="btn-primary">
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Details
+            </Button>
+          </Link>
+          <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive">
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Patient Record</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete {animal.name}'s record from the system.
+                  This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDeleteAnimal();
+                  }}
+                  className="bg-destructive hover:bg-destructive/90"
+                  disabled={deleting}
+                >
+                  {deleting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
+                    </>
+                  )}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Info Card */}
         <Card className="glass-card lg:col-span-2">
           <CardHeader>
             <div className="flex items-center gap-2">
@@ -227,7 +311,6 @@ const AnimalDetails = () => {
           </CardContent>
         </Card>
         
-        {/* Owner Card */}
         <Card className="glass-card">
           <CardHeader>
             <CardTitle>Owner Information</CardTitle>
@@ -291,7 +374,6 @@ const AnimalDetails = () => {
         </Card>
       </div>
       
-      {/* Tabs for medical records, vaccinations, etc. */}
       <Tabs defaultValue="vaccinations" className="w-full">
         <TabsList className="grid grid-cols-3 w-full max-w-md">
           <TabsTrigger value="vaccinations">Vaccinations</TabsTrigger>

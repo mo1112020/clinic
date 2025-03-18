@@ -19,6 +19,7 @@ function App() {
     <Routes>
       <Route path="/" element={<AppLayout><Dashboard /></AppLayout>} />
       <Route path="/animals/new" element={<AppLayout><AnimalForm /></AppLayout>} />
+      <Route path="/animals/:id/edit" element={<AppLayout><AnimalForm /></AppLayout>} />
       <Route path="/animals/search" element={<AppLayout><AnimalSearch /></AppLayout>} />
       <Route path="/animals/:id" element={<AppLayout><AnimalDetails /></AppLayout>} />
       <Route path="/animals/dogs" element={<AppLayout><DogsList /></AppLayout>} />
