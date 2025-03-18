@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { Animal, AnimalType } from '@/types/database.types';
 import { useToast } from '@/hooks/use-toast';
 
@@ -18,15 +18,15 @@ export function useAnimals(type?: AnimalType, searchQuery?: string) {
       try {
         let query = supabase.from('animals').select(`
           *,
-          owners(id, name, phone, email, id_number)
+          owners(id, full_name, phone_number, id_number)
         `);
 
         if (type) {
-          query = query.eq('type', type);
+          query = query.eq('animal_type', type);
         }
 
         if (searchQuery) {
-          query = query.or(`name.ilike.%${searchQuery}%,breed.ilike.%${searchQuery}%,chipNo.ilike.%${searchQuery}%,owners.name.ilike.%${searchQuery}%`);
+          query = query.or(`name.ilike.%${searchQuery}%,breed.ilike.%${searchQuery}%,chip_number.ilike.%${searchQuery}%,owners.full_name.ilike.%${searchQuery}%`);
         }
 
         const { data, error } = await query;

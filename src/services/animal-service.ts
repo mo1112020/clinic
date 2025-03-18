@@ -1,5 +1,5 @@
 
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { Animal, AnimalType } from '@/types/database.types';
 
 export interface AnimalFormData {
@@ -19,9 +19,9 @@ export async function createAnimal(data: AnimalFormData) {
     .from('owners')
     .upsert(
       {
-        name: data.ownerName,
+        full_name: data.ownerName,
         id_number: data.ownerId,
-        phone: data.ownerPhone
+        phone_number: data.ownerPhone
       },
       { onConflict: 'id_number' }
     )
@@ -37,10 +37,10 @@ export async function createAnimal(data: AnimalFormData) {
     .from('animals')
     .insert({
       name: data.name,
-      type: data.animalType,
-      breed: data.breed,
-      chipNo: data.chipNumber || null,
-      healthNotes: data.healthNotes || null,
+      animal_type: data.animalType,
+      breed: data.breed || null,
+      chip_number: data.chipNumber || null,
+      prone_diseases: data.healthNotes ? [data.healthNotes] : null,
       owner_id: ownerData.id,
       created_at: new Date().toISOString(),
     })
@@ -60,9 +60,9 @@ export async function updateAnimal(id: string, data: AnimalFormData) {
     .from('owners')
     .upsert(
       {
-        name: data.ownerName,
+        full_name: data.ownerName,
         id_number: data.ownerId,
-        phone: data.ownerPhone
+        phone_number: data.ownerPhone
       },
       { onConflict: 'id_number' }
     )
@@ -78,10 +78,10 @@ export async function updateAnimal(id: string, data: AnimalFormData) {
     .from('animals')
     .update({
       name: data.name,
-      type: data.animalType,
-      breed: data.breed,
-      chipNo: data.chipNumber || null,
-      healthNotes: data.healthNotes || null,
+      animal_type: data.animalType,
+      breed: data.breed || null,
+      chip_number: data.chipNumber || null,
+      prone_diseases: data.healthNotes ? [data.healthNotes] : null,
       owner_id: ownerData.id,
     })
     .eq('id', id)

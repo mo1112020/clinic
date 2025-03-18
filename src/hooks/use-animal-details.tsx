@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { Animal, Vaccination, MedicalRecord, Document } from '@/types/database.types';
 import { useToast } from '@/hooks/use-toast';
 
