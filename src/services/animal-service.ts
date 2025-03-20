@@ -26,18 +26,22 @@ export async function createAnimal(data: AnimalFormData) {
           id_number: data.ownerId,
           phone_number: data.ownerPhone
         },
-        { onConflict: 'id_number', returning: 'minimal' }
+        { onConflict: 'id_number' }
       )
-      .select()
-      .single();
+      .select();
 
     if (ownerError) {
       console.error('Error creating owner:', ownerError);
       throw new Error(`Error creating owner: ${ownerError.message}`);
     }
 
-    if (!ownerData || !ownerData.id) {
-      console.error('No owner data returned:', ownerData);
+    let ownerId: string;
+    
+    if (ownerData && ownerData.length > 0 && ownerData[0].id) {
+      ownerId = ownerData[0].id;
+      console.log('Owner created or updated:', ownerData[0]);
+    } else {
+      console.error('No owner data returned or empty array:', ownerData);
       
       // Attempt to fetch the owner by id_number since upsert might have succeeded
       // but not returned data due to RLS issues
@@ -53,10 +57,8 @@ export async function createAnimal(data: AnimalFormData) {
       }
       
       console.log('Found owner after upsert:', fetchedOwner);
-      ownerData.id = fetchedOwner.id;
+      ownerId = fetchedOwner.id;
     }
-
-    console.log('Owner created or updated:', ownerData);
 
     // Parse health notes to array if provided
     const proneDiseasesArray = data.healthNotes ? [data.healthNotes] : null;
@@ -70,7 +72,7 @@ export async function createAnimal(data: AnimalFormData) {
         breed: data.breed || null,
         chip_number: data.chipNumber || null,
         prone_diseases: proneDiseasesArray,
-        owner_id: ownerData.id,
+        owner_id: ownerId,
         created_at: new Date().toISOString(),
       })
       .select()
@@ -102,15 +104,19 @@ export async function updateAnimal(id: string, data: AnimalFormData) {
         },
         { onConflict: 'id_number' }
       )
-      .select()
-      .single();
+      .select();
 
     if (ownerError) {
       console.error('Error updating owner:', ownerError);
       throw new Error(`Error updating owner: ${ownerError.message}`);
     }
 
-    if (!ownerData || !ownerData.id) {
+    let ownerId: string;
+    
+    if (ownerData && ownerData.length > 0 && ownerData[0].id) {
+      ownerId = ownerData[0].id;
+      console.log('Owner updated:', ownerData[0]);
+    } else {
       // Attempt to fetch the owner by id_number
       const { data: fetchedOwner, error: fetchError } = await supabase
         .from('owners')
@@ -124,7 +130,7 @@ export async function updateAnimal(id: string, data: AnimalFormData) {
       }
       
       console.log('Found owner after upsert:', fetchedOwner);
-      ownerData.id = fetchedOwner.id;
+      ownerId = fetchedOwner.id;
     }
 
     // Parse health notes to array if provided
@@ -139,7 +145,7 @@ export async function updateAnimal(id: string, data: AnimalFormData) {
         breed: data.breed || null,
         chip_number: data.chipNumber || null,
         prone_diseases: proneDiseasesArray,
-        owner_id: ownerData.id,
+        owner_id: ownerId,
       })
       .eq('id', id)
       .select()
