@@ -29,14 +29,14 @@ export function useAnimalForm(animalId?: string) {
           const animal = await getAnimalById(animalId!);
           
           form.reset({
-            animalType: animal.type as AnimalType,
+            animalType: animal.animal_type as AnimalType,
             name: animal.name,
-            breed: animal.breed,
-            chipNumber: animal.chipNo || '',
-            ownerName: animal.owner.name,
+            breed: animal.breed || '',
+            chipNumber: animal.chip_number || '',
+            ownerName: animal.owner.full_name,
             ownerId: animal.owner.id_number,
-            ownerPhone: animal.owner.phone,
-            healthNotes: animal.healthNotes || '',
+            ownerPhone: animal.owner.phone_number,
+            healthNotes: animal.prone_diseases ? animal.prone_diseases.join(', ') : '',
           });
         } catch (error) {
           console.error('Error fetching animal:', error);

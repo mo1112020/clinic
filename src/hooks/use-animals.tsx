@@ -33,7 +33,26 @@ export function useAnimals(type?: AnimalType, searchQuery?: string) {
 
         if (error) throw error;
 
-        setAnimals(data as unknown as Animal[]);
+        // Map database animals to application Animal type
+        const mappedAnimals: Animal[] = data.map(animal => ({
+          id: animal.id,
+          name: animal.name,
+          type: animal.animal_type,
+          breed: animal.breed || '',
+          chipNo: animal.chip_number || '',
+          healthNotes: animal.prone_diseases ? animal.prone_diseases.join(', ') : '',
+          owner_id: animal.owner_id,
+          created_at: animal.created_at,
+          owner: {
+            id: animal.owners.id,
+            name: animal.owners.full_name,
+            phone: animal.owners.phone_number,
+            id_number: animal.owners.id_number
+          },
+          owners: animal.owners
+        }));
+
+        setAnimals(mappedAnimals);
       } catch (err) {
         console.error('Error fetching animals:', err);
         setError('Failed to load animals');

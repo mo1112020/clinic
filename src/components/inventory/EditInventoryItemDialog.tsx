@@ -6,7 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { InventoryItem } from '@/types/database.types';
 
@@ -38,7 +38,7 @@ export function EditInventoryItemDialog({ open, onOpenChange, item }: EditInvent
   if (!editedItem) return null;
 
   const handleUpdateItem = async () => {
-    if (!editedItem.name || !editedItem.category) {
+    if (!editedItem.name) {
       toast({
         title: 'Missing information',
         description: 'Please fill in all required fields.',
@@ -53,11 +53,9 @@ export function EditInventoryItemDialog({ open, onOpenChange, item }: EditInvent
       const { error } = await supabase
         .from('inventory')
         .update({
-          name: editedItem.name,
-          category: editedItem.category,
-          stock: editedItem.stock,
-          price: editedItem.price,
-          reorder_level: editedItem.reorder_level
+          product_name: editedItem.name,
+          quantity: editedItem.stock,
+          price: editedItem.price
         })
         .eq('id', editedItem.id);
       
@@ -108,7 +106,7 @@ export function EditInventoryItemDialog({ open, onOpenChange, item }: EditInvent
             <Label>Category</Label>
             <Select
               value={editedItem.category}
-              onValueChange={(value: 'vaccine' | 'medication' | 'supplies' | 'food') => setEditedItem({...editedItem, category: value})}
+              onValueChange={(value: any) => setEditedItem({...editedItem, category: value})}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select category" />
@@ -128,7 +126,7 @@ export function EditInventoryItemDialog({ open, onOpenChange, item }: EditInvent
                 id="stock" 
                 type="number" 
                 placeholder="0" 
-                value={editedItem.stock.toString()}
+                value={editedItem.stock?.toString() || '0'}
                 onChange={(e) => setEditedItem({...editedItem, stock: parseInt(e.target.value) || 0})}
               />
             </div>
@@ -139,7 +137,7 @@ export function EditInventoryItemDialog({ open, onOpenChange, item }: EditInvent
                 type="number" 
                 step="0.01" 
                 placeholder="0.00" 
-                value={editedItem.price.toString()}
+                value={editedItem.price?.toString() || '0'}
                 onChange={(e) => setEditedItem({...editedItem, price: parseFloat(e.target.value) || 0})}
               />
             </div>
@@ -150,7 +148,7 @@ export function EditInventoryItemDialog({ open, onOpenChange, item }: EditInvent
               id="reorder-level" 
               type="number" 
               placeholder="Enter quantity"
-              value={editedItem.reorder_level.toString()}
+              value={editedItem.reorder_level?.toString() || '0'}
               onChange={(e) => setEditedItem({...editedItem, reorder_level: parseInt(e.target.value) || 0})}
             />
           </div>

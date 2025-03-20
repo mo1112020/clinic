@@ -11,7 +11,7 @@ export interface Animal {
   healthNotes?: string;
   owner_id: string;
   owner?: Owner;
-  owners?: Owner; // For compatibility with existing code
+  owners?: any; // For compatibility with Supabase data structure
   created_at: string;
   last_visit?: string;
   next_appointment?: string;

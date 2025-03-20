@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { Vaccination } from '@/types/database.types';
 import { useToast } from '@/hooks/use-toast';
 import { format, isPast, isToday } from 'date-fns';
@@ -26,10 +26,10 @@ export function useVaccinations(filter: 'today' | 'upcoming' | 'overdue' | 'all'
             animals (
               id,
               name,
-              type,
+              animal_type,
               owners (
-                name,
-                phone
+                full_name,
+                phone_number
               )
             )
           `);
@@ -38,11 +38,11 @@ export function useVaccinations(filter: 'today' | 'upcoming' | 'overdue' | 'all'
         const today = format(new Date(), 'yyyy-MM-dd');
         
         if (filter === 'today') {
-          query = query.eq('date', today);
+          query = query.eq('scheduled_date', today);
         } else if (filter === 'upcoming') {
-          query = query.gt('date', today).lt('date', format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'));
+          query = query.gt('scheduled_date', today).lt('scheduled_date', format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'));
         } else if (filter === 'overdue') {
-          query = query.lt('date', today);
+          query = query.lt('scheduled_date', today);
         }
 
         const { data, error } = await query;
@@ -53,13 +53,13 @@ export function useVaccinations(filter: 'today' | 'upcoming' | 'overdue' | 'all'
         const formattedData = data.map(item => ({
           id: item.id,
           animalName: item.animals.name,
-          animalType: item.animals.type,
-          ownerName: item.animals.owners.name,
-          ownerPhone: item.animals.owners.phone,
-          vaccineName: item.name,
-          date: item.date,
-          nextDue: item.next_due,
-          status: getReminderStatus(item.date)
+          animalType: item.animals.animal_type,
+          ownerName: item.animals.owners.full_name,
+          ownerPhone: item.animals.owners.phone_number,
+          vaccineName: item.vaccine_name,
+          date: item.scheduled_date,
+          nextDue: item.scheduled_date, // Using the same date for demo
+          status: getReminderStatus(item.scheduled_date)
         }));
 
         setVaccinations(formattedData);

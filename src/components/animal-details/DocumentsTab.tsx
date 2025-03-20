@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { Document } from '@/types/database.types';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface DocumentsTabProps {
@@ -52,14 +52,13 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ documents, animalId }) => {
       if (storageError) throw storageError;
       
       const { error: dbError } = await supabase
-        .from('documents')
+        .from('medical_files')
         .insert({
           animal_id: animalId,
-          name: documentName,
-          date: new Date().toISOString(),
-          type: file.type.split('/')[1].toUpperCase(),
-          size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-          url: storageData.path
+          file_name: documentName,
+          uploaded_at: new Date().toISOString(),
+          file_type: file.type.split('/')[1].toUpperCase(),
+          file_url: storageData.path
         });
         
       if (dbError) throw dbError;

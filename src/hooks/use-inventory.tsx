@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { InventoryItem } from '@/types/database.types';
 import { useToast } from '@/hooks/use-toast';
 
@@ -30,33 +30,50 @@ export function useInventory(
         let query = supabase.from('inventory').select('*');
 
         if (searchQuery) {
-          query = query.ilike('name', `%${searchQuery}%`);
+          query = query.ilike('product_name', `%${searchQuery}%`);
         }
 
-        if (categoryFilter && categoryFilter.length > 0) {
-          query = query.in('category', categoryFilter);
-        }
+        // Note: We're skipping categoryFilter since it's not in the database schema
 
         if (stockFilter === 'low') {
-          query = query.lt('stock', 'reorder_level');
+          query = query.lt('quantity', 10); // Using a fixed value instead of reorder_level
         } else if (stockFilter === 'out') {
-          query = query.eq('stock', 0);
+          query = query.eq('quantity', 0);
         }
 
         if (sortBy && sortDirection) {
-          query = query.order(sortBy, { ascending: sortDirection === 'asc' });
+          // Map frontend sort field names to database column names
+          const sortFieldMap: Record<string, string> = {
+            'name': 'product_name',
+            'stock': 'quantity',
+            'price': 'price'
+          };
+          
+          const dbSortField = sortFieldMap[sortBy] || sortBy;
+          query = query.order(dbSortField, { ascending: sortDirection === 'asc' });
         }
 
         const { data, error } = await query;
 
         if (error) throw error;
 
-        setInventoryItems(data as InventoryItem[]);
+        // Map database inventory to application InventoryItem type
+        const mappedItems: InventoryItem[] = data.map(item => ({
+          id: item.id,
+          name: item.product_name,
+          category: 'supplies', // Default category as it's not in the database
+          stock: item.quantity,
+          price: item.price,
+          sold: 0, // Default value
+          reorder_level: 5 // Default value
+        }));
+
+        setInventoryItems(mappedItems);
 
         // Calculate stats
-        const totalItems = data.reduce((sum, item) => sum + item.stock, 0);
-        const lowStockItems = data.filter(item => item.stock < item.reorder_level).length;
-        const totalValue = data.reduce((sum, item) => sum + (item.stock * item.price), 0);
+        const totalItems = mappedItems.reduce((sum, item) => sum + item.stock, 0);
+        const lowStockItems = mappedItems.filter(item => item.stock < item.reorder_level).length;
+        const totalValue = mappedItems.reduce((sum, item) => sum + (item.stock * item.price), 0);
 
         setStats({
           totalItems,

@@ -32,8 +32,26 @@ export function useAnimalDetails(animalId: string) {
 
         if (animalError) throw animalError;
 
-        setAnimal(animalData as unknown as Animal);
-        setOwner(animalData.owners);
+        // Map database animal to application Animal type
+        const mappedAnimal: Animal = {
+          id: animalData.id,
+          name: animalData.name,
+          type: animalData.animal_type,
+          breed: animalData.breed || '',
+          chipNo: animalData.chip_number || '',
+          healthNotes: animalData.prone_diseases ? animalData.prone_diseases.join(', ') : '',
+          owner_id: animalData.owner_id,
+          created_at: animalData.created_at,
+          owners: animalData.owners,
+        };
+        
+        setAnimal(mappedAnimal);
+        setOwner({
+          id: animalData.owners.id,
+          name: animalData.owners.full_name,
+          phone: animalData.owners.phone_number,
+          id_number: animalData.owners.id_number
+        });
 
         // Fetch vaccinations
         const { data: vaccinationData, error: vaccinationError } = await supabase
@@ -42,26 +60,51 @@ export function useAnimalDetails(animalId: string) {
           .eq('animal_id', animalId);
 
         if (vaccinationError) throw vaccinationError;
-        setVaccinations(vaccinationData as Vaccination[]);
+        
+        // Map database vaccinations to application Vaccination type
+        const mappedVaccinations: Vaccination[] = vaccinationData.map(vax => ({
+          id: vax.id,
+          animal_id: vax.animal_id,
+          name: vax.vaccine_name,
+          date: vax.scheduled_date,
+          next_due: vax.scheduled_date, // Using the same date for demo
+          status: vax.completed ? 'completed' : 'upcoming'
+        }));
+        
+        setVaccinations(mappedVaccinations);
 
-        // Fetch medical history
-        const { data: medicalData, error: medicalError } = await supabase
-          .from('medical_records')
-          .select('*')
-          .eq('animal_id', animalId)
-          .order('date', { ascending: false });
+        // For medical history, using the vaccinations for demonstration
+        // In a real app, we would fetch from a medical_records table
+        const mappedMedicalHistory: MedicalRecord[] = vaccinationData.map(vax => ({
+          id: vax.id,
+          animal_id: vax.animal_id,
+          date: vax.scheduled_date,
+          description: `Vaccination: ${vax.vaccine_name}`,
+          notes: vax.completed ? 'Completed' : 'Scheduled'
+        }));
+        
+        setMedicalHistory(mappedMedicalHistory);
 
-        if (medicalError) throw medicalError;
-        setMedicalHistory(medicalData as MedicalRecord[]);
-
-        // Fetch documents
+        // Fetch documents (using medical_files table)
         const { data: documentData, error: documentError } = await supabase
-          .from('documents')
+          .from('medical_files')
           .select('*')
           .eq('animal_id', animalId);
 
         if (documentError) throw documentError;
-        setDocuments(documentData as Document[]);
+        
+        // Map database medical_files to application Document type
+        const mappedDocuments: Document[] = documentData.map(doc => ({
+          id: doc.id,
+          animal_id: doc.animal_id,
+          name: doc.file_name,
+          date: doc.uploaded_at,
+          type: doc.file_type,
+          size: '1.2 MB', // Placeholder since we don't store size
+          url: doc.file_url
+        }));
+        
+        setDocuments(mappedDocuments);
 
       } catch (err) {
         console.error('Error fetching animal details:', err);
