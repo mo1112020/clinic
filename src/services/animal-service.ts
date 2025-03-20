@@ -26,7 +26,7 @@ export async function createAnimal(data: AnimalFormData) {
           id_number: data.ownerId,
           phone_number: data.ownerPhone
         },
-        { onConflict: 'id_number' }
+        { onConflict: 'id_number', returning: 'minimal' }
       )
       .select()
       .single();
@@ -34,6 +34,26 @@ export async function createAnimal(data: AnimalFormData) {
     if (ownerError) {
       console.error('Error creating owner:', ownerError);
       throw new Error(`Error creating owner: ${ownerError.message}`);
+    }
+
+    if (!ownerData || !ownerData.id) {
+      console.error('No owner data returned:', ownerData);
+      
+      // Attempt to fetch the owner by id_number since upsert might have succeeded
+      // but not returned data due to RLS issues
+      const { data: fetchedOwner, error: fetchError } = await supabase
+        .from('owners')
+        .select('id')
+        .eq('id_number', data.ownerId)
+        .single();
+        
+      if (fetchError || !fetchedOwner) {
+        console.error('Failed to fetch owner after upsert:', fetchError);
+        throw new Error('Failed to create or find owner');
+      }
+      
+      console.log('Found owner after upsert:', fetchedOwner);
+      ownerData.id = fetchedOwner.id;
     }
 
     console.log('Owner created or updated:', ownerData);
@@ -61,7 +81,7 @@ export async function createAnimal(data: AnimalFormData) {
       throw new Error(`Error creating animal: ${animalError.message}`);
     }
 
-    console.log('Animal created:', animalData);
+    console.log('Animal created successfully:', animalData);
     return animalData;
   } catch (error) {
     console.error('Animal creation failed:', error);
@@ -86,7 +106,25 @@ export async function updateAnimal(id: string, data: AnimalFormData) {
       .single();
 
     if (ownerError) {
+      console.error('Error updating owner:', ownerError);
       throw new Error(`Error updating owner: ${ownerError.message}`);
+    }
+
+    if (!ownerData || !ownerData.id) {
+      // Attempt to fetch the owner by id_number
+      const { data: fetchedOwner, error: fetchError } = await supabase
+        .from('owners')
+        .select('id')
+        .eq('id_number', data.ownerId)
+        .single();
+        
+      if (fetchError || !fetchedOwner) {
+        console.error('Failed to fetch owner after upsert:', fetchError);
+        throw new Error('Failed to create or find owner');
+      }
+      
+      console.log('Found owner after upsert:', fetchedOwner);
+      ownerData.id = fetchedOwner.id;
     }
 
     // Parse health notes to array if provided
@@ -108,9 +146,11 @@ export async function updateAnimal(id: string, data: AnimalFormData) {
       .single();
 
     if (animalError) {
+      console.error('Error updating animal:', animalError);
       throw new Error(`Error updating animal: ${animalError.message}`);
     }
 
+    console.log('Animal updated successfully:', animalData);
     return animalData;
   } catch (error) {
     console.error('Animal update failed:', error);

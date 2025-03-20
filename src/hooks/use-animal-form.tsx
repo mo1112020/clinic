@@ -55,10 +55,11 @@ export function useAnimalForm(animalId?: string) {
   }, [animalId, isNewAnimal, form, toast]);
   
   const onSubmit = async (data: AnimalFormValues) => {
+    console.log('Submitting form with data:', data);
     setIsSubmitting(true);
     try {
       if (isNewAnimal) {
-        await createAnimal({
+        const result = await createAnimal({
           animalType: data.animalType,
           name: data.name,
           breed: data.breed,
@@ -68,12 +69,15 @@ export function useAnimalForm(animalId?: string) {
           ownerPhone: data.ownerPhone,
           healthNotes: data.healthNotes,
         });
+        
+        console.log('Create animal result:', result);
+        
         toast({
           title: 'Animal created successfully',
           description: `${data.name} has been added to the system.`,
         });
       } else {
-        await updateAnimal(animalId!, {
+        const result = await updateAnimal(animalId!, {
           animalType: data.animalType,
           name: data.name,
           breed: data.breed,
@@ -83,6 +87,9 @@ export function useAnimalForm(animalId?: string) {
           ownerPhone: data.ownerPhone,
           healthNotes: data.healthNotes,
         });
+        
+        console.log('Update animal result:', result);
+        
         toast({
           title: 'Animal updated successfully',
           description: `${data.name} has been updated in the system.`,
