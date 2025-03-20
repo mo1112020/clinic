@@ -1,33 +1,52 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Cat, Calendar, File, Clipboard, Phone } from 'lucide-react';
+import { Search, Cat, Calendar, File, Clipboard, Phone, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-
-// Mock data for cats
-const mockCats = [
-  { id: '2', name: 'Luna', type: 'cat', breed: 'Persian', chipNo: 'B67890', owner: 'Emma Watson', ownerPhone: '098-765-4321', lastVisit: '2023-11-03' },
-  { id: '6', name: 'Lucy', type: 'cat', breed: 'Siamese', chipNo: 'F45678', owner: 'Olivia Moore', ownerPhone: '444-555-6666', lastVisit: '2023-10-18' },
-  { id: '8', name: 'Milo', type: 'cat', breed: 'Maine Coon', chipNo: 'H12345', owner: 'Emily Davis', ownerPhone: '666-777-8888', lastVisit: '2023-11-05' },
-  { id: '10', name: 'Oliver', type: 'cat', breed: 'Ragdoll', chipNo: 'J34567', owner: 'Sophia Miller', ownerPhone: '111-333-5555', lastVisit: '2023-10-25' },
-  { id: '12', name: 'Bella', type: 'cat', breed: 'Scottish Fold', chipNo: 'L56789', owner: 'Linda Johnson', ownerPhone: '222-444-6666', lastVisit: '2023-11-12' },
-];
+import { getCats, CatListItem } from '@/services/animals/get-cats';
+import { useToast } from '@/hooks/use-toast';
 
 const CatsList = () => {
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredCats, setFilteredCats] = useState(mockCats);
+  const [cats, setCats] = useState<CatListItem[]>([]);
+  const [filteredCats, setFilteredCats] = useState<CatListItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Fetch cats from the database
+  const fetchCats = async () => {
+    setIsLoading(true);
+    try {
+      const fetchedCats = await getCats();
+      setCats(fetchedCats);
+      setFilteredCats(fetchedCats);
+    } catch (error) {
+      console.error('Error fetching cats:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load cats from the database',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  useEffect(() => {
+    fetchCats();
+  }, []);
   
   const handleSearch = () => {
     if (!searchQuery.trim()) {
-      setFilteredCats(mockCats);
+      setFilteredCats(cats);
       return;
     }
     
-    const filtered = mockCats.filter(cat => 
+    const filtered = cats.filter(cat => 
       cat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       cat.owner.toLowerCase().includes(searchQuery.toLowerCase()) ||
       cat.chipNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -71,6 +90,15 @@ const CatsList = () => {
               <Search className="h-4 w-4 mr-2" />
               Search
             </Button>
+            <Button 
+              variant="outline" 
+              onClick={fetchCats} 
+              disabled={isLoading} 
+              className="ml-auto"
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+              {isLoading ? 'Loading...' : 'Refresh'}
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -85,9 +113,19 @@ const CatsList = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {filteredCats.length === 0 ? (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <RefreshCw className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-3 text-lg">Loading cats...</span>
+            </div>
+          ) : filteredCats.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No cats found. Try a different search.</p>
+              <p className="text-muted-foreground">No cats found. Try a different search or create a new cat.</p>
+              <Link to="/animals/new">
+                <Button className="mt-4">
+                  Create New Cat
+                </Button>
+              </Link>
             </div>
           ) : (
             <div className="rounded-md border">
@@ -122,7 +160,7 @@ const CatsList = () => {
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <Clipboard className="h-4 w-4 text-muted-foreground" />
-                              <span>{cat.chipNo}</span>
+                              <span>{cat.chipNo || 'N/A'}</span>
                             </div>
                           </TableCell>
                           <TableCell>{cat.owner}</TableCell>
@@ -135,7 +173,7 @@ const CatsList = () => {
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <Calendar className="h-4 w-4 text-muted-foreground" />
-                              <span>{cat.lastVisit}</span>
+                              <span>{cat.lastVisit || 'No visits'}</span>
                             </div>
                           </TableCell>
                           <TableCell>

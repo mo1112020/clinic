@@ -60,7 +60,21 @@ export async function createAnimal(data: AnimalFormData): Promise<Animal> {
     }
 
     console.log('Animal created successfully:', animalData);
-    return animalData;
+    
+    // Transform the result to match the Animal type expected by the application
+    const animal: Animal = {
+      id: animalData.id,
+      name: animalData.name,
+      type: animalData.animal_type as AnimalType,
+      breed: animalData.breed || '',
+      chipNo: animalData.chip_number || undefined,
+      healthNotes: animalData.prone_diseases ? animalData.prone_diseases.join(', ') : undefined,
+      owner_id: animalData.owner_id,
+      created_at: animalData.created_at,
+      // Add any other required fields with default values if needed
+    };
+    
+    return animal;
   } catch (error) {
     console.error('Animal creation failed:', error);
     throw error;

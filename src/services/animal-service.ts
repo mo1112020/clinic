@@ -4,6 +4,8 @@ export {
   createAnimal, 
   updateAnimal, 
   deleteAnimal, 
-  getAnimalById,
-  AnimalFormData 
+  getAnimalById
 } from './animals';
+
+// Use explicit type export to fix the TS1205 error
+export type { AnimalFormData } from './animals';
