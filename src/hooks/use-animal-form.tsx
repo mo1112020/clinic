@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { getAnimalById, createAnimal, updateAnimal } from '@/services/animal-service';
+import { getAnimalById, createAnimal, updateAnimal } from '@/services/animals';
 import { animalFormSchema, AnimalFormValues, defaultAnimalFormValues } from '@/schemas/animal-form-schema';
 import { AnimalType } from '@/types/database.types';
 
@@ -20,7 +19,6 @@ export function useAnimalForm(animalId?: string) {
     defaultValues: defaultAnimalFormValues,
   });
   
-  // Fetch animal data if editing
   useEffect(() => {
     if (!isNewAnimal) {
       const fetchAnimal = async () => {
@@ -96,7 +94,6 @@ export function useAnimalForm(animalId?: string) {
         });
       }
       
-      // Navigate to the appropriate page
       navigate('/animals/search');
     } catch (error) {
       console.error('Error saving animal:', error);

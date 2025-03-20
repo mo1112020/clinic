@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAnimalDetails } from '@/hooks/use-animal-details';
-import { deleteAnimal } from '@/services/animal-service';
+import { deleteAnimal } from '@/services/animals';
 import { useToast } from '@/hooks/use-toast';
 
 // Import our new components
