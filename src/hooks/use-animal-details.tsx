@@ -43,6 +43,12 @@ export function useAnimalDetails(animalId: string) {
           owner_id: animalData.owner_id,
           created_at: animalData.created_at,
           owners: animalData.owners,
+          owner: {
+            id: animalData.owners.id,
+            name: animalData.owners.full_name,
+            phone: animalData.owners.phone_number,
+            id_number: animalData.owners.id_number
+          }
         };
         
         setAnimal(mappedAnimal);
