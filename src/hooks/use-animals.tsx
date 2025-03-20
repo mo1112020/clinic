@@ -37,7 +37,7 @@ export function useAnimals(type?: AnimalType, searchQuery?: string) {
         const mappedAnimals: Animal[] = data.map(animal => ({
           id: animal.id,
           name: animal.name,
-          type: animal.animal_type,
+          type: animal.animal_type as AnimalType, // Explicitly cast to AnimalType
           breed: animal.breed || '',
           chipNo: animal.chip_number || '',
           healthNotes: animal.prone_diseases ? animal.prone_diseases.join(', ') : '',

@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Animal, Vaccination, MedicalRecord, Document } from '@/types/database.types';
+import { Animal, Vaccination, MedicalRecord, Document, AnimalType } from '@/types/database.types';
 import { useToast } from '@/hooks/use-toast';
 
 export function useAnimalDetails(animalId: string) {
@@ -36,7 +36,7 @@ export function useAnimalDetails(animalId: string) {
         const mappedAnimal: Animal = {
           id: animalData.id,
           name: animalData.name,
-          type: animalData.animal_type,
+          type: animalData.animal_type as AnimalType, // Explicitly cast to AnimalType
           breed: animalData.breed || '',
           chipNo: animalData.chip_number || '',
           healthNotes: animalData.prone_diseases ? animalData.prone_diseases.join(', ') : '',
