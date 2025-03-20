@@ -63,6 +63,19 @@ export async function createAnimal(data: AnimalFormData) {
     // Parse health notes to array if provided
     const proneDiseasesArray = data.healthNotes ? [data.healthNotes] : null;
     
+    // Check if an animal with this chip number already exists (if chip number provided)
+    if (data.chipNumber) {
+      const { data: existingAnimal } = await supabase
+        .from('animals')
+        .select('id')
+        .eq('chip_number', data.chipNumber)
+        .maybeSingle();
+        
+      if (existingAnimal) {
+        throw new Error(`An animal with chip number '${data.chipNumber}' already exists. Please use a different chip number.`);
+      }
+    }
+    
     // Then create the animal linked to the owner
     const { data: animalData, error: animalError } = await supabase
       .from('animals')
@@ -80,6 +93,14 @@ export async function createAnimal(data: AnimalFormData) {
 
     if (animalError) {
       console.error('Error creating animal:', animalError);
+      
+      // Provide a more helpful error message for constraint violations
+      if (animalError.message.includes('violates unique constraint')) {
+        if (animalError.message.includes('chip_number')) {
+          throw new Error(`An animal with chip number '${data.chipNumber}' already exists. Please use a different chip number.`);
+        }
+      }
+      
       throw new Error(`Error creating animal: ${animalError.message}`);
     }
 
@@ -93,6 +114,20 @@ export async function createAnimal(data: AnimalFormData) {
 
 export async function updateAnimal(id: string, data: AnimalFormData) {
   try {
+    // Check if we're updating to a chip number that already exists on another animal
+    if (data.chipNumber) {
+      const { data: existingAnimal } = await supabase
+        .from('animals')
+        .select('id')
+        .eq('chip_number', data.chipNumber)
+        .neq('id', id) // Exclude the current animal
+        .maybeSingle();
+        
+      if (existingAnimal) {
+        throw new Error(`An animal with chip number '${data.chipNumber}' already exists. Please use a different chip number.`);
+      }
+    }
+    
     // First, update the owner
     const { data: ownerData, error: ownerError } = await supabase
       .from('owners')
@@ -153,6 +188,14 @@ export async function updateAnimal(id: string, data: AnimalFormData) {
 
     if (animalError) {
       console.error('Error updating animal:', animalError);
+      
+      // Provide a more helpful error message for constraint violations
+      if (animalError.message.includes('violates unique constraint')) {
+        if (animalError.message.includes('chip_number')) {
+          throw new Error(`An animal with chip number '${data.chipNumber}' already exists. Please use a different chip number.`);
+        }
+      }
+      
       throw new Error(`Error updating animal: ${animalError.message}`);
     }
 
