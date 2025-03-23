@@ -6,8 +6,8 @@ import { Loader2, Plus } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { addInventoryItem } from '@/services/inventory/add-inventory-item';
 
 type NewInventoryItem = {
   name: string;
@@ -46,15 +46,11 @@ export function AddInventoryItemDialog({ open, onOpenChange }: AddInventoryItemD
     setIsSubmitting(true);
     
     try {
-      const { error } = await supabase
-        .from('inventory')
-        .insert({
-          product_name: newItem.name,
-          quantity: newItem.stock,
-          price: newItem.price
-        });
-      
-      if (error) throw error;
+      await addInventoryItem({
+        productName: newItem.name,
+        quantity: newItem.stock,
+        price: newItem.price
+      });
       
       toast({
         title: 'Item added',

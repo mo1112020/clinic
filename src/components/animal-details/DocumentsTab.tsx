@@ -2,20 +2,14 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { 
-  Upload, 
-  FileText, 
-  FileUp, 
-  Loader2 
-} from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { FileText, Download, Upload, File, FileText as FileTextIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { Document } from '@/types/database.types';
-import { supabase } from '@/integrations/supabase/client';
+import { useAnimalDetails } from '@/hooks/use-animal-details';
 import { useToast } from '@/hooks/use-toast';
+import { generateAnimalRecordPdf } from '@/services/documents/generate-pdf';
 
 interface DocumentsTabProps {
   documents: Document[];
@@ -23,66 +17,44 @@ interface DocumentsTabProps {
 }
 
 const DocumentsTab: React.FC<DocumentsTabProps> = ({ documents, animalId }) => {
-  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [documentName, setDocumentName] = useState('');
-  const [file, setFile] = useState<File | null>(null);
+  const { animal, owner, vaccinations, medicalHistory } = useAnimalDetails(animalId);
+  const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
   
-  const handleFileUpload = async () => {
-    if (!file || !documentName.trim()) {
-      toast({
-        title: 'Missing information',
-        description: 'Please provide both a document name and select a file.',
-        variant: 'destructive',
-      });
-      return;
-    }
+  const handleGeneratePdf = async () => {
+    if (!animal || !owner) return;
     
-    setUploading(true);
-    
+    setIsGenerating(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${animalId}/${Date.now()}.${fileExt}`;
-      
-      const { data: storageData, error: storageError } = await supabase.storage
-        .from('animal_documents')
-        .upload(fileName, file);
-        
-      if (storageError) throw storageError;
-      
-      const { error: dbError } = await supabase
-        .from('medical_files')
-        .insert({
-          animal_id: animalId,
-          file_name: documentName,
-          uploaded_at: new Date().toISOString(),
-          file_type: file.type.split('/')[1].toUpperCase(),
-          file_url: storageData.path
-        });
-        
-      if (dbError) throw dbError;
-      
-      toast({
-        title: 'Document uploaded',
-        description: 'The document has been successfully uploaded.',
+      const pdfDataUrl = await generateAnimalRecordPdf({
+        animal,
+        owner,
+        vaccinations,
+        medicalRecords: medicalHistory,
+        title: `Medical Record - ${animal.name}`
       });
       
-      setUploadDialogOpen(false);
-      setDocumentName('');
-      setFile(null);
+      // Create an anchor element and trigger download
+      const link = document.createElement('a');
+      link.href = pdfDataUrl;
+      link.download = `${animal.name.replace(/\s+/g, '_')}_medical_record.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       
-      window.location.reload();
-      
-    } catch (err) {
-      console.error('Error uploading document:', err);
       toast({
-        title: 'Upload failed',
-        description: 'There was an error uploading the document. Please try again.',
+        title: 'PDF Generated',
+        description: 'Medical record PDF has been generated and downloaded.',
+      });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to generate PDF. Please try again.',
         variant: 'destructive',
       });
     } finally {
-      setUploading(false);
+      setIsGenerating(false);
     }
   };
   
@@ -91,62 +63,18 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ documents, animalId }) => {
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle>Documents & Files</CardTitle>
-          <CardDescription>Upload and manage patient documents</CardDescription>
+          <CardDescription>Manage patient documents and files</CardDescription>
         </div>
-        <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="btn-primary">
-              <Upload className="mr-2 h-4 w-4" />
-              Upload Document
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Upload Document</DialogTitle>
-              <DialogDescription>
-                Upload a document to the patient's file. Accepted formats: PDF, JPG, PNG.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="filename">Document Name</Label>
-                <Input 
-                  id="filename" 
-                  placeholder="Enter document name"
-                  value={documentName}
-                  onChange={(e) => setDocumentName(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="file">Select File</Label>
-                <Input 
-                  id="file" 
-                  type="file" 
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      setFile(e.target.files[0]);
-                    }
-                  }}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setUploadDialogOpen(false)} disabled={uploading}>
-                Cancel
-              </Button>
-              <Button type="submit" onClick={handleFileUpload} disabled={uploading}>
-                {uploading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Uploading...
-                  </>
-                ) : (
-                  'Upload'
-                )}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleGeneratePdf} disabled={isGenerating}>
+            <FileTextIcon className="mr-2 h-4 w-4" />
+            {isGenerating ? 'Generating...' : 'Generate PDF'}
+          </Button>
+          <Button className="btn-primary">
+            <Upload className="mr-2 h-4 w-4" />
+            Upload Document
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         {documents.length === 0 ? (
@@ -155,28 +83,33 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ documents, animalId }) => {
           </div>
         ) : (
           <div className="space-y-4">
-            {documents.map((doc, index) => (
+            {documents.map((doc) => (
               <motion.div
                 key={doc.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/30 transition-colors"
+                transition={{ duration: 0.3 }}
+                className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg hover:bg-muted/30 transition-colors"
               >
-                <div className="flex items-center gap-3">
-                  <div className="bg-primary/10 p-2 rounded-full">
-                    <FileText className="h-5 w-5 text-primary" />
+                <div className="flex items-center gap-3 mb-3 md:mb-0">
+                  <div className="bg-muted p-2 rounded">
+                    <File className="h-6 w-6 text-primary" />
                   </div>
                   <div>
                     <p className="font-medium">{doc.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {doc.type} • {doc.size} • {format(new Date(doc.date), 'MMM d, yyyy')}
-                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="outline">{doc.type}</Badge>
+                      <span className="text-xs text-muted-foreground">
+                        Uploaded on {format(new Date(doc.date), 'MMMM d, yyyy')}
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <Button variant="ghost" size="icon">
-                  <FileUp className="h-4 w-4" />
-                </Button>
+                <div>
+                  <Button variant="ghost" size="icon">
+                    <Download className="h-4 w-4" />
+                  </Button>
+                </div>
               </motion.div>
             ))}
           </div>

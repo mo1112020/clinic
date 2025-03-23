@@ -1,18 +1,25 @@
 
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { Vaccination } from '@/types/database.types';
+import { ScheduleVaccinationDialog } from './ScheduleVaccinationDialog';
 
 interface VaccinationsTabProps {
   vaccinations: Vaccination[];
+  animalId: string;
+  animalName: string;
+  onVaccinationScheduled?: () => void;
 }
 
-const VaccinationsTab: React.FC<VaccinationsTabProps> = ({ vaccinations }) => {
+const VaccinationsTab: React.FC<VaccinationsTabProps> = ({ 
+  vaccinations, 
+  animalId, 
+  animalName,
+  onVaccinationScheduled 
+}) => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -20,10 +27,11 @@ const VaccinationsTab: React.FC<VaccinationsTabProps> = ({ vaccinations }) => {
           <CardTitle>Vaccination Records</CardTitle>
           <CardDescription>View and manage vaccination schedule</CardDescription>
         </div>
-        <Button className="btn-primary">
-          <Calendar className="mr-2 h-4 w-4" />
-          Schedule Vaccination
-        </Button>
+        <ScheduleVaccinationDialog 
+          animalId={animalId} 
+          animalName={animalName}
+          onVaccinationScheduled={onVaccinationScheduled}
+        />
       </CardHeader>
       <CardContent>
         {vaccinations.length === 0 ? (

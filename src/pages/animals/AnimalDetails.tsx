@@ -23,7 +23,7 @@ const AnimalDetails = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   
-  const { animal, owner, vaccinations, medicalHistory, documents, isLoading, error } = useAnimalDetails(id!);
+  const { animal, owner, vaccinations, medicalHistory, documents, isLoading, error, refetch } = useAnimalDetails(id!);
 
   const handleDeleteAnimal = async () => {
     if (!id) return;
@@ -49,6 +49,10 @@ const AnimalDetails = () => {
       setDeleting(false);
       setDeleteDialogOpen(false);
     }
+  };
+
+  const handleVaccinationScheduled = () => {
+    refetch();
   };
 
   if (isLoading) {
@@ -82,7 +86,12 @@ const AnimalDetails = () => {
         </TabsList>
         
         <TabsContent value="vaccinations" className="mt-6">
-          <VaccinationsTab vaccinations={vaccinations} />
+          <VaccinationsTab 
+            vaccinations={vaccinations} 
+            animalId={id!} 
+            animalName={animal.name}
+            onVaccinationScheduled={handleVaccinationScheduled}
+          />
         </TabsContent>
         
         <TabsContent value="medical" className="mt-6">

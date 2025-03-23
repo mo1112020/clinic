@@ -57,10 +57,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       )}
       
       {/* Main content */}
-      <div className={cn(
-        "flex-1 transition-all duration-300 ease-in-out",
-        sidebarOpen && !isMobile ? "ml-[280px]" : "ml-0"
-      )}>
+      <div className="flex-1 transition-all duration-300 ease-in-out">
         {/* Navbar */}
         <div className="sticky top-0 z-10 bg-background/70 backdrop-blur-md border-b border-border h-16 flex items-center px-4">
           <Button 

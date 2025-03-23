@@ -1,12 +1,24 @@
 
-import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Animal, Vaccination, MedicalRecord, Document, AnimalType } from '@/types/database.types';
+import { useState, useEffect } from 'react';
+import { Animal, Owner, Vaccination, MedicalRecord, Document } from '@/types/database.types';
 import { useToast } from '@/hooks/use-toast';
+import { getAnimalById } from '@/services/animals';
+import { supabase } from '@/integrations/supabase/client';
 
-export function useAnimalDetails(animalId: string) {
+interface UseAnimalDetailsResult {
+  animal: Animal | null;
+  owner: Owner | null;
+  vaccinations: Vaccination[];
+  medicalHistory: MedicalRecord[];
+  documents: Document[];
+  isLoading: boolean;
+  error: string | null;
+  refetch: () => void;
+}
+
+export function useAnimalDetails(animalId: string): UseAnimalDetailsResult {
   const [animal, setAnimal] = useState<Animal | null>(null);
-  const [owner, setOwner] = useState<any | null>(null);
+  const [owner, setOwner] = useState<Owner | null>(null);
   const [vaccinations, setVaccinations] = useState<Vaccination[]>([]);
   const [medicalHistory, setMedicalHistory] = useState<MedicalRecord[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -14,121 +26,97 @@ export function useAnimalDetails(animalId: string) {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    const fetchAnimalDetails = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        // Fetch animal with owner
-        const { data: animalData, error: animalError } = await supabase
-          .from('animals')
-          .select(`
-            *,
-            owners(*)
-          `)
-          .eq('id', animalId)
-          .single();
-
-        if (animalError) throw animalError;
-
-        // Map database animal to application Animal type
-        const mappedAnimal: Animal = {
-          id: animalData.id,
-          name: animalData.name,
-          type: animalData.animal_type as AnimalType, // Explicitly cast to AnimalType
-          breed: animalData.breed || '',
-          chipNo: animalData.chip_number || '',
-          healthNotes: animalData.prone_diseases ? animalData.prone_diseases.join(', ') : '',
-          owner_id: animalData.owner_id,
-          created_at: animalData.created_at,
-          owners: animalData.owners,
-          owner: {
-            id: animalData.owners.id,
-            name: animalData.owners.full_name,
-            phone: animalData.owners.phone_number,
-            id_number: animalData.owners.id_number
-          }
-        };
-        
-        setAnimal(mappedAnimal);
-        setOwner({
-          id: animalData.owners.id,
-          name: animalData.owners.full_name,
-          phone: animalData.owners.phone_number,
-          id_number: animalData.owners.id_number
-        });
-
-        // Fetch vaccinations
-        const { data: vaccinationData, error: vaccinationError } = await supabase
-          .from('vaccinations')
-          .select('*')
-          .eq('animal_id', animalId);
-
-        if (vaccinationError) throw vaccinationError;
-        
-        // Map database vaccinations to application Vaccination type
-        const mappedVaccinations: Vaccination[] = vaccinationData.map(vax => ({
-          id: vax.id,
-          animal_id: vax.animal_id,
-          name: vax.vaccine_name,
-          date: vax.scheduled_date,
-          next_due: vax.scheduled_date, // Using the same date for demo
-          status: vax.completed ? 'completed' : 'upcoming'
-        }));
-        
-        setVaccinations(mappedVaccinations);
-
-        // For medical history, using the vaccinations for demonstration
-        // In a real app, we would fetch from a medical_records table
-        const mappedMedicalHistory: MedicalRecord[] = vaccinationData.map(vax => ({
-          id: vax.id,
-          animal_id: vax.animal_id,
-          date: vax.scheduled_date,
-          description: `Vaccination: ${vax.vaccine_name}`,
-          notes: vax.completed ? 'Completed' : 'Scheduled'
-        }));
-        
-        setMedicalHistory(mappedMedicalHistory);
-
-        // Fetch documents (using medical_files table)
-        const { data: documentData, error: documentError } = await supabase
-          .from('medical_files')
-          .select('*')
-          .eq('animal_id', animalId);
-
-        if (documentError) throw documentError;
-        
-        // Map database medical_files to application Document type
-        const mappedDocuments: Document[] = documentData.map(doc => ({
-          id: doc.id,
-          animal_id: doc.animal_id,
-          name: doc.file_name,
-          date: doc.uploaded_at,
-          type: doc.file_type,
-          size: '1.2 MB', // Placeholder since we don't store size
-          url: doc.file_url
-        }));
-        
-        setDocuments(mappedDocuments);
-
-      } catch (err) {
-        console.error('Error fetching animal details:', err);
-        setError('Failed to load animal details');
-        toast({
-          title: 'Error',
-          description: 'Failed to load animal details. Please try again.',
-          variant: 'destructive',
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (animalId) {
-      fetchAnimalDetails();
+  const fetchAnimalData = async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Fetch animal and owner data
+      const animalData = await getAnimalById(animalId);
+      setAnimal({
+        id: animalData.id,
+        name: animalData.name,
+        type: animalData.animal_type,
+        breed: animalData.breed || '',
+        chipNo: animalData.chip_number,
+        healthNotes: animalData.prone_diseases ? animalData.prone_diseases.join(', ') : '',
+        owner_id: animalData.owner_id,
+        created_at: animalData.created_at
+      });
+      
+      setOwner({
+        id: animalData.owner.id,
+        name: animalData.owner.full_name,
+        phone: animalData.owner.phone_number,
+        email: '',
+        id_number: animalData.owner.id_number
+      });
+      
+      // Fetch vaccinations
+      const { data: vaccinationData, error: vaccinationError } = await supabase
+        .from('vaccinations')
+        .select('*')
+        .eq('animal_id', animalId);
+      
+      if (vaccinationError) throw vaccinationError;
+      
+      setVaccinations(vaccinationData.map(v => ({
+        id: v.id,
+        animal_id: v.animal_id,
+        name: v.vaccine_name,
+        date: v.scheduled_date,
+        next_due: v.scheduled_date, // Using same date for demo
+        status: v.completed ? 'completed' : 'upcoming',
+      })));
+      
+      // For demo, using sample medical history and documents
+      setMedicalHistory([
+        {
+          id: '1',
+          animal_id: animalId,
+          date: new Date().toISOString(),
+          description: 'Routine checkup',
+          notes: 'Patient is in good health. Weight: 10kg. No concerns.',
+        },
+      ]);
+      
+      setDocuments([
+        {
+          id: '1',
+          animal_id: animalId,
+          name: 'Initial Examination Report',
+          date: new Date().toISOString(),
+          type: 'PDF',
+          size: '120 KB',
+          url: '#'
+        },
+      ]);
+      
+    } catch (err) {
+      console.error('Error fetching animal details:', err);
+      setError('Failed to load animal details');
+      toast({
+        title: 'Error',
+        description: 'Failed to load animal details. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  useEffect(() => {
+    fetchAnimalData();
   }, [animalId, toast]);
 
-  return { animal, owner, vaccinations, medicalHistory, documents, isLoading, error };
+  return {
+    animal,
+    owner,
+    vaccinations,
+    medicalHistory,
+    documents,
+    isLoading,
+    error,
+    refetch: fetchAnimalData
+  };
 }
