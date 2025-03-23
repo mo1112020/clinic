@@ -1,12 +1,16 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Dog, Cat, Bird, ShoppingCart, Activity, Clock } from 'lucide-react';
+import { Calendar, Dog, Cat, Bird, ShoppingCart, Activity, Clock, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { useDashboardStats } from '@/hooks/use-dashboard-stats';
+import { format } from 'date-fns';
 
 const Dashboard = () => {
+  const { data: stats, isLoading, error } = useDashboardStats();
+  
   const cardVariants = {
     initial: { opacity: 0, y: 20 },
     animate: (index: number) => ({
@@ -19,11 +23,33 @@ const Dashboard = () => {
     }),
   };
 
+  // If data is loading, show a loading state
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-96">
+        <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+        <p className="text-muted-foreground">Loading dashboard data...</p>
+      </div>
+    );
+  }
+
+  // If there was an error, show an error state
+  if (error) {
+    return (
+      <div className="p-6 bg-destructive/10 rounded-lg text-center">
+        <h2 className="text-xl font-semibold mb-2">Error Loading Dashboard</h2>
+        <p className="text-muted-foreground">
+          {error instanceof Error ? error.message : 'Failed to load dashboard data'}
+        </p>
+      </div>
+    );
+  }
+
   const statCards = [
-    { title: "Total Patients", value: "247", icon: Activity, color: "bg-blue-500", link: "/animals/search" },
-    { title: "Dogs", value: "126", icon: Dog, color: "bg-amber-500", link: "/animals/dogs" },
-    { title: "Cats", value: "98", icon: Cat, color: "bg-green-500", link: "/animals/cats" },
-    { title: "Birds", value: "23", icon: Bird, color: "bg-purple-500", link: "/animals/birds" },
+    { title: "Total Patients", value: stats?.totalPatients.toString() || "0", icon: Activity, color: "bg-blue-500", link: "/animals/search" },
+    { title: "Dogs", value: stats?.dogs.toString() || "0", icon: Dog, color: "bg-amber-500", link: "/animals/dogs" },
+    { title: "Cats", value: stats?.cats.toString() || "0", icon: Cat, color: "bg-green-500", link: "/animals/cats" },
+    { title: "Birds", value: stats?.birds.toString() || "0", icon: Bird, color: "bg-purple-500", link: "/animals/birds" },
   ];
   
   const actionCards = [
@@ -106,37 +132,44 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {[
-                { name: "Max", owner: "John Smith", animal: "Dog", icon: Dog, date: "Today, 10:30 AM" },
-                { name: "Luna", owner: "Emma Watson", animal: "Cat", icon: Cat, date: "Today, 09:15 AM" },
-                { name: "Charlie", owner: "Michael Brown", animal: "Dog", icon: Dog, date: "Yesterday, 02:45 PM" },
-                { name: "Bella", owner: "Sophia Miller", animal: "Bird", icon: Bird, date: "Yesterday, 11:20 AM" },
-              ].map((patient, index) => (
-                <motion.div
-                  key={index}
-                  variants={cardVariants}
-                  initial="initial"
-                  animate="animate"
-                  custom={index + 8}
-                >
-                  <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className={cn(
-                        "p-2 rounded-full",
-                        patient.animal === "Dog" ? "bg-amber-500" : 
-                        patient.animal === "Cat" ? "bg-green-500" : "bg-purple-500"
-                      )}>
-                        <patient.icon className="h-4 w-4 text-white" />
+              {stats?.recentPatients.length ? (
+                stats.recentPatients.map((patient, index) => (
+                  <motion.div
+                    key={patient.id}
+                    variants={cardVariants}
+                    initial="initial"
+                    animate="animate"
+                    custom={index + 8}
+                  >
+                    <Link to={`/animals/${patient.id}`}>
+                      <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className={cn(
+                            "p-2 rounded-full",
+                            patient.animalType === "dog" ? "bg-amber-500" : 
+                            patient.animalType === "cat" ? "bg-green-500" : "bg-purple-500"
+                          )}>
+                            {patient.animalType === "dog" ? <Dog className="h-4 w-4 text-white" /> : 
+                             patient.animalType === "cat" ? <Cat className="h-4 w-4 text-white" /> : 
+                             <Bird className="h-4 w-4 text-white" />}
+                          </div>
+                          <div>
+                            <p className="font-medium">{patient.name}</p>
+                            <p className="text-sm text-muted-foreground">{patient.ownerName}</p>
+                          </div>
+                        </div>
+                        <span className="text-sm text-muted-foreground">
+                          {format(new Date(patient.createdAt), 'MMM d, yyyy')}
+                        </span>
                       </div>
-                      <div>
-                        <p className="font-medium">{patient.name}</p>
-                        <p className="text-sm text-muted-foreground">{patient.owner}</p>
-                      </div>
-                    </div>
-                    <span className="text-sm text-muted-foreground">{patient.date}</span>
-                  </div>
-                </motion.div>
-              ))}
+                    </Link>
+                  </motion.div>
+                ))
+              ) : (
+                <div className="text-center py-6 text-muted-foreground">
+                  <p>No recent patients found</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
