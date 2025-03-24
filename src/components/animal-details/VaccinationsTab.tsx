@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
-import { format } from 'date-fns';
+import { format, isPast, isToday } from 'date-fns';
 import { Vaccination } from '@/types/database.types';
 import { ScheduleVaccinationDialog } from './ScheduleVaccinationDialog';
 
@@ -20,6 +20,16 @@ const VaccinationsTab: React.FC<VaccinationsTabProps> = ({
   animalName,
   onVaccinationScheduled 
 }) => {
+  // Helper function to determine vaccination status
+  const getVaccinationStatus = (vaccination: Vaccination) => {
+    if (vaccination.status === 'completed') return 'completed';
+    
+    const date = new Date(vaccination.next_due);
+    if (isToday(date)) return 'today';
+    if (isPast(date)) return 'overdue';
+    return 'upcoming';
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">

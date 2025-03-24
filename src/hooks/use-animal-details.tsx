@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Animal, Owner, Vaccination, MedicalRecord, Document } from '@/types/database.types';
 import { useToast } from '@/hooks/use-toast';
@@ -53,21 +52,8 @@ export function useAnimalDetails(animalId: string): UseAnimalDetailsResult {
       });
       
       // Fetch vaccinations
-      const { data: vaccinationData, error: vaccinationError } = await supabase
-        .from('vaccinations')
-        .select('*')
-        .eq('animal_id', animalId);
-      
-      if (vaccinationError) throw vaccinationError;
-      
-      setVaccinations(vaccinationData.map(v => ({
-        id: v.id,
-        animal_id: v.animal_id,
-        name: v.vaccine_name,
-        date: v.scheduled_date,
-        next_due: v.scheduled_date, // Using same date for demo
-        status: v.completed ? 'completed' : 'upcoming',
-      })));
+      const vaccinationData = await fetchVaccinations(animalId);
+      setVaccinations(vaccinationData);
       
       // For demo, using sample medical history and documents
       setMedicalHistory([
@@ -102,6 +88,29 @@ export function useAnimalDetails(animalId: string): UseAnimalDetailsResult {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchVaccinations = async (animalId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('vaccinations')
+        .select('*')
+        .eq('animal_id', animalId);
+
+      if (error) throw error;
+
+      return data.map((vaccination) => ({
+        id: vaccination.id,
+        animal_id: vaccination.animal_id,
+        name: vaccination.vaccine_name,
+        date: vaccination.scheduled_date,
+        next_due: vaccination.scheduled_date,
+        status: vaccination.completed ? 'completed' : 'upcoming',
+      }));
+    } catch (error) {
+      console.error('Error fetching vaccinations:', error);
+      return [];
     }
   };
 
