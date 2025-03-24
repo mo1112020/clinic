@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Animal, Owner, Vaccination, MedicalRecord, Document } from '@/types/database.types';
 import { useToast } from '@/hooks/use-toast';
@@ -91,7 +92,7 @@ export function useAnimalDetails(animalId: string): UseAnimalDetailsResult {
     }
   };
 
-  const fetchVaccinations = async (animalId: string) => {
+  const fetchVaccinations = async (animalId: string): Promise<Vaccination[]> => {
     try {
       const { data, error } = await supabase
         .from('vaccinations')
@@ -106,7 +107,8 @@ export function useAnimalDetails(animalId: string): UseAnimalDetailsResult {
         name: vaccination.vaccine_name,
         date: vaccination.scheduled_date,
         next_due: vaccination.scheduled_date,
-        status: vaccination.completed ? 'completed' : 'upcoming',
+        // Fix: Explicitly cast the status to the allowed literal types
+        status: vaccination.completed ? 'completed' : 'upcoming' as 'completed' | 'upcoming' | 'overdue',
       }));
     } catch (error) {
       console.error('Error fetching vaccinations:', error);
