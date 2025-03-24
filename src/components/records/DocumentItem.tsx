@@ -23,7 +23,7 @@ interface DocumentItemProps {
 
 const DocumentItem: React.FC<DocumentItemProps> = ({ record, downloadDocument, variants }) => {
   const getAnimalIcon = (type: string) => {
-    switch (type) {
+    switch (type?.toLowerCase()) {
       case 'dog':
         return <Dog className="h-5 w-5 text-amber-500" />;
       case 'cat':
@@ -31,7 +31,17 @@ const DocumentItem: React.FC<DocumentItemProps> = ({ record, downloadDocument, v
       case 'bird':
         return <Bird className="h-5 w-5 text-purple-500" />;
       default:
-        return null;
+        return <FileText className="h-5 w-5 text-gray-500" />;
+    }
+  };
+
+  // Safely format the date with a fallback
+  const formatDate = (dateString: string) => {
+    try {
+      return format(new Date(dateString), 'yyyy-MM-dd');
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid date';
     }
   };
 
@@ -57,7 +67,7 @@ const DocumentItem: React.FC<DocumentItemProps> = ({ record, downloadDocument, v
         <TableCell>
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span>{format(new Date(record.date), 'yyyy-MM-dd')}</span>
+            <span>{formatDate(record.date)}</span>
           </div>
         </TableCell>
         <TableCell>{record.category}</TableCell>

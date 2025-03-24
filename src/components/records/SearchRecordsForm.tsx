@@ -28,7 +28,7 @@ const SearchRecordsForm: React.FC<SearchRecordsFormProps> = ({
   handleSearch,
 }) => {
   return (
-    <Tabs defaultValue={currentTab} onValueChange={handleTabChange}>
+    <Tabs value={currentTab} onValueChange={handleTabChange}>
       <TabsList className="grid grid-cols-4 mb-4">
         <TabsTrigger value="all">All Animals</TabsTrigger>
         <TabsTrigger value="dog">

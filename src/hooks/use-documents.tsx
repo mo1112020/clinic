@@ -1,10 +1,7 @@
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { jsPDF } from "jspdf";
-import autoTable from 'jspdf-autotable';
-import { format } from 'date-fns';
 
 export function useDocuments(animalType?: string, categoryFilter?: string, searchQuery?: string) {
   const [documents, setDocuments] = useState<any[]>([]);
@@ -18,18 +15,21 @@ export function useDocuments(animalType?: string, categoryFilter?: string, searc
       setError(null);
 
       try {
-        // This is a placeholder - in a real app, you would fetch from a medical_files table
-        // Since we don't have many records in that table, we'll generate data based on vaccinations
+        console.log('Fetching documents with filters:', { animalType, categoryFilter, searchQuery });
+        
+        // Here we're joining with the animals table to get animal information
         let query = supabase
-          .from('vaccinations')
+          .from('medical_files')
           .select(`
             *,
             animals (
               id,
               name,
               animal_type,
+              owner_id,
               owners (
-                full_name
+                full_name,
+                phone_number
               )
             )
           `);
@@ -38,39 +38,58 @@ export function useDocuments(animalType?: string, categoryFilter?: string, searc
           query = query.eq('animals.animal_type', animalType);
         }
 
-        if (searchQuery) {
-          query = query.or(
-            `animals.name.ilike.%${searchQuery}%,animals.owners.full_name.ilike.%${searchQuery}%,vaccine_name.ilike.%${searchQuery}%`
-          );
+        if (categoryFilter && categoryFilter !== 'all') {
+          query = query.eq('file_type', categoryFilter);
         }
 
+        if (searchQuery) {
+          query = query.or(
+            `file_name.ilike.%${searchQuery}%,animals.name.ilike.%${searchQuery}%,animals.owners.full_name.ilike.%${searchQuery}%`
+          );
+        }
+        
         const { data, error } = await query;
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching documents:', error);
+          throw error;
+        }
+        
+        console.log('Raw document data:', data);
 
-        // Transform vaccination data into document records
-        const formattedData = data.map(item => {
-          const category = item.completed ? 'Vaccination Certificate' : 'Vaccination Schedule';
-          
-          // Skip if categoryFilter is set and doesn't match
-          if (categoryFilter && categoryFilter !== 'all' && category !== categoryFilter) {
-            return null;
+        // Transform the data into a format suitable for the UI
+        const formattedDocuments = data.map(doc => {
+          // Check if animals data exists before accessing properties
+          if (!doc.animals) {
+            console.warn('Document missing animal reference:', doc);
+            return {
+              id: doc.id,
+              filename: doc.file_name,
+              patientName: 'Unknown',
+              patientType: 'unknown',
+              owner: 'Unknown',
+              date: doc.uploaded_at,
+              category: doc.file_type || 'Other',
+              fileSize: '1 MB', // Placeholder
+              fileUrl: doc.file_url
+            };
           }
-          
-          return {
-            id: item.id,
-            filename: `${item.animals.name}_${item.vaccine_name.replace(/\s+/g, '_')}.pdf`,
-            patientName: item.animals.name,
-            patientType: item.animals.animal_type,
-            owner: item.animals.owners.full_name,
-            date: item.scheduled_date,
-            category: category,
-            fileSize: '0.5 MB',
-            vaccinationData: item // Store the original data for PDF generation
-          };
-        }).filter(Boolean); // Remove null items
 
-        setDocuments(formattedData);
+          return {
+            id: doc.id,
+            filename: doc.file_name,
+            patientName: doc.animals.name,
+            patientType: doc.animals.animal_type,
+            owner: doc.animals.owners?.full_name || 'Unknown',
+            date: doc.uploaded_at,
+            category: doc.file_type || 'Other',
+            fileSize: '1 MB', // Placeholder
+            fileUrl: doc.file_url
+          };
+        });
+
+        console.log('Formatted documents:', formattedDocuments);
+        setDocuments(formattedDocuments);
       } catch (err) {
         console.error('Error fetching documents:', err);
         setError('Failed to load documents');
@@ -87,67 +106,29 @@ export function useDocuments(animalType?: string, categoryFilter?: string, searc
     fetchDocuments();
   }, [animalType, categoryFilter, searchQuery, toast]);
 
-  const downloadDocument = (document: any) => {
-    try {
-      // Create a new PDF document
-      const pdf = new jsPDF();
-      
-      // Add clinic header
-      pdf.setFontSize(20);
-      pdf.setTextColor(0, 128, 128);
-      pdf.text('CANKI VETERINARY CLINIC', 105, 20, { align: 'center' });
-      
-      // Add document type header
-      pdf.setFontSize(16);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(document.category, 105, 30, { align: 'center' });
-      
-      // Add basic information
-      pdf.setFontSize(12);
-      pdf.text(`Patient: ${document.patientName} (${document.patientType})`, 20, 45);
-      pdf.text(`Owner: ${document.owner}`, 20, 52);
-      pdf.text(`Date: ${format(new Date(document.date), 'MMMM d, yyyy')}`, 20, 59);
-      
-      // Add vaccination details
-      pdf.setFontSize(14);
-      pdf.text('Vaccination Details', 20, 75);
-      
-      // Create a table for vaccination details
-      autoTable(pdf, {
-        startY: 80,
-        head: [['Vaccine', 'Scheduled Date', 'Status']],
-        body: [
-          [
-            document.vaccinationData.vaccine_name,
-            format(new Date(document.vaccinationData.scheduled_date), 'MMMM d, yyyy'),
-            document.vaccinationData.completed ? 'Completed' : 'Scheduled'
-          ]
-        ],
+  const downloadDocument = async (document: any) => {
+    if (!document.fileUrl) {
+      toast({
+        title: 'Download failed',
+        description: 'Document URL not available.',
+        variant: 'destructive',
       });
-      
-      // Add notes section
-      pdf.setFontSize(14);
-      pdf.text('Notes', 20, 120);
-      pdf.setFontSize(12);
-      pdf.text('This document serves as an official record of the vaccination details.', 20, 130);
-      
-      // Add footer with clinic information
-      pdf.setFontSize(10);
-      pdf.setTextColor(100, 100, 100);
-      pdf.text('Canki Veterinary Clinic | 123 Pet Care Lane | Phone: (555) 123-4567', 105, 280, { align: 'center' });
-      
-      // Save the PDF
-      pdf.save(document.filename);
+      return;
+    }
+
+    try {
+      // For this example, we'll simulate downloading by opening the URL in a new tab
+      window.open(document.fileUrl, '_blank');
       
       toast({
-        title: 'Download Complete',
-        description: `${document.filename} has been downloaded successfully.`,
+        title: 'Download started',
+        description: `Downloading ${document.filename}`,
       });
     } catch (err) {
-      console.error('Error generating PDF:', err);
+      console.error('Error downloading document:', err);
       toast({
-        title: 'Error',
-        description: 'Failed to generate PDF. Please try again.',
+        title: 'Download failed',
+        description: 'Failed to download document. Please try again.',
         variant: 'destructive',
       });
     }
