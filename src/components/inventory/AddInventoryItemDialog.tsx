@@ -34,16 +34,17 @@ export function AddInventoryItemDialog({ open, onOpenChange }: AddInventoryItemD
   const { toast } = useToast();
 
   const handleAddItem = async () => {
-    if (!newItem.name || !newItem.category) {
+    if (!newItem.name) {
       toast({
         title: 'Missing information',
-        description: 'Please fill in all required fields.',
+        description: 'Please provide a name for the item.',
         variant: 'destructive',
       });
       return;
     }
     
     setIsSubmitting(true);
+    console.log('Adding new inventory item:', newItem);
     
     try {
       await addInventoryItem({
