@@ -4,70 +4,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Dog, Cat, Bird, Calendar, FileText, Pill, Stethoscope } from 'lucide-react';
+import { Search, Dog, Cat, Bird, Calendar, FileText, Pill, Stethoscope, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion } from 'framer-motion';
-
-// Mock data for medical history
-const mockMedicalHistory = [
-  { id: '1', patientName: 'Max', patientType: 'dog', owner: 'John Smith', date: '2023-11-15', procedure: 'Vaccination', details: 'Annual rabies vaccine', veterinarian: 'Dr. Sarah Johnson' },
-  { id: '2', patientName: 'Luna', patientType: 'cat', owner: 'Emma Watson', date: '2023-11-10', procedure: 'Check-up', details: 'Regular health check', veterinarian: 'Dr. Michael Brown' },
-  { id: '3', patientName: 'Charlie', patientType: 'dog', owner: 'Michael Brown', date: '2023-11-05', procedure: 'Surgery', details: 'Tooth extraction', veterinarian: 'Dr. Sarah Johnson' },
-  { id: '4', patientName: 'Bella', patientType: 'bird', owner: 'Sophia Miller', date: '2023-11-01', procedure: 'Wing clipping', details: 'Regular wing maintenance', veterinarian: 'Dr. James Wilson' },
-  { id: '5', patientName: 'Cooper', patientType: 'dog', owner: 'James Wilson', date: '2023-10-28', procedure: 'Vaccination', details: 'Distemper vaccine', veterinarian: 'Dr. Sarah Johnson' },
-  { id: '6', patientName: 'Lucy', patientType: 'cat', owner: 'Olivia Moore', date: '2023-10-25', procedure: 'Deworming', details: 'Regular parasite control', veterinarian: 'Dr. Michael Brown' },
-  { id: '7', patientName: 'Rocky', patientType: 'dog', owner: 'David Johnson', date: '2023-10-20', procedure: 'X-ray', details: 'Hip examination', veterinarian: 'Dr. James Wilson' },
-  { id: '8', patientName: 'Milo', patientType: 'cat', owner: 'Emily Davis', date: '2023-10-18', procedure: 'Blood test', details: 'Annual blood work', veterinarian: 'Dr. Sarah Johnson' },
-];
+import { useMedicalHistory } from '@/hooks/use-medical-history';
+import { format } from 'date-fns';
 
 const MedicalHistory = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentTab, setCurrentTab] = useState('all');
-  const [filteredHistory, setFilteredHistory] = useState(mockMedicalHistory);
+  const { medicalHistory, isLoading, error } = useMedicalHistory(currentTab, searchQuery);
   
   const handleSearch = () => {
-    let filtered = mockMedicalHistory;
-    
-    // Filter by animal type if not "all"
-    if (currentTab !== 'all') {
-      filtered = filtered.filter(record => record.patientType === currentTab);
-    }
-    
-    // Then filter by search query if it exists
-    if (searchQuery.trim()) {
-      filtered = filtered.filter(record => 
-        record.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        record.owner.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        record.procedure.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        record.veterinarian.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-    
-    setFilteredHistory(filtered);
+    // The useMedicalHistory hook will handle the search
   };
   
   const handleTabChange = (value: string) => {
     setCurrentTab(value);
-    
-    let filtered = mockMedicalHistory;
-    
-    // Filter by animal type if not "all"
-    if (value !== 'all') {
-      filtered = filtered.filter(record => record.patientType === value);
-    }
-    
-    // Then filter by search query if it exists
-    if (searchQuery.trim()) {
-      filtered = filtered.filter(record => 
-        record.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        record.owner.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        record.procedure.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        record.veterinarian.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-    
-    setFilteredHistory(filtered);
   };
 
   const getAnimalIcon = (type: string) => {
@@ -94,7 +48,7 @@ const MedicalHistory = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight mb-2">Medical History</h1>
         <p className="text-muted-foreground">View and search through all medical procedures and visits.</p>
@@ -149,7 +103,18 @@ const MedicalHistory = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {filteredHistory.length === 0 ? (
+          {isLoading ? (
+            <div className="flex justify-center items-center h-[200px]">
+              <div className="text-center">
+                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-primary" />
+                <p className="text-muted-foreground">Loading medical records...</p>
+              </div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12 text-destructive">
+              <p className="text-destructive">{error}</p>
+            </div>
+          ) : medicalHistory.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground">No medical records found. Try a different search.</p>
             </div>
@@ -174,7 +139,7 @@ const MedicalHistory = () => {
                     animate="animate"
                     className="contents"
                   >
-                    {filteredHistory.map((record) => (
+                    {medicalHistory.map((record) => (
                       <motion.div 
                         key={record.id}
                         variants={itemVariants}
@@ -191,7 +156,7 @@ const MedicalHistory = () => {
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <Calendar className="h-4 w-4 text-muted-foreground" />
-                              <span>{record.date}</span>
+                              <span>{format(new Date(record.date), 'yyyy-MM-dd')}</span>
                             </div>
                           </TableCell>
                           <TableCell>

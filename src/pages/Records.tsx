@@ -4,107 +4,30 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, FileText, Download, Filter, Calendar, Dog, Cat, Bird } from 'lucide-react';
+import { Search, FileText, Download, Filter, Calendar, Dog, Cat, Bird, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { motion } from 'framer-motion';
-
-// Mock data for records
-const mockRecords = [
-  { id: '1', filename: 'Max_Lab_Results.pdf', patientName: 'Max', patientType: 'dog', owner: 'John Smith', date: '2023-11-15', category: 'Lab Results', fileSize: '2.4 MB' },
-  { id: '2', filename: 'Luna_X-Ray_Report.pdf', patientName: 'Luna', patientType: 'cat', owner: 'Emma Watson', date: '2023-11-10', category: 'X-Ray', fileSize: '5.6 MB' },
-  { id: '3', filename: 'Charlie_Vaccine_Certificate.pdf', patientName: 'Charlie', patientType: 'dog', owner: 'Michael Brown', date: '2023-11-05', category: 'Vaccination', fileSize: '1.2 MB' },
-  { id: '4', filename: 'Bella_Treatment_Plan.pdf', patientName: 'Bella', patientType: 'bird', owner: 'Sophia Miller', date: '2023-11-01', category: 'Treatment Plan', fileSize: '0.8 MB' },
-  { id: '5', filename: 'Cooper_Surgery_Report.pdf', patientName: 'Cooper', patientType: 'dog', owner: 'James Wilson', date: '2023-10-28', category: 'Surgery', fileSize: '3.5 MB' },
-  { id: '6', filename: 'Lucy_Prescription.pdf', patientName: 'Lucy', patientType: 'cat', owner: 'Olivia Moore', date: '2023-10-25', category: 'Prescription', fileSize: '0.5 MB' },
-  { id: '7', filename: 'Rocky_Dental_Chart.pdf', patientName: 'Rocky', patientType: 'dog', owner: 'David Johnson', date: '2023-10-20', category: 'Dental', fileSize: '1.8 MB' },
-  { id: '8', filename: 'Milo_Annual_Checkup.pdf', patientName: 'Milo', patientType: 'cat', owner: 'Emily Davis', date: '2023-10-18', category: 'Check-up', fileSize: '2.1 MB' },
-];
+import { useDocuments } from '@/hooks/use-documents';
+import { format } from 'date-fns';
 
 const Records = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [currentTab, setCurrentTab] = useState('all');
-  const [filteredRecords, setFilteredRecords] = useState(mockRecords);
+  const { documents, isLoading, error, downloadDocument } = useDocuments(currentTab !== 'all' ? currentTab : undefined, categoryFilter !== 'all' ? categoryFilter : undefined, searchQuery);
   
   const handleSearch = () => {
-    let filtered = mockRecords;
-    
-    // Filter by animal type if not "all"
-    if (currentTab !== 'all') {
-      filtered = filtered.filter(record => record.patientType === currentTab);
-    }
-    
-    // Filter by category if not "all"
-    if (categoryFilter !== 'all') {
-      filtered = filtered.filter(record => record.category === categoryFilter);
-    }
-    
-    // Then filter by search query if it exists
-    if (searchQuery.trim()) {
-      filtered = filtered.filter(record => 
-        record.filename.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        record.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        record.owner.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-    
-    setFilteredRecords(filtered);
+    // The useDocuments hook will handle the search based on the parameters
   };
   
   const handleTabChange = (value: string) => {
     setCurrentTab(value);
-    
-    let filtered = mockRecords;
-    
-    // Filter by animal type if not "all"
-    if (value !== 'all') {
-      filtered = filtered.filter(record => record.patientType === value);
-    }
-    
-    // Filter by category if not "all"
-    if (categoryFilter !== 'all') {
-      filtered = filtered.filter(record => record.category === categoryFilter);
-    }
-    
-    // Then filter by search query if it exists
-    if (searchQuery.trim()) {
-      filtered = filtered.filter(record => 
-        record.filename.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        record.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        record.owner.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-    
-    setFilteredRecords(filtered);
   };
   
   const handleCategoryChange = (value: string) => {
     setCategoryFilter(value);
-    
-    let filtered = mockRecords;
-    
-    // Filter by animal type if not "all"
-    if (currentTab !== 'all') {
-      filtered = filtered.filter(record => record.patientType === currentTab);
-    }
-    
-    // Filter by category if not "all"
-    if (value !== 'all') {
-      filtered = filtered.filter(record => record.category === value);
-    }
-    
-    // Then filter by search query if it exists
-    if (searchQuery.trim()) {
-      filtered = filtered.filter(record => 
-        record.filename.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        record.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        record.owner.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-    
-    setFilteredRecords(filtered);
   };
 
   const getAnimalIcon = (type: string) => {
@@ -131,10 +54,10 @@ const Records = () => {
   };
 
   // Get unique categories for the filter
-  const categories = ['all', ...Array.from(new Set(mockRecords.map(record => record.category)))];
+  const categories = ['all', ...Array.from(new Set(documents.map(record => record.category)))];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight mb-2">Patient Records</h1>
         <p className="text-muted-foreground">View and download all patient documents and files.</p>
@@ -208,7 +131,18 @@ const Records = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {filteredRecords.length === 0 ? (
+          {isLoading ? (
+            <div className="flex justify-center items-center h-[200px]">
+              <div className="text-center">
+                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-primary" />
+                <p className="text-muted-foreground">Loading documents...</p>
+              </div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12 text-destructive">
+              <p>{error}</p>
+            </div>
+          ) : documents.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground">No records found. Try a different search.</p>
             </div>
@@ -233,7 +167,7 @@ const Records = () => {
                     animate="animate"
                     className="contents"
                   >
-                    {filteredRecords.map((record) => (
+                    {documents.map((record) => (
                       <motion.div 
                         key={record.id}
                         variants={itemVariants}
@@ -256,13 +190,17 @@ const Records = () => {
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <Calendar className="h-4 w-4 text-muted-foreground" />
-                              <span>{record.date}</span>
+                              <span>{format(new Date(record.date), 'yyyy-MM-dd')}</span>
                             </div>
                           </TableCell>
                           <TableCell>{record.category}</TableCell>
                           <TableCell>{record.fileSize}</TableCell>
                           <TableCell>
-                            <Button variant="outline" size="sm">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => downloadDocument(record)}
+                            >
                               <Download className="h-4 w-4 mr-2" />
                               Download
                             </Button>

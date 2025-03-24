@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Animal, AnimalType } from '@/types/database.types';
 import { useToast } from '@/hooks/use-toast';
 
-export function useAnimals(type?: AnimalType, searchQuery?: string) {
+export function useAnimals(type?: AnimalType, searchQuery?: string, searchBy: string = 'name') {
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +26,16 @@ export function useAnimals(type?: AnimalType, searchQuery?: string) {
         }
 
         if (searchQuery) {
-          query = query.or(`name.ilike.%${searchQuery}%,breed.ilike.%${searchQuery}%,chip_number.ilike.%${searchQuery}%,owners.full_name.ilike.%${searchQuery}%`);
+          if (searchBy === 'name') {
+            query = query.ilike('name', `%${searchQuery}%`);
+          } else if (searchBy === 'chip') {
+            query = query.ilike('chip_number', `%${searchQuery}%`);
+          } else if (searchBy === 'owner') {
+            query = query.textSearch('owners.full_name', searchQuery, {
+              config: 'english',
+              type: 'websearch'
+            });
+          }
         }
 
         const { data, error } = await query;
@@ -67,7 +76,7 @@ export function useAnimals(type?: AnimalType, searchQuery?: string) {
     };
 
     fetchAnimals();
-  }, [type, searchQuery, toast]);
+  }, [type, searchQuery, searchBy, toast]);
 
   return { animals, isLoading, error };
 }

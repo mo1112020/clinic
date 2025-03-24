@@ -6,6 +6,7 @@ export interface ScheduleVaccinationData {
   animalId: string;
   vaccineName: string;
   scheduledDate: Date;
+  notes?: string;
 }
 
 export async function scheduleVaccination(data: ScheduleVaccinationData) {

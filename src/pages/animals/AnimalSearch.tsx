@@ -13,11 +13,10 @@ import { AnimalType } from '@/types/database.types';
 const AnimalSearch = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchBy, setSearchBy] = useState('name');
-  const { animals, isLoading, error } = useAnimals(undefined, searchQuery);
+  const { animals, isLoading, error } = useAnimals(undefined, searchQuery, searchBy);
   
   const handleSearch = () => {
-    // The useAnimals hook will handle the search based on the searchQuery
-    // This function is kept for the Enter key handler
+    // The useAnimals hook will handle the search based on the searchQuery and searchBy
   };
 
   const getAnimalIcon = (type: AnimalType) => {
