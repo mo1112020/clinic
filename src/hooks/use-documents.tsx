@@ -52,14 +52,22 @@ export function useDocuments(animalType?: string, categoryFilter?: string, searc
           );
         }
         
-        const { data, error } = await query;
+        console.log('Executing query for documents');
+        const { data, error: fetchError } = await query;
 
-        if (error) {
-          console.error('Error fetching documents:', error);
-          throw error;
+        if (fetchError) {
+          console.error('Error fetching documents:', fetchError);
+          throw fetchError;
         }
         
         console.log('Raw document data:', data);
+
+        if (!data || data.length === 0) {
+          console.log('No documents found with the current filters');
+          setDocuments([]);
+          setIsLoading(false);
+          return;
+        }
 
         // Transform the data into a format suitable for the UI
         const formattedDocuments = data.map(doc => {
@@ -96,9 +104,9 @@ export function useDocuments(animalType?: string, categoryFilter?: string, searc
 
         console.log('Formatted documents:', formattedDocuments);
         setDocuments(formattedDocuments);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error fetching documents:', err);
-        setError('Failed to load documents');
+        setError('Failed to load documents: ' + (err.message || 'Unknown error'));
         toast({
           title: 'Error',
           description: 'Failed to load documents. Please try again.',

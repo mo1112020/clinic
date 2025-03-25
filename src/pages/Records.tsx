@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { FileText } from 'lucide-react';
+import { FileText, Info } from 'lucide-react';
 import { useDocuments } from '@/hooks/use-documents';
 import SearchRecordsForm from '@/components/records/SearchRecordsForm';
 import DocumentsTable from '@/components/records/DocumentsTable';
@@ -80,11 +80,11 @@ const Records = () => {
         title: 'PDF Generated',
         description: 'Medical record PDF has been generated and downloaded.',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating PDF:', error);
       toast({
         title: 'Error',
-        description: 'Failed to generate PDF. Please try again.',
+        description: 'Failed to generate PDF: ' + (error.message || 'Please try again.'),
         variant: 'destructive',
       });
     } finally {
@@ -96,7 +96,7 @@ const Records = () => {
   const categories = ['all'];
   
   // Only add categories that actually exist in the documents
-  const uniqueCategories = Array.from(new Set(documents.map(doc => doc.category)));
+  const uniqueCategories = Array.from(new Set(documents.filter(doc => doc.category).map(doc => doc.category)));
   categories.push(...uniqueCategories.filter(cat => cat && cat !== 'all'));
 
   return (
@@ -140,6 +140,15 @@ const Records = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {isLoading && (
+            <div className="text-center py-2 text-muted-foreground text-sm mb-2">
+              <div className="flex items-center justify-center gap-2">
+                <Info className="h-4 w-4" />
+                <span>Loading records from the database...</span>
+              </div>
+            </div>
+          )}
+          
           <DocumentsTable 
             documents={documents} 
             isLoading={isLoading} 

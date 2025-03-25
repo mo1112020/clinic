@@ -31,8 +31,8 @@ const DocumentItem: React.FC<DocumentItemProps> = ({
   generatePdf,
   variants 
 }) => {
-  const getAnimalIcon = (type: string) => {
-    switch (type?.toLowerCase()) {
+  const getAnimalIcon = (type: string = '') => {
+    switch (type.toLowerCase()) {
       case 'dog':
         return <Dog className="h-5 w-5 text-amber-500" />;
       case 'cat':
@@ -46,10 +46,12 @@ const DocumentItem: React.FC<DocumentItemProps> = ({
 
   // Safely format the date with a fallback
   const formatDate = (dateString: string) => {
+    if (!dateString) return 'N/A';
+    
     try {
       return format(new Date(dateString), 'yyyy-MM-dd');
     } catch (error) {
-      console.error('Error formatting date:', error);
+      console.error('Error formatting date:', error, dateString);
       return 'Invalid date';
     }
   };
@@ -69,18 +71,18 @@ const DocumentItem: React.FC<DocumentItemProps> = ({
         <TableCell>
           <div className="flex items-center gap-2">
             {getAnimalIcon(record.patientType)}
-            <span>{record.patientName}</span>
+            <span>{record.patientName || 'Unknown'}</span>
           </div>
         </TableCell>
-        <TableCell>{record.owner}</TableCell>
+        <TableCell>{record.owner || 'Unknown'}</TableCell>
         <TableCell>
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
             <span>{formatDate(record.date)}</span>
           </div>
         </TableCell>
-        <TableCell>{record.category}</TableCell>
-        <TableCell>{record.fileSize}</TableCell>
+        <TableCell>{record.category || 'Other'}</TableCell>
+        <TableCell>{record.fileSize || 'N/A'}</TableCell>
         <TableCell>
           <div className="flex gap-2">
             {record.fileUrl && (
