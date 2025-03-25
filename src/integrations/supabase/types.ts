@@ -15,6 +15,7 @@ export type Database = {
           breed: string | null
           chip_number: string | null
           created_at: string | null
+          health_notes: string | null
           id: string
           name: string
           owner_id: string
@@ -26,6 +27,7 @@ export type Database = {
           breed?: string | null
           chip_number?: string | null
           created_at?: string | null
+          health_notes?: string | null
           id?: string
           name: string
           owner_id: string
@@ -37,6 +39,7 @@ export type Database = {
           breed?: string | null
           chip_number?: string | null
           created_at?: string | null
+          health_notes?: string | null
           id?: string
           name?: string
           owner_id?: string

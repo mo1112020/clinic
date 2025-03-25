@@ -98,21 +98,23 @@ export function useDocuments(animalType?: string, categoryFilter?: string, searc
         let formattedDocuments: any[] = [];
 
         // 1. Add health records for all animals
-        filteredAnimals.forEach(animal => {
-          formattedDocuments.push({
-            id: `health-${animal.id}`,
-            filename: `Health Records - ${animal.name}`,
-            patientName: animal.name,
-            patientType: animal.animal_type,
-            owner: animal.owners?.full_name || 'Unknown',
-            date: new Date().toISOString(),
-            category: 'Health Record',
-            fileSize: 'N/A',
-            animalId: animal.id,
-            healthNotes: animal.health_notes,
-            isVirtualRecord: true
+        if (categoryFilter === 'all' || categoryFilter === 'Health Record') {
+          filteredAnimals.forEach(animal => {
+            formattedDocuments.push({
+              id: `health-${animal.id}`,
+              filename: `Health Records - ${animal.name}`,
+              patientName: animal.name,
+              patientType: animal.animal_type,
+              owner: animal.owners?.full_name || 'Unknown',
+              date: new Date().toISOString(),
+              category: 'Health Record',
+              fileSize: 'N/A',
+              animalId: animal.id,
+              healthNotes: animal.health_notes,
+              isVirtualRecord: true
+            });
           });
-        });
+        }
 
         // 2. Add actual medical files
         if (filesData && filesData.length > 0) {
