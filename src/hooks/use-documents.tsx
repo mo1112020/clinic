@@ -17,7 +17,7 @@ export function useDocuments(animalType?: string, categoryFilter?: string, searc
       try {
         console.log('Fetching documents with filters:', { animalType, categoryFilter, searchQuery });
         
-        // First, let's get a list of all animals to create records for them
+        // Get all animals first
         const { data: animalsData, error: animalsError } = await supabase
           .from('animals')
           .select(`
@@ -40,8 +40,28 @@ export function useDocuments(animalType?: string, categoryFilter?: string, searc
           throw animalsError;
         }
 
-        // Now get any actual medical files from the database
-        let query = supabase
+        console.log('Animals data fetched:', animalsData);
+        
+        // Filter animals if needed
+        let filteredAnimals = animalsData || [];
+        if (animalType && animalType !== 'all') {
+          filteredAnimals = filteredAnimals.filter(animal => 
+            animal.animal_type && animal.animal_type.toLowerCase() === animalType.toLowerCase()
+          );
+        }
+        
+        if (searchQuery) {
+          const lowerQuery = searchQuery.toLowerCase();
+          filteredAnimals = filteredAnimals.filter(animal => 
+            (animal.name && animal.name.toLowerCase().includes(lowerQuery)) || 
+            (animal.owners?.full_name && animal.owners.full_name.toLowerCase().includes(lowerQuery))
+          );
+        }
+        
+        console.log('Filtered animals:', filteredAnimals);
+
+        // Get medical files separately
+        let medicalFilesQuery = supabase
           .from('medical_files')
           .select(`
             *,
@@ -61,117 +81,100 @@ export function useDocuments(animalType?: string, categoryFilter?: string, searc
             )
           `);
 
-        if (animalType && animalType !== 'all') {
-          query = query.eq('animals.animal_type', animalType);
-        }
-
-        if (categoryFilter && categoryFilter !== 'all') {
-          query = query.eq('file_type', categoryFilter);
-        }
-
-        if (searchQuery) {
-          query = query.or(
-            `file_name.ilike.%${searchQuery}%,animals.name.ilike.%${searchQuery}%,animals.owners.full_name.ilike.%${searchQuery}%`
-          );
+        if (categoryFilter && categoryFilter !== 'all' && categoryFilter !== 'Health Record') {
+          medicalFilesQuery = medicalFilesQuery.eq('file_type', categoryFilter);
         }
         
-        console.log('Executing query for medical files');
-        const { data: filesData, error: filesError } = await query;
+        const { data: filesData, error: filesError } = await medicalFilesQuery;
 
         if (filesError) {
           console.error('Error fetching medical files:', filesError);
           throw filesError;
         }
         
-        console.log('Raw animals data:', animalsData);
-        console.log('Raw medical files data:', filesData || []);
+        console.log('Medical files data:', filesData || []);
+        
+        // Format the documents
+        let formattedDocuments: any[] = [];
 
-        // Generate documents from animals data if no actual medical files exist
-        let formattedDocuments = [];
+        // 1. Add health records for all animals
+        filteredAnimals.forEach(animal => {
+          formattedDocuments.push({
+            id: `health-${animal.id}`,
+            filename: `Health Records - ${animal.name}`,
+            patientName: animal.name,
+            patientType: animal.animal_type,
+            owner: animal.owners?.full_name || 'Unknown',
+            date: new Date().toISOString(),
+            category: 'Health Record',
+            fileSize: 'N/A',
+            animalId: animal.id,
+            healthNotes: animal.health_notes,
+            isVirtualRecord: true
+          });
+        });
 
-        // First add actual medical files if they exist
+        // 2. Add actual medical files
         if (filesData && filesData.length > 0) {
-          const fileDocuments = filesData.map(doc => {
-            if (!doc.animals) {
-              console.warn('Document missing animal reference:', doc);
+          const fileDocuments = filesData
+            .filter(doc => {
+              // Apply additional filtering based on animal type if necessary
+              if (animalType && animalType !== 'all' && doc.animals) {
+                return doc.animals.animal_type.toLowerCase() === animalType.toLowerCase();
+              }
+              return true;
+            })
+            .filter(doc => {
+              // Apply additional filtering based on search query if necessary
+              if (searchQuery && doc.animals) {
+                const lowerQuery = searchQuery.toLowerCase();
+                return (
+                  doc.animals.name.toLowerCase().includes(lowerQuery) ||
+                  (doc.animals.owners?.full_name && doc.animals.owners.full_name.toLowerCase().includes(lowerQuery)) ||
+                  (doc.file_name && doc.file_name.toLowerCase().includes(lowerQuery))
+                );
+              }
+              return true;
+            })
+            .map(doc => {
+              if (!doc.animals) {
+                return {
+                  id: doc.id,
+                  filename: doc.file_name || 'Unknown file',
+                  patientName: 'Unknown',
+                  patientType: 'unknown',
+                  owner: 'Unknown',
+                  date: doc.uploaded_at || new Date().toISOString(),
+                  category: doc.file_type || 'Other',
+                  fileSize: '1 MB',
+                  fileUrl: doc.file_url,
+                  isActualFile: true
+                };
+              }
+              
               return {
                 id: doc.id,
-                filename: doc.file_name,
-                patientName: 'Unknown',
-                patientType: 'unknown',
-                owner: 'Unknown',
-                date: doc.uploaded_at,
+                filename: doc.file_name || 'Unknown file',
+                patientName: doc.animals.name,
+                patientType: doc.animals.animal_type,
+                owner: doc.animals.owners?.full_name || 'Unknown',
+                date: doc.uploaded_at || new Date().toISOString(),
                 category: doc.file_type || 'Other',
-                fileSize: '1 MB', // Placeholder
-                fileUrl: doc.file_url
-              };
-            }
-
-            return {
-              id: doc.id,
-              filename: doc.file_name,
-              patientName: doc.animals.name,
-              patientType: doc.animals.animal_type,
-              owner: doc.animals.owners?.full_name || 'Unknown',
-              date: doc.uploaded_at,
-              category: doc.file_type || 'Other',
-              fileSize: '1 MB', // Placeholder
-              fileUrl: doc.file_url,
-              animalId: doc.animals.id,
-              healthNotes: doc.animals.health_notes
-            };
-          });
-          
-          formattedDocuments.push(...fileDocuments);
-        }
-
-        // Then create virtual placeholder records for all animals
-        if (animalsData && animalsData.length > 0) {
-          const animalDocuments = animalsData
-            .filter(animal => {
-              // Filter by animal type if specified
-              if (animalType && animalType !== 'all') {
-                return animal.animal_type.toLowerCase() === animalType.toLowerCase();
-              }
-              return true;
-            })
-            .filter(animal => {
-              // Filter by search query if specified
-              if (searchQuery) {
-                const animalNameMatch = animal.name.toLowerCase().includes(searchQuery.toLowerCase());
-                const ownerNameMatch = animal.owners?.full_name.toLowerCase().includes(searchQuery.toLowerCase());
-                return animalNameMatch || ownerNameMatch;
-              }
-              return true;
-            })
-            .map(animal => {
-              return {
-                id: `animal-${animal.id}`,
-                filename: `Health Records - ${animal.name}`,
-                patientName: animal.name,
-                patientType: animal.animal_type,
-                owner: animal.owners?.full_name || 'Unknown',
-                date: new Date().toISOString(),
-                category: 'Health Record',
-                fileSize: 'N/A',
-                animalId: animal.id,
-                healthNotes: animal.health_notes
+                fileSize: '1 MB',
+                fileUrl: doc.file_url,
+                animalId: doc.animals.id,
+                healthNotes: doc.animals.health_notes,
+                isActualFile: true
               };
             });
-
-          // Add to formatted documents but avoid duplicates
-          const existingAnimalIds = new Set(formattedDocuments.map(doc => doc.animalId));
-          const uniqueAnimalDocuments = animalDocuments.filter(
-            doc => !existingAnimalIds.has(doc.animalId)
-          );
-          
-          formattedDocuments.push(...uniqueAnimalDocuments);
+            
+          formattedDocuments = [...formattedDocuments, ...fileDocuments];
         }
 
         console.log('Formatted documents:', formattedDocuments);
         setDocuments(formattedDocuments);
       } catch (err: any) {
-        console.error('Error fetching documents:', err);
+        console.error('Error in useDocuments hook:', err);
         setError('Failed to load documents: ' + (err.message || 'Unknown error'));
         toast({
           title: 'Error',

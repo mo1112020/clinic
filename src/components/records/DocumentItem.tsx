@@ -19,6 +19,8 @@ interface DocumentItemProps {
     fileUrl?: string;
     healthNotes?: string;
     animalId?: string;
+    isVirtualRecord?: boolean;
+    isActualFile?: boolean;
   };
   downloadDocument: (record: any) => void;
   generatePdf?: (animalId: string) => void;
@@ -57,58 +59,56 @@ const DocumentItem: React.FC<DocumentItemProps> = ({
   };
 
   return (
-    <motion.div 
+    <motion.tr 
       variants={variants}
-      className="contents"
+      className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
     >
-      <TableRow>
-        <TableCell className="font-medium">
-          <div className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-muted-foreground" />
-            <span>{record.filename}</span>
-          </div>
-        </TableCell>
-        <TableCell>
-          <div className="flex items-center gap-2">
-            {getAnimalIcon(record.patientType)}
-            <span>{record.patientName || 'Unknown'}</span>
-          </div>
-        </TableCell>
-        <TableCell>{record.owner || 'Unknown'}</TableCell>
-        <TableCell>
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span>{formatDate(record.date)}</span>
-          </div>
-        </TableCell>
-        <TableCell>{record.category || 'Other'}</TableCell>
-        <TableCell>{record.fileSize || 'N/A'}</TableCell>
-        <TableCell>
-          <div className="flex gap-2">
-            {record.fileUrl && (
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => downloadDocument(record)}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download
-              </Button>
-            )}
-            {record.animalId && generatePdf && (
-              <Button 
-                variant="default" 
-                size="sm"
-                onClick={() => generatePdf(record.animalId || '')}
-              >
-                <FileDown className="h-4 w-4 mr-2" />
-                Generate PDF
-              </Button>
-            )}
-          </div>
-        </TableCell>
-      </TableRow>
-    </motion.div>
+      <TableCell className="font-medium">
+        <div className="flex items-center gap-2">
+          <FileText className="h-4 w-4 text-muted-foreground" />
+          <span>{record.filename}</span>
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="flex items-center gap-2">
+          {getAnimalIcon(record.patientType)}
+          <span>{record.patientName || 'Unknown'}</span>
+        </div>
+      </TableCell>
+      <TableCell>{record.owner || 'Unknown'}</TableCell>
+      <TableCell>
+        <div className="flex items-center gap-2">
+          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <span>{formatDate(record.date)}</span>
+        </div>
+      </TableCell>
+      <TableCell>{record.category || 'Other'}</TableCell>
+      <TableCell>{record.fileSize || 'N/A'}</TableCell>
+      <TableCell>
+        <div className="flex gap-2">
+          {record.fileUrl && (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => downloadDocument(record)}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Download
+            </Button>
+          )}
+          {record.animalId && generatePdf && (
+            <Button 
+              variant="default" 
+              size="sm"
+              onClick={() => generatePdf(record.animalId || '')}
+            >
+              <FileDown className="h-4 w-4 mr-2" />
+              Generate PDF
+            </Button>
+          )}
+        </div>
+      </TableCell>
+    </motion.tr>
   );
 };
 

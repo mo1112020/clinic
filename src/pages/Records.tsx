@@ -37,6 +37,12 @@ const Records = () => {
     setGeneratingPdf(true);
     
     try {
+      toast({
+        title: 'Generating PDF',
+        description: 'Please wait while we prepare your document...',
+      });
+
+      // Use the hook to get animal details
       const animalDetailsHook = useAnimalDetails(animalId);
       const { animal, owner, vaccinations, medicalHistory } = await animalDetailsHook.refetch();
       
@@ -44,11 +50,6 @@ const Records = () => {
         throw new Error('Could not fetch animal or owner information');
       }
       
-      toast({
-        title: 'Generating PDF',
-        description: 'Please wait while we prepare your document...',
-      });
-
       const pdfDataUrl = await generateAnimalRecordPdf({
         animal,
         owner,
@@ -87,6 +88,8 @@ const Records = () => {
   // Only add categories that actually exist in the documents
   const uniqueCategories = Array.from(new Set(documents.filter(doc => doc.category && doc.category !== 'Health Record').map(doc => doc.category)));
   categories.push(...uniqueCategories.filter(cat => cat && cat !== 'all' && !categories.includes(cat)));
+
+  console.log('Documents count in Records.tsx:', documents.length);
 
   return (
     <div className="space-y-6 p-6">

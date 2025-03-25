@@ -95,6 +95,9 @@ const DocumentsTable: React.FC<DocumentsTableProps> = ({
     );
   }
 
+  // Debug the documents
+  console.log('Documents in DocumentsTable:', documents);
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -110,26 +113,19 @@ const DocumentsTable: React.FC<DocumentsTableProps> = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          <motion.div 
-            variants={listVariants}
-            initial="initial"
-            animate="animate"
-            className="contents"
-          >
-            {documents.map((record) => (
-              <DocumentItem 
-                key={record.id} 
-                record={record} 
-                downloadDocument={downloadDocument} 
-                generatePdf={generatePdf}
-                variants={itemVariants}
-              />
-            ))}
-          </motion.div>
+          {documents.map((record) => (
+            <DocumentItem 
+              key={record.id} 
+              record={record} 
+              downloadDocument={downloadDocument} 
+              generatePdf={generatePdf}
+              variants={itemVariants}
+            />
+          ))}
         </TableBody>
       </Table>
     </div>
   );
-};
+}
 
 export default DocumentsTable;
