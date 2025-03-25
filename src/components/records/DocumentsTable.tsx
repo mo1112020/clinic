@@ -10,13 +10,17 @@ interface DocumentsTableProps {
   isLoading: boolean;
   error: string | null;
   downloadDocument: (record: any) => void;
+  generatePdf?: (animalId: string) => void;
+  generatingPdf?: boolean;
 }
 
 const DocumentsTable: React.FC<DocumentsTableProps> = ({ 
   documents, 
   isLoading, 
   error, 
-  downloadDocument 
+  downloadDocument,
+  generatePdf,
+  generatingPdf
 }) => {
   const listVariants = {
     initial: { opacity: 0 },
@@ -28,12 +32,14 @@ const DocumentsTable: React.FC<DocumentsTableProps> = ({
     animate: { opacity: 1, y: 0, transition: { duration: 0.3 } },
   };
 
-  if (isLoading) {
+  if (isLoading || generatingPdf) {
     return (
       <div className="flex justify-center items-center h-[200px]">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-primary" />
-          <p className="text-muted-foreground">Loading documents...</p>
+          <p className="text-muted-foreground">
+            {generatingPdf ? 'Generating PDF...' : 'Loading documents...'}
+          </p>
         </div>
       </div>
     );
@@ -66,7 +72,7 @@ const DocumentsTable: React.FC<DocumentsTableProps> = ({
             <TableHead>Date</TableHead>
             <TableHead>Category</TableHead>
             <TableHead>Size</TableHead>
-            <TableHead></TableHead>
+            <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -81,6 +87,7 @@ const DocumentsTable: React.FC<DocumentsTableProps> = ({
                 key={record.id} 
                 record={record} 
                 downloadDocument={downloadDocument} 
+                generatePdf={generatePdf}
                 variants={itemVariants}
               />
             ))}

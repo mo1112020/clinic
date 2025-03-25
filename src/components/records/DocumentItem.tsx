@@ -2,7 +2,7 @@
 import React from 'react';
 import { TableRow, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { FileText, Download, Calendar, Dog, Cat, Bird } from 'lucide-react';
+import { FileText, Download, Calendar, Dog, Cat, Bird, FileDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 
@@ -16,12 +16,21 @@ interface DocumentItemProps {
     date: string;
     category: string;
     fileSize: string;
+    fileUrl?: string;
+    healthNotes?: string;
+    animalId?: string;
   };
   downloadDocument: (record: any) => void;
+  generatePdf?: (animalId: string) => void;
   variants: any;
 }
 
-const DocumentItem: React.FC<DocumentItemProps> = ({ record, downloadDocument, variants }) => {
+const DocumentItem: React.FC<DocumentItemProps> = ({ 
+  record, 
+  downloadDocument, 
+  generatePdf,
+  variants 
+}) => {
   const getAnimalIcon = (type: string) => {
     switch (type?.toLowerCase()) {
       case 'dog':
@@ -73,14 +82,28 @@ const DocumentItem: React.FC<DocumentItemProps> = ({ record, downloadDocument, v
         <TableCell>{record.category}</TableCell>
         <TableCell>{record.fileSize}</TableCell>
         <TableCell>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => downloadDocument(record)}
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Download
-          </Button>
+          <div className="flex gap-2">
+            {record.fileUrl && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => downloadDocument(record)}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download
+              </Button>
+            )}
+            {record.animalId && generatePdf && (
+              <Button 
+                variant="default" 
+                size="sm"
+                onClick={() => generatePdf(record.animalId || '')}
+              >
+                <FileDown className="h-4 w-4 mr-2" />
+                Generate PDF
+              </Button>
+            )}
+          </div>
         </TableCell>
       </TableRow>
     </motion.div>

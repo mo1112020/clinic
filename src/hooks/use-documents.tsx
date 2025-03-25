@@ -26,8 +26,12 @@ export function useDocuments(animalType?: string, categoryFilter?: string, searc
               id,
               name,
               animal_type,
+              breed,
+              chip_number,
+              health_notes,
               owner_id,
               owners (
+                id,
                 full_name,
                 phone_number
               )
@@ -84,7 +88,9 @@ export function useDocuments(animalType?: string, categoryFilter?: string, searc
             date: doc.uploaded_at,
             category: doc.file_type || 'Other',
             fileSize: '1 MB', // Placeholder
-            fileUrl: doc.file_url
+            fileUrl: doc.file_url,
+            animalId: doc.animals.id,
+            healthNotes: doc.animals.health_notes
           };
         });
 
