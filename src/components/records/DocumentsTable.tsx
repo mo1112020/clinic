@@ -1,10 +1,11 @@
 
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import DocumentItem from './DocumentItem';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface DocumentsTableProps {
   documents: any[];
@@ -32,6 +33,17 @@ const DocumentsTable: React.FC<DocumentsTableProps> = ({
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0, transition: { duration: 0.3 } },
   };
+
+  if (generatingPdf) {
+    return (
+      <div className="flex justify-center items-center h-[200px]">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-primary" />
+          <p className="text-muted-foreground">Generating PDF...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -66,22 +78,12 @@ const DocumentsTable: React.FC<DocumentsTableProps> = ({
     );
   }
 
-  if (generatingPdf) {
-    return (
-      <div className="flex justify-center items-center h-[200px]">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-primary" />
-          <p className="text-muted-foreground">Generating PDF...</p>
-        </div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
-      <div className="text-center py-12 text-destructive">
-        <p>{error}</p>
-      </div>
+      <Alert variant="destructive" className="mb-4">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
     );
   }
 

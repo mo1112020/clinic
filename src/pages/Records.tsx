@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { FileText, Info } from 'lucide-react';
 import { useDocuments } from '@/hooks/use-documents';
@@ -23,17 +23,6 @@ const Records = () => {
     searchQuery
   );
   
-  // Show error toast if there's an error
-  useEffect(() => {
-    if (error) {
-      toast({
-        title: 'Error',
-        description: error,
-        variant: 'destructive',
-      });
-    }
-  }, [error, toast]);
-  
   const handleSearch = () => {
     // The useDocuments hook will handle the search based on the parameters
     console.log('Searching with:', { searchQuery, categoryFilter, currentTab });
@@ -48,8 +37,8 @@ const Records = () => {
     setGeneratingPdf(true);
     
     try {
-      // Using the animal details hook to get all needed data
-      const { animal, owner, vaccinations, medicalHistory } = await useAnimalDetails(animalId).refetch();
+      const animalDetailsHook = useAnimalDetails(animalId);
+      const { animal, owner, vaccinations, medicalHistory } = await animalDetailsHook.refetch();
       
       if (!animal || !owner) {
         throw new Error('Could not fetch animal or owner information');
@@ -93,11 +82,11 @@ const Records = () => {
   };
 
   // Get unique categories for the filter
-  const categories = ['all'];
+  const categories = ['all', 'Health Record'];
   
   // Only add categories that actually exist in the documents
-  const uniqueCategories = Array.from(new Set(documents.filter(doc => doc.category).map(doc => doc.category)));
-  categories.push(...uniqueCategories.filter(cat => cat && cat !== 'all'));
+  const uniqueCategories = Array.from(new Set(documents.filter(doc => doc.category && doc.category !== 'Health Record').map(doc => doc.category)));
+  categories.push(...uniqueCategories.filter(cat => cat && cat !== 'all' && !categories.includes(cat)));
 
   return (
     <div className="space-y-6 p-6">

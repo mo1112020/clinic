@@ -17,7 +17,30 @@ export function useDocuments(animalType?: string, categoryFilter?: string, searc
       try {
         console.log('Fetching documents with filters:', { animalType, categoryFilter, searchQuery });
         
-        // Here we're joining with the animals table to get animal information
+        // First, let's get a list of all animals to create records for them
+        const { data: animalsData, error: animalsError } = await supabase
+          .from('animals')
+          .select(`
+            id,
+            name,
+            animal_type,
+            breed,
+            chip_number,
+            health_notes,
+            owner_id,
+            owners (
+              id,
+              full_name,
+              phone_number
+            )
+          `);
+
+        if (animalsError) {
+          console.error('Error fetching animals:', animalsError);
+          throw animalsError;
+        }
+
+        // Now get any actual medical files from the database
         let query = supabase
           .from('medical_files')
           .select(`
@@ -52,55 +75,98 @@ export function useDocuments(animalType?: string, categoryFilter?: string, searc
           );
         }
         
-        console.log('Executing query for documents');
-        const { data, error: fetchError } = await query;
+        console.log('Executing query for medical files');
+        const { data: filesData, error: filesError } = await query;
 
-        if (fetchError) {
-          console.error('Error fetching documents:', fetchError);
-          throw fetchError;
+        if (filesError) {
+          console.error('Error fetching medical files:', filesError);
+          throw filesError;
         }
         
-        console.log('Raw document data:', data);
+        console.log('Raw animals data:', animalsData);
+        console.log('Raw medical files data:', filesData || []);
 
-        if (!data || data.length === 0) {
-          console.log('No documents found with the current filters');
-          setDocuments([]);
-          setIsLoading(false);
-          return;
-        }
+        // Generate documents from animals data if no actual medical files exist
+        let formattedDocuments = [];
 
-        // Transform the data into a format suitable for the UI
-        const formattedDocuments = data.map(doc => {
-          // Check if animals data exists before accessing properties
-          if (!doc.animals) {
-            console.warn('Document missing animal reference:', doc);
+        // First add actual medical files if they exist
+        if (filesData && filesData.length > 0) {
+          const fileDocuments = filesData.map(doc => {
+            if (!doc.animals) {
+              console.warn('Document missing animal reference:', doc);
+              return {
+                id: doc.id,
+                filename: doc.file_name,
+                patientName: 'Unknown',
+                patientType: 'unknown',
+                owner: 'Unknown',
+                date: doc.uploaded_at,
+                category: doc.file_type || 'Other',
+                fileSize: '1 MB', // Placeholder
+                fileUrl: doc.file_url
+              };
+            }
+
             return {
               id: doc.id,
               filename: doc.file_name,
-              patientName: 'Unknown',
-              patientType: 'unknown',
-              owner: 'Unknown',
+              patientName: doc.animals.name,
+              patientType: doc.animals.animal_type,
+              owner: doc.animals.owners?.full_name || 'Unknown',
               date: doc.uploaded_at,
               category: doc.file_type || 'Other',
               fileSize: '1 MB', // Placeholder
-              fileUrl: doc.file_url
+              fileUrl: doc.file_url,
+              animalId: doc.animals.id,
+              healthNotes: doc.animals.health_notes
             };
-          }
+          });
+          
+          formattedDocuments.push(...fileDocuments);
+        }
 
-          return {
-            id: doc.id,
-            filename: doc.file_name,
-            patientName: doc.animals.name,
-            patientType: doc.animals.animal_type,
-            owner: doc.animals.owners?.full_name || 'Unknown',
-            date: doc.uploaded_at,
-            category: doc.file_type || 'Other',
-            fileSize: '1 MB', // Placeholder
-            fileUrl: doc.file_url,
-            animalId: doc.animals.id,
-            healthNotes: doc.animals.health_notes
-          };
-        });
+        // Then create virtual placeholder records for all animals
+        if (animalsData && animalsData.length > 0) {
+          const animalDocuments = animalsData
+            .filter(animal => {
+              // Filter by animal type if specified
+              if (animalType && animalType !== 'all') {
+                return animal.animal_type.toLowerCase() === animalType.toLowerCase();
+              }
+              return true;
+            })
+            .filter(animal => {
+              // Filter by search query if specified
+              if (searchQuery) {
+                const animalNameMatch = animal.name.toLowerCase().includes(searchQuery.toLowerCase());
+                const ownerNameMatch = animal.owners?.full_name.toLowerCase().includes(searchQuery.toLowerCase());
+                return animalNameMatch || ownerNameMatch;
+              }
+              return true;
+            })
+            .map(animal => {
+              return {
+                id: `animal-${animal.id}`,
+                filename: `Health Records - ${animal.name}`,
+                patientName: animal.name,
+                patientType: animal.animal_type,
+                owner: animal.owners?.full_name || 'Unknown',
+                date: new Date().toISOString(),
+                category: 'Health Record',
+                fileSize: 'N/A',
+                animalId: animal.id,
+                healthNotes: animal.health_notes
+              };
+            });
+
+          // Add to formatted documents but avoid duplicates
+          const existingAnimalIds = new Set(formattedDocuments.map(doc => doc.animalId));
+          const uniqueAnimalDocuments = animalDocuments.filter(
+            doc => !existingAnimalIds.has(doc.animalId)
+          );
+          
+          formattedDocuments.push(...uniqueAnimalDocuments);
+        }
 
         console.log('Formatted documents:', formattedDocuments);
         setDocuments(formattedDocuments);
