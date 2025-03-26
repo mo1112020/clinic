@@ -1,7 +1,15 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { fetchAnimals, fetchMedicalFiles } from '@/services/documents/fetch-documents';
+import { 
+  filterAnimalsByType,
+  filterAnimalsBySearchQuery,
+  formatHealthRecords,
+  filterMedicalFilesByAnimalType,
+  filterMedicalFilesBySearchQuery,
+  formatMedicalFiles
+} from '@/services/documents/format-documents';
 
 export function useDocuments(animalType?: string, categoryFilter?: string, searchQuery?: string) {
   const [documents, setDocuments] = useState<any[]>([]);
@@ -10,166 +18,45 @@ export function useDocuments(animalType?: string, categoryFilter?: string, searc
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchDocuments = async () => {
+    const fetchAndProcessDocuments = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
         console.log('Fetching documents with filters:', { animalType, categoryFilter, searchQuery });
         
-        // Get all animals first
-        const { data: animalsData, error: animalsError } = await supabase
-          .from('animals')
-          .select(`
-            id,
-            name,
-            animal_type,
-            breed,
-            chip_number,
-            health_notes,
-            owner_id,
-            owners (
-              id,
-              full_name,
-              phone_number
-            )
-          `);
-
-        if (animalsError) {
-          console.error('Error fetching animals:', animalsError);
-          throw animalsError;
-        }
+        // Fetch all animals and medical files
+        const [animalsData, filesData] = await Promise.all([
+          fetchAnimals(),
+          fetchMedicalFiles(categoryFilter)
+        ]);
 
         console.log('Animals data fetched:', animalsData);
         
-        // Filter animals if needed
-        let filteredAnimals = animalsData || [];
-        if (animalType && animalType !== 'all') {
-          filteredAnimals = filteredAnimals.filter(animal => 
-            animal.animal_type && animal.animal_type.toLowerCase() === animalType.toLowerCase()
-          );
-        }
-        
-        if (searchQuery) {
-          const lowerQuery = searchQuery.toLowerCase();
-          filteredAnimals = filteredAnimals.filter(animal => 
-            (animal.name && animal.name.toLowerCase().includes(lowerQuery)) || 
-            (animal.owners?.full_name && animal.owners.full_name.toLowerCase().includes(lowerQuery))
-          );
-        }
+        // Apply filters to animals
+        const filteredAnimals = filterAnimalsBySearchQuery(
+          filterAnimalsByType(animalsData, animalType),
+          searchQuery
+        );
         
         console.log('Filtered animals:', filteredAnimals);
 
-        // Get medical files separately
-        let medicalFilesQuery = supabase
-          .from('medical_files')
-          .select(`
-            *,
-            animals (
-              id,
-              name,
-              animal_type,
-              breed,
-              chip_number,
-              health_notes,
-              owner_id,
-              owners (
-                id,
-                full_name,
-                phone_number
-              )
-            )
-          `);
-
-        if (categoryFilter && categoryFilter !== 'all' && categoryFilter !== 'Health Record') {
-          medicalFilesQuery = medicalFilesQuery.eq('file_type', categoryFilter);
-        }
-        
-        const { data: filesData, error: filesError } = await medicalFilesQuery;
-
-        if (filesError) {
-          console.error('Error fetching medical files:', filesError);
-          throw filesError;
-        }
-        
-        console.log('Medical files data:', filesData || []);
-        
-        // Format the documents
+        // Format documents array
         let formattedDocuments: any[] = [];
 
         // 1. Add health records for all animals
         if (categoryFilter === 'all' || categoryFilter === 'Health Record') {
-          filteredAnimals.forEach(animal => {
-            formattedDocuments.push({
-              id: `health-${animal.id}`,
-              filename: `Health Records - ${animal.name}`,
-              patientName: animal.name,
-              patientType: animal.animal_type,
-              owner: animal.owners?.full_name || 'Unknown',
-              date: new Date().toISOString(),
-              category: 'Health Record',
-              fileSize: 'N/A',
-              animalId: animal.id,
-              healthNotes: animal.health_notes,
-              isVirtualRecord: true
-            });
-          });
+          formattedDocuments = formatHealthRecords(filteredAnimals);
         }
 
-        // 2. Add actual medical files
+        // 2. Add actual medical files with filtering
         if (filesData && filesData.length > 0) {
-          const fileDocuments = filesData
-            .filter(doc => {
-              // Apply additional filtering based on animal type if necessary
-              if (animalType && animalType !== 'all' && doc.animals) {
-                return doc.animals.animal_type.toLowerCase() === animalType.toLowerCase();
-              }
-              return true;
-            })
-            .filter(doc => {
-              // Apply additional filtering based on search query if necessary
-              if (searchQuery && doc.animals) {
-                const lowerQuery = searchQuery.toLowerCase();
-                return (
-                  doc.animals.name.toLowerCase().includes(lowerQuery) ||
-                  (doc.animals.owners?.full_name && doc.animals.owners.full_name.toLowerCase().includes(lowerQuery)) ||
-                  (doc.file_name && doc.file_name.toLowerCase().includes(lowerQuery))
-                );
-              }
-              return true;
-            })
-            .map(doc => {
-              if (!doc.animals) {
-                return {
-                  id: doc.id,
-                  filename: doc.file_name || 'Unknown file',
-                  patientName: 'Unknown',
-                  patientType: 'unknown',
-                  owner: 'Unknown',
-                  date: doc.uploaded_at || new Date().toISOString(),
-                  category: doc.file_type || 'Other',
-                  fileSize: '1 MB',
-                  fileUrl: doc.file_url,
-                  isActualFile: true
-                };
-              }
-              
-              return {
-                id: doc.id,
-                filename: doc.file_name || 'Unknown file',
-                patientName: doc.animals.name,
-                patientType: doc.animals.animal_type,
-                owner: doc.animals.owners?.full_name || 'Unknown',
-                date: doc.uploaded_at || new Date().toISOString(),
-                category: doc.file_type || 'Other',
-                fileSize: '1 MB',
-                fileUrl: doc.file_url,
-                animalId: doc.animals.id,
-                healthNotes: doc.animals.health_notes,
-                isActualFile: true
-              };
-            });
-            
+          const filteredFiles = filterMedicalFilesBySearchQuery(
+            filterMedicalFilesByAnimalType(filesData, animalType),
+            searchQuery
+          );
+          
+          const fileDocuments = formatMedicalFiles(filteredFiles);
           formattedDocuments = [...formattedDocuments, ...fileDocuments];
         }
 
@@ -188,7 +75,7 @@ export function useDocuments(animalType?: string, categoryFilter?: string, searc
       }
     };
 
-    fetchDocuments();
+    fetchAndProcessDocuments();
   }, [animalType, categoryFilter, searchQuery, toast]);
 
   const downloadDocument = async (document: any) => {
@@ -202,7 +89,7 @@ export function useDocuments(animalType?: string, categoryFilter?: string, searc
     }
 
     try {
-      // For this example, we'll simulate downloading by opening the URL in a new tab
+      // Open the URL in a new tab
       window.open(document.fileUrl, '_blank');
       
       toast({
