@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Download, Upload, File, FileText as FileTextIcon } from 'lucide-react';
+import { FileText, Download, Upload, File, FileText as FileTextIcon, FileDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { Document } from '@/types/database.types';
@@ -19,6 +19,7 @@ interface DocumentsTabProps {
 const DocumentsTab: React.FC<DocumentsTabProps> = ({ documents, animalId }) => {
   const { animal, owner, vaccinations, medicalHistory } = useAnimalDetails(animalId);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const { toast } = useToast();
   
   const handleGeneratePdf = async () => {
@@ -55,6 +56,37 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ documents, animalId }) => {
       });
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleDownloadDocument = async (doc: Document) => {
+    if (!doc.url) {
+      toast({
+        title: 'Download Failed',
+        description: 'Document URL not available.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    setDownloadingId(doc.id);
+    try {
+      // Open the URL in a new tab
+      window.open(doc.url, '_blank');
+      
+      toast({
+        title: 'Download Started',
+        description: `Downloading ${doc.name}`,
+      });
+    } catch (error) {
+      console.error('Error downloading document:', error);
+      toast({
+        title: 'Download Failed',
+        description: 'Failed to download document. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setDownloadingId(null);
     }
   };
   
@@ -105,9 +137,24 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ documents, animalId }) => {
                     </div>
                   </div>
                 </div>
-                <div>
-                  <Button variant="ghost" size="icon">
-                    <Download className="h-4 w-4" />
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleDownloadDocument(doc)}
+                    disabled={downloadingId === doc.id}
+                  >
+                    <Download className="h-4 w-4 mr-1" />
+                    {downloadingId === doc.id ? 'Downloading...' : 'Download'}
+                  </Button>
+                  <Button 
+                    variant="default" 
+                    size="sm"
+                    onClick={handleGeneratePdf}
+                    disabled={isGenerating}
+                  >
+                    <FileDown className="h-4 w-4 mr-1" />
+                    {isGenerating ? 'Generating...' : 'PDF'}
                   </Button>
                 </div>
               </motion.div>

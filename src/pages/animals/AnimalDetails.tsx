@@ -95,7 +95,11 @@ const AnimalDetails = () => {
         </TabsContent>
         
         <TabsContent value="medical" className="mt-6">
-          <MedicalHistoryTab medicalHistory={medicalHistory} />
+          <MedicalHistoryTab 
+            medicalHistory={medicalHistory} 
+            animalId={id!}
+            refetch={refetch}
+          />
         </TabsContent>
         
         <TabsContent value="documents" className="mt-6">
