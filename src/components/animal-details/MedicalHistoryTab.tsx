@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,7 @@ import { format } from 'date-fns';
 import { MedicalRecord } from '@/types/database.types';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { updateMedicalRecord } from '@/services/medical-records/update-medical-record';
 
 interface MedicalHistoryTabProps {
   medicalHistory: MedicalRecord[];
@@ -37,10 +36,7 @@ const MedicalHistoryTab: React.FC<MedicalHistoryTabProps> = ({ medicalHistory, a
     
     setIsSaving(true);
     try {
-      const { error } = await supabase
-        .from('medical_records')
-        .update({ notes: editedNotes })
-        .eq('id', entryId);
+      const { error } = await updateMedicalRecord(entryId, editedNotes);
       
       if (error) throw error;
       
