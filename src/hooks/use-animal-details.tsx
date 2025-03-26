@@ -13,7 +13,7 @@ interface UseAnimalDetailsResult {
   documents: Document[];
   isLoading: boolean;
   error: string | null;
-  refetch: () => void;
+  refetch: () => Promise<void>;  // Updated return type to Promise<void>
 }
 
 export function useAnimalDetails(animalId: string): UseAnimalDetailsResult {
@@ -26,7 +26,7 @@ export function useAnimalDetails(animalId: string): UseAnimalDetailsResult {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const fetchAnimalData = async () => {
+  const fetchAnimalData = async (): Promise<void> => {
     setIsLoading(true);
     setError(null);
     

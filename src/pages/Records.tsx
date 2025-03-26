@@ -44,7 +44,10 @@ const Records = () => {
 
       // Use the hook to get animal details
       const animalDetailsHook = useAnimalDetails(animalId);
-      const { animal, owner, vaccinations, medicalHistory } = await animalDetailsHook.refetch();
+      const { animal, owner, vaccinations, medicalHistory } = animalDetailsHook;
+      
+      // Call refetch but don't try to destructure its return value
+      await animalDetailsHook.refetch();
       
       if (!animal || !owner) {
         throw new Error('Could not fetch animal or owner information');
