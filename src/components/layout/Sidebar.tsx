@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   Dog, 
   Cat, 
@@ -12,11 +13,13 @@ import {
   Package, 
   LayoutDashboard,
   PlusCircle,
-  Activity
+  Activity,
+  LogOut
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
   const location = useLocation();
+  const { logout } = useAuth();
   
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
@@ -30,6 +33,10 @@ export const Sidebar: React.FC = () => {
     { icon: FileText, label: 'Records', path: '/records' },
     { icon: Activity, label: 'Medical History', path: '/medical-history' },
   ];
+
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
     <div className="h-full flex flex-col bg-sidebar/80 backdrop-blur-lg border-r border-border">
@@ -69,14 +76,22 @@ export const Sidebar: React.FC = () => {
       
       {/* Sidebar footer */}
       <div className="p-4 border-t border-border">
-        <div className="flex items-center gap-3 px-2">
-          <div className="h-8 w-8 rounded-full bg-canki-muted flex items-center justify-center">
-            <span className="text-canki font-semibold">AV</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 px-2">
+            <div className="h-8 w-8 rounded-full bg-canki-muted flex items-center justify-center">
+              <span className="text-canki font-semibold">AV</span>
+            </div>
+            <div>
+              <p className="text-sm font-medium">Admin User</p>
+              <p className="text-xs text-muted-foreground">Veterinarian</p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-medium">Admin User</p>
-            <p className="text-xs text-muted-foreground">Veterinarian</p>
-          </div>
+          <button 
+            onClick={handleLogout}
+            className="p-2 rounded-md hover:bg-red-100 text-red-500 transition-colors duration-200"
+          >
+            <LogOut size={18} />
+          </button>
         </div>
       </div>
     </div>

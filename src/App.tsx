@@ -1,7 +1,10 @@
 
 import { Routes, Route } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { AuthProvider } from '@/contexts/AuthContext';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
 import NotFound from './pages/NotFound';
 import AnimalSearch from './pages/animals/AnimalSearch';
 import AnimalForm from './pages/animals/AnimalForm';
@@ -16,21 +19,77 @@ import Records from './pages/Records';
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<AppLayout><Dashboard /></AppLayout>} />
-      <Route path="/animals/new" element={<AppLayout><AnimalForm /></AppLayout>} />
-      <Route path="/animals/:id/edit" element={<AppLayout><AnimalForm /></AppLayout>} />
-      <Route path="/animals/search" element={<AppLayout><AnimalSearch /></AppLayout>} />
-      <Route path="/animals/:id" element={<AppLayout><AnimalDetails /></AppLayout>} />
-      <Route path="/animals/dogs" element={<AppLayout><DogsList /></AppLayout>} />
-      <Route path="/animals/cats" element={<AppLayout><CatsList /></AppLayout>} />
-      <Route path="/animals/birds" element={<AppLayout><BirdsList /></AppLayout>} />
-      <Route path="/vaccinations" element={<AppLayout><VaccinationReminders /></AppLayout>} />
-      <Route path="/inventory" element={<AppLayout><InventoryManagement /></AppLayout>} />
-      <Route path="/records" element={<AppLayout><Records /></AppLayout>} />
-      <Route path="/medical-history" element={<AppLayout><MedicalHistory /></AppLayout>} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <AuthProvider>
+      <Routes>
+        {/* Public route */}
+        <Route path="/login" element={<Login />} />
+        
+        {/* Protected routes */}
+        <Route path="/" element={
+          <ProtectedRoute>
+            <AppLayout><Dashboard /></AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/animals/new" element={
+          <ProtectedRoute>
+            <AppLayout><AnimalForm /></AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/animals/:id/edit" element={
+          <ProtectedRoute>
+            <AppLayout><AnimalForm /></AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/animals/search" element={
+          <ProtectedRoute>
+            <AppLayout><AnimalSearch /></AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/animals/:id" element={
+          <ProtectedRoute>
+            <AppLayout><AnimalDetails /></AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/animals/dogs" element={
+          <ProtectedRoute>
+            <AppLayout><DogsList /></AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/animals/cats" element={
+          <ProtectedRoute>
+            <AppLayout><CatsList /></AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/animals/birds" element={
+          <ProtectedRoute>
+            <AppLayout><BirdsList /></AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/vaccinations" element={
+          <ProtectedRoute>
+            <AppLayout><VaccinationReminders /></AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/inventory" element={
+          <ProtectedRoute>
+            <AppLayout><InventoryManagement /></AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/records" element={
+          <ProtectedRoute>
+            <AppLayout><Records /></AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/medical-history" element={
+          <ProtectedRoute>
+            <AppLayout><MedicalHistory /></AppLayout>
+          </ProtectedRoute>
+        } />
+        
+        {/* Not found route */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </AuthProvider>
   );
 }
 

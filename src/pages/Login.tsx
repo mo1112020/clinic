@@ -1,0 +1,125 @@
+
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { useToast } from '@/components/ui/use-toast';
+import { Eye, EyeOff, User, Lock } from 'lucide-react';
+
+const Login = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      if (username === 'admin' && password === 'canki123') {
+        // Set authentication in localStorage
+        localStorage.setItem('isAuthenticated', 'true');
+        navigate('/');
+        toast({
+          title: "Login successful",
+          description: "Welcome to Canki Vet Clinic",
+        });
+      } else {
+        toast({
+          title: "Login failed",
+          description: "Invalid username or password",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+      }
+    }, 1000);
+  };
+
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <img 
+            src="/lovable-uploads/794ea767-dad6-4f2c-9607-84ace668de52.png" 
+            alt="Canki Vet Clinic" 
+            className="mx-auto w-48 h-48 mb-6"
+          />
+          <h1 className="text-3xl font-bold text-canki">Canki Vet Clinic</h1>
+          <p className="text-gray-600 mt-2">Admin Login</p>
+        </div>
+        
+        <Card className="shadow-lg border-t-4 border-t-canki">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl text-center">Sign In</CardTitle>
+          </CardHeader>
+          
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <div className="relative">
+                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder="Username"
+                    className="pl-10"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
+                    className="pl-10"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={toggleShowPassword}
+                    className="absolute right-3 top-3 text-muted-foreground"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+              
+              <Button 
+                type="submit" 
+                className="w-full bg-canki hover:bg-canki/90"
+                disabled={isLoading}
+              >
+                {isLoading ? "Signing in..." : "Sign In"}
+              </Button>
+            </form>
+          </CardContent>
+          
+          <CardFooter className="flex justify-center text-sm text-muted-foreground">
+            <p>Canki Vet Clinic Management System</p>
+          </CardFooter>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default Login;
