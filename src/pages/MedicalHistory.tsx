@@ -8,7 +8,7 @@ import { Search, Dog, Cat, Bird, Calendar, FileText, Pill, Stethoscope, Loader2 
 import { Link } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion } from 'framer-motion';
-import { useMedicalHistory } from '@/hooks/use-medical-history';
+import { useMedicalHistory, MedicalHistoryRecord } from '@/hooks/use-medical-history';
 import { format } from 'date-fns';
 
 const MedicalHistory = () => {
@@ -17,7 +17,7 @@ const MedicalHistory = () => {
   const { medicalHistory, isLoading, error } = useMedicalHistory(currentTab, searchQuery);
   
   const handleSearch = () => {
-    // The useMedicalHistory hook will handle the search
+    // The useMedicalHistory hook will handle the search based on current state
   };
   
   const handleTabChange = (value: string) => {
@@ -25,7 +25,7 @@ const MedicalHistory = () => {
   };
 
   const getAnimalIcon = (type: string) => {
-    switch (type) {
+    switch (type.toLowerCase()) {
       case 'dog':
         return <Dog className="h-5 w-5 text-amber-500" />;
       case 'cat':
@@ -33,7 +33,7 @@ const MedicalHistory = () => {
       case 'bird':
         return <Bird className="h-5 w-5 text-purple-500" />;
       default:
-        return null;
+        return <FileText className="h-5 w-5 text-gray-500" />;
     }
   };
 
@@ -47,8 +47,20 @@ const MedicalHistory = () => {
     animate: { opacity: 1, y: 0, transition: { duration: 0.3 } },
   };
 
+  // Format the date safely
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'N/A';
+    
+    try {
+      return format(new Date(dateString), 'yyyy-MM-dd');
+    } catch (error) {
+      console.error('Error formatting date:', error, dateString);
+      return 'Invalid date';
+    }
+  };
+
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight mb-2">Medical History</h1>
         <p className="text-muted-foreground">View and search through all medical procedures and visits.</p>
@@ -133,52 +145,39 @@ const MedicalHistory = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <motion.div 
-                    variants={listVariants}
-                    initial="initial"
-                    animate="animate"
-                    className="contents"
-                  >
-                    {medicalHistory.map((record) => (
-                      <motion.div 
-                        key={record.id}
-                        variants={itemVariants}
-                        className="contents"
-                      >
-                        <TableRow>
-                          <TableCell className="font-medium">
-                            <div className="flex items-center gap-2">
-                              {getAnimalIcon(record.patientType)}
-                              <span>{record.patientName}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>{record.owner}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4 text-muted-foreground" />
-                              <span>{format(new Date(record.date), 'yyyy-MM-dd')}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Pill className="h-4 w-4 text-muted-foreground" />
-                              <span>{record.procedure}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>{record.details}</TableCell>
-                          <TableCell>{record.veterinarian}</TableCell>
-                          <TableCell>
-                            <Link to={`/animals/${record.id}`}>
-                              <Button variant="outline" size="sm">
-                                <FileText className="h-4 w-4 mr-2" />
-                                Patient Details
-                              </Button>
-                            </Link>
-                          </TableCell>
-                        </TableRow>
-                      </motion.div>
-                    ))}
-                  </motion.div>
+                  {medicalHistory.map((record) => (
+                    <TableRow key={record.id}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          {getAnimalIcon(record.patientType)}
+                          <span>{record.patientName}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>{record.owner}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          <span>{formatDate(record.date)}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Pill className="h-4 w-4 text-muted-foreground" />
+                          <span>{record.procedure}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>{record.details}</TableCell>
+                      <TableCell>{record.veterinarian}</TableCell>
+                      <TableCell>
+                        <Link to={`/animals/${record.animalId}`}>
+                          <Button variant="outline" size="sm">
+                            <FileText className="h-4 w-4 mr-2" />
+                            Patient Details
+                          </Button>
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </div>

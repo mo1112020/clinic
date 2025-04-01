@@ -3,8 +3,20 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+export interface MedicalHistoryRecord {
+  id: string;
+  patientName: string;
+  patientType: string;
+  owner: string;
+  date: string;
+  procedure: string;
+  details: string;
+  veterinarian: string;
+  animalId: string;
+}
+
 export function useMedicalHistory(animalType?: string, searchQuery?: string) {
-  const [medicalHistory, setMedicalHistory] = useState<any[]>([]);
+  const [medicalHistory, setMedicalHistory] = useState<MedicalHistoryRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
@@ -48,13 +60,14 @@ export function useMedicalHistory(animalType?: string, searchQuery?: string) {
         // Transform data for the medical history format
         const formattedData = data.map(item => ({
           id: item.id,
-          patientName: item.animals.name,
-          patientType: item.animals.animal_type,
-          owner: item.animals.owners.full_name,
+          patientName: item.animals?.name || 'Unknown',
+          patientType: item.animals?.animal_type || 'Unknown',
+          owner: item.animals?.owners?.full_name || 'Unknown',
           date: item.scheduled_date,
           procedure: item.completed ? 'Vaccination (Completed)' : 'Vaccination (Scheduled)',
           details: `${item.vaccine_name} vaccination`,
-          veterinarian: 'Dr. Sarah Johnson' // This would come from a staff/users table in a real app
+          veterinarian: 'Dr. Sarah Johnson', // This would come from a staff/users table in a real app
+          animalId: item.animal_id
         }));
 
         setMedicalHistory(formattedData);
