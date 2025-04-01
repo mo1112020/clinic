@@ -71,8 +71,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           <h1 className="text-xl font-semibold">Canki Vet Clinic</h1>
         </div>
         
-        {/* Page content */}
-        <main className="p-0">
+        {/* Page content with margin */}
+        <main className="p-6">
           {children}
         </main>
       </div>
