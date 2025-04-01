@@ -150,6 +150,44 @@ export type Database = {
           },
         ]
       }
+      medical_records: {
+        Row: {
+          animal_id: string
+          created_at: string | null
+          date: string
+          description: string
+          id: string
+          notes: string
+          updated_at: string | null
+        }
+        Insert: {
+          animal_id: string
+          created_at?: string | null
+          date: string
+          description: string
+          id?: string
+          notes: string
+          updated_at?: string | null
+        }
+        Update: {
+          animal_id?: string
+          created_at?: string | null
+          date?: string
+          description?: string
+          id?: string
+          notes?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medical_records_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       owners: {
         Row: {
           created_at: string | null
