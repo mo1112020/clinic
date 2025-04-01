@@ -1,11 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { Eye, EyeOff, User, Lock } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -14,30 +15,36 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { login, isAuthenticated } = useAuth();
+
+  // Check if already authenticated, redirect to dashboard
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      if (username === 'admin' && password === 'canki123') {
-        // Set authentication in localStorage
-        localStorage.setItem('isAuthenticated', 'true');
-        navigate('/');
-        toast({
-          title: "Login successful",
-          description: "Welcome to Canki Vet Clinic",
-        });
-      } else {
-        toast({
-          title: "Login failed",
-          description: "Invalid username or password",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-      }
-    }, 1000);
+    // Use the login function from AuthContext
+    const success = login(username, password);
+    
+    if (success) {
+      toast({
+        title: "Login successful",
+        description: "Welcome to Canki Vet Clinic",
+      });
+      navigate('/');
+    } else {
+      toast({
+        title: "Login failed",
+        description: "Invalid username or password",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+    }
   };
 
   const toggleShowPassword = () => {
