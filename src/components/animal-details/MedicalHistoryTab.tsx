@@ -37,7 +37,14 @@ const MedicalHistoryTab: React.FC<MedicalHistoryTabProps> = ({ medicalHistory, a
   };
 
   const handleSave = async (entryId: string) => {
-    if (!animalId) return;
+    if (!entryId) {
+      toast({
+        title: 'Update failed',
+        description: 'Invalid record ID.',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     setIsSaving(true);
     try {
@@ -103,7 +110,9 @@ const MedicalHistoryTab: React.FC<MedicalHistoryTabProps> = ({ medicalHistory, a
                     <p className="font-medium">{entry.description}</p>
                   )}
                   <div className="flex items-center gap-2">
-                    <p className="text-sm text-muted-foreground">{format(new Date(entry.date), 'MMMM d, yyyy')}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {entry.date ? format(new Date(entry.date), 'MMMM d, yyyy') : 'No date'}
+                    </p>
                     {editingId !== entry.id && (
                       <Button 
                         variant="ghost" 

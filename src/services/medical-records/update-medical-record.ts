@@ -7,6 +7,11 @@ export const updateMedicalRecord = async (
   description?: string
 ) => {
   try {
+    // Validate recordId - should be a UUID
+    if (!recordId || typeof recordId !== 'string' || recordId.length < 10) {
+      throw new Error('Invalid medical record ID format');
+    }
+
     // Create the update payload
     const updatePayload: { notes: string; description?: string } = { notes };
     
@@ -15,16 +20,17 @@ export const updateMedicalRecord = async (
       updatePayload.description = description;
     }
     
-    // Use TypeScript's 'any' type to bypass the type checker for now
-    // This is needed because the generated types might not be updated immediately
-    const { data, error } = await (supabase
-      .from('medical_records') as any)
+    console.log(`Updating medical record: ${recordId}`, updatePayload);
+
+    const { data, error } = await supabase
+      .from('medical_records')
       .update(updatePayload)
       .eq('id', recordId)
       .select();
 
     if (error) throw error;
 
+    console.log('Update successful:', data);
     return { data, error: null };
   } catch (error) {
     console.error('Error updating medical record:', error);

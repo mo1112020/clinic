@@ -13,7 +13,7 @@ interface UseAnimalDetailsResult {
   documents: Document[];
   isLoading: boolean;
   error: string | null;
-  refetch: () => Promise<void>;  // Updated return type to Promise<void>
+  refetch: () => Promise<void>;
 }
 
 export function useAnimalDetails(animalId: string): UseAnimalDetailsResult {
@@ -56,17 +56,11 @@ export function useAnimalDetails(animalId: string): UseAnimalDetailsResult {
       const vaccinationData = await fetchVaccinations(animalId);
       setVaccinations(vaccinationData);
       
-      // For demo, using sample medical history and documents
-      setMedicalHistory([
-        {
-          id: '1',
-          animal_id: animalId,
-          date: new Date().toISOString(),
-          description: 'Routine checkup',
-          notes: 'Patient is in good health. Weight: 10kg. No concerns.',
-        },
-      ]);
+      // Fetch medical records
+      const medicalRecordsData = await fetchMedicalRecords(animalId);
+      setMedicalHistory(medicalRecordsData);
       
+      // For demo, using sample documents
       setDocuments([
         {
           id: '1',
@@ -107,11 +101,58 @@ export function useAnimalDetails(animalId: string): UseAnimalDetailsResult {
         name: vaccination.vaccine_name,
         date: vaccination.scheduled_date,
         next_due: vaccination.scheduled_date,
-        // Fix: Explicitly cast the status to the allowed literal types
         status: vaccination.completed ? 'completed' : 'upcoming' as 'completed' | 'upcoming' | 'overdue',
       }));
     } catch (error) {
       console.error('Error fetching vaccinations:', error);
+      return [];
+    }
+  };
+
+  const fetchMedicalRecords = async (animalId: string): Promise<MedicalRecord[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('medical_records')
+        .select('*')
+        .eq('animal_id', animalId)
+        .order('date', { ascending: false });
+
+      if (error) throw error;
+
+      if (data.length === 0) {
+        // If no records exist, let's create an initial one
+        const initialRecord = {
+          animal_id: animalId,
+          date: new Date().toISOString().split('T')[0],
+          description: 'Routine checkup',
+          notes: 'Patient is in good health. Weight: 10kg. No concerns.'
+        };
+
+        const { data: newRecordData, error: insertError } = await supabase
+          .from('medical_records')
+          .insert(initialRecord)
+          .select();
+
+        if (insertError) throw insertError;
+
+        return newRecordData.map(record => ({
+          id: record.id,
+          animal_id: record.animal_id,
+          date: record.date,
+          description: record.description,
+          notes: record.notes,
+        }));
+      }
+
+      return data.map(record => ({
+        id: record.id,
+        animal_id: record.animal_id,
+        date: record.date,
+        description: record.description,
+        notes: record.notes,
+      }));
+    } catch (error) {
+      console.error('Error fetching medical records:', error);
       return [];
     }
   };
