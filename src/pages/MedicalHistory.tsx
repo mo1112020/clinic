@@ -7,7 +7,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Search, Dog, Cat, Bird, Calendar, FileText, Pill, Stethoscope, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { motion } from 'framer-motion';
 import { useMedicalHistory, MedicalHistoryRecord } from '@/hooks/use-medical-history';
 import { format } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -17,10 +16,6 @@ const MedicalHistory = () => {
   const [currentTab, setCurrentTab] = useState('all');
   const { medicalHistory, isLoading, error } = useMedicalHistory(currentTab, searchQuery);
   const { t } = useLanguage();
-  
-  const handleSearch = () => {
-    // The useMedicalHistory hook will handle the search based on current state
-  };
   
   const handleTabChange = (value: string) => {
     setCurrentTab(value);
@@ -39,16 +34,6 @@ const MedicalHistory = () => {
     }
   };
 
-  const listVariants = {
-    initial: { opacity: 0 },
-    animate: { opacity: 1, transition: { staggerChildren: 0.05 } },
-  };
-  
-  const itemVariants = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-  };
-
   // Format the date safely
   const formatDate = (dateString: string) => {
     if (!dateString) return 'N/A';
@@ -56,51 +41,49 @@ const MedicalHistory = () => {
     try {
       return format(new Date(dateString), 'yyyy-MM-dd');
     } catch (error) {
-      console.error('Error formatting date:', error, dateString);
       return 'Invalid date';
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-2">{t('medicalHistory')}</h1>
-        <p className="text-muted-foreground">View and search through all medical procedures and visits.</p>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight mb-2">{t('medicalHistory')}</h1>
+        <p className="text-muted-foreground text-sm md:text-base">{t('viewAndSearchRecords')}</p>
       </div>
       
       <Card className="glass-card">
-        <CardHeader>
+        <CardHeader className="py-4 md:py-6">
           <CardTitle>{t('searchRecords')}</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="all" onValueChange={handleTabChange}>
             <TabsList className="grid grid-cols-4 mb-4">
-              <TabsTrigger value="all">{t('all')} {t('animals')}</TabsTrigger>
+              <TabsTrigger value="all">{t('all')}</TabsTrigger>
               <TabsTrigger value="dog">
-                <Dog className="h-4 w-4 mr-2" />
+                <Dog className="h-4 w-4 mr-2 hidden sm:inline" />
                 {t('dogs')}
               </TabsTrigger>
               <TabsTrigger value="cat">
-                <Cat className="h-4 w-4 mr-2" />
+                <Cat className="h-4 w-4 mr-2 hidden sm:inline" />
                 {t('cats')}
               </TabsTrigger>
               <TabsTrigger value="bird">
-                <Bird className="h-4 w-4 mr-2" />
+                <Bird className="h-4 w-4 mr-2 hidden sm:inline" />
                 {t('birds')}
               </TabsTrigger>
             </TabsList>
             
             <div className="flex gap-2">
               <Input
-                placeholder="Search by patient, owner, procedure, or veterinarian"
+                placeholder={t('searchPlaceholder')}
                 className="glass-input"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
-              <Button onClick={handleSearch} className="btn-primary">
+              <Button className="btn-primary whitespace-nowrap">
                 <Search className="h-4 w-4 mr-2" />
-                {t('searchRecords')}
+                <span className="hidden sm:inline">{t('search')}</span>
               </Button>
             </div>
           </Tabs>
@@ -108,7 +91,7 @@ const MedicalHistory = () => {
       </Card>
       
       <Card>
-        <CardHeader>
+        <CardHeader className="py-4 md:py-6">
           <CardTitle>
             <div className="flex items-center">
               <Stethoscope className="h-5 w-5 mr-2 text-primary" />
@@ -121,7 +104,7 @@ const MedicalHistory = () => {
             <div className="flex justify-center items-center h-[200px]">
               <div className="text-center">
                 <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-primary" />
-                <p className="text-muted-foreground">Loading medical records...</p>
+                <p className="text-muted-foreground">{t('loadingRecords')}</p>
               </div>
             </div>
           ) : error ? (
@@ -130,19 +113,19 @@ const MedicalHistory = () => {
             </div>
           ) : medicalHistory.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No medical records found. Try a different search.</p>
+              <p className="text-muted-foreground">{t('noRecordsFound')}</p>
             </div>
           ) : (
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t('patient')}</TableHead>
-                    <TableHead>{t('owner')}</TableHead>
+                    <TableHead className="hidden md:table-cell">{t('owner')}</TableHead>
                     <TableHead>{t('date')}</TableHead>
-                    <TableHead>{t('procedure')}</TableHead>
-                    <TableHead>{t('details')}</TableHead>
-                    <TableHead>{t('veterinarian')}</TableHead>
+                    <TableHead className="hidden sm:table-cell">{t('procedure')}</TableHead>
+                    <TableHead className="hidden lg:table-cell">{t('details')}</TableHead>
+                    <TableHead className="hidden lg:table-cell">{t('veterinarian')}</TableHead>
                     <TableHead></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -152,29 +135,29 @@ const MedicalHistory = () => {
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
                           {getAnimalIcon(record.patientType)}
-                          <span>{record.patientName}</span>
+                          <span className="truncate max-w-[100px] md:max-w-full">{record.patientName}</span>
                         </div>
                       </TableCell>
-                      <TableCell>{record.owner}</TableCell>
+                      <TableCell className="hidden md:table-cell truncate max-w-[120px]">{record.owner}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-muted-foreground" />
                           <span>{formatDate(record.date)}</span>
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden sm:table-cell">
                         <div className="flex items-center gap-2">
                           <Pill className="h-4 w-4 text-muted-foreground" />
-                          <span>{record.procedure}</span>
+                          <span className="truncate max-w-[120px] lg:max-w-full">{record.procedure}</span>
                         </div>
                       </TableCell>
-                      <TableCell>{record.details}</TableCell>
-                      <TableCell>{record.veterinarian}</TableCell>
+                      <TableCell className="hidden lg:table-cell truncate max-w-[200px]">{record.details}</TableCell>
+                      <TableCell className="hidden lg:table-cell">{record.veterinarian}</TableCell>
                       <TableCell>
                         <Link to={`/animals/${record.animalId}`}>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className="whitespace-nowrap">
                             <FileText className="h-4 w-4 mr-2" />
-                            {t('patientDetails')}
+                            <span className="hidden sm:inline">{t('details')}</span>
                           </Button>
                         </Link>
                       </TableCell>

@@ -30,7 +30,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   return (
-    <div className="min-h-screen flex w-full">
+    <div className="min-h-screen flex w-full overflow-x-hidden">
       {/* Sidebar */}
       <AnimatePresence mode="wait">
         {sidebarOpen && (
@@ -40,7 +40,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             exit={{ x: -300, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className={cn(
-              "z-20 fixed top-0 left-0 h-full md:relative",
+              "z-30 fixed top-0 left-0 h-full md:relative",
               isMobile ? "w-[280px]" : "w-[280px]"
             )}
           >
@@ -52,13 +52,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {/* Backdrop for mobile */}
       {sidebarOpen && isMobile && (
         <div 
-          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-10"
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-20"
           onClick={toggleSidebar}
         />
       )}
       
       {/* Main content */}
-      <div className="flex-1 transition-all duration-300 ease-in-out">
+      <div className="flex-1 w-full transition-all duration-300 ease-in-out">
         {/* Navbar */}
         <div className="sticky top-0 z-10 bg-background/70 backdrop-blur-md border-b border-border h-16 flex items-center px-4">
           <Button 
@@ -66,17 +66,18 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             size="icon" 
             onClick={toggleSidebar} 
             className="mr-4"
+            aria-label="Toggle sidebar"
           >
             <Menu className="h-5 w-5" />
           </Button>
-          <h1 className="text-xl font-semibold">Canki Vet Clinic</h1>
+          <h1 className="text-xl font-semibold truncate">Canki Vet Clinic</h1>
           <div className="ml-auto flex items-center gap-2">
             <LanguageSwitcher />
           </div>
         </div>
         
-        {/* Page content with margin */}
-        <main className="p-6">
+        {/* Page content with responsive padding */}
+        <main className="p-3 sm:p-4 md:p-6">
           {children}
         </main>
       </div>
