@@ -66,7 +66,7 @@ export function useMedicalHistory(animalType?: string, searchQuery?: string) {
           date: item.scheduled_date,
           procedure: item.completed ? 'Vaccination (Completed)' : 'Vaccination (Scheduled)',
           details: `${item.vaccine_name} vaccination`,
-          veterinarian: 'Dr. Sarah Johnson', // This would come from a staff/users table in a real app
+          veterinarian: 'Unknown', // Removed hardcoded name
           animalId: item.animal_id
         }));
 
