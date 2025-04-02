@@ -3,13 +3,11 @@ import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Download, Upload, File, FileText as FileTextIcon, FileDown } from 'lucide-react';
+import { Download, File } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { Document } from '@/types/database.types';
-import { useAnimalDetails } from '@/hooks/use-animal-details';
 import { useToast } from '@/hooks/use-toast';
-import { generateAnimalRecordPdf } from '@/services/documents/generate-pdf';
 
 interface DocumentsTabProps {
   documents: Document[];
@@ -17,47 +15,8 @@ interface DocumentsTabProps {
 }
 
 const DocumentsTab: React.FC<DocumentsTabProps> = ({ documents, animalId }) => {
-  const { animal, owner, vaccinations, medicalHistory } = useAnimalDetails(animalId);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const { toast } = useToast();
-  
-  const handleGeneratePdf = async () => {
-    if (!animal || !owner) return;
-    
-    setIsGenerating(true);
-    try {
-      const pdfDataUrl = await generateAnimalRecordPdf({
-        animal,
-        owner,
-        vaccinations,
-        medicalRecords: medicalHistory,
-        title: `Medical Record - ${animal.name}`
-      });
-      
-      // Create an anchor element and trigger download
-      const link = document.createElement('a');
-      link.href = pdfDataUrl;
-      link.download = `${animal.name.replace(/\s+/g, '_')}_medical_record.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      toast({
-        title: 'PDF Generated',
-        description: 'Medical record PDF has been generated and downloaded.',
-      });
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to generate PDF. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   const handleDownloadDocument = async (doc: Document) => {
     if (!doc.url) {
@@ -92,20 +51,10 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ documents, animalId }) => {
   
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader>
         <div>
           <CardTitle>Documents & Files</CardTitle>
-          <CardDescription>Manage patient documents and files</CardDescription>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleGeneratePdf} disabled={isGenerating}>
-            <FileTextIcon className="mr-2 h-4 w-4" />
-            {isGenerating ? 'Generating...' : 'Generate PDF'}
-          </Button>
-          <Button className="btn-primary">
-            <Upload className="mr-2 h-4 w-4" />
-            Upload Document
-          </Button>
+          <CardDescription>Patient documents and files</CardDescription>
         </div>
       </CardHeader>
       <CardContent>
@@ -146,15 +95,6 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ documents, animalId }) => {
                   >
                     <Download className="h-4 w-4 mr-1" />
                     {downloadingId === doc.id ? 'Downloading...' : 'Download'}
-                  </Button>
-                  <Button 
-                    variant="default" 
-                    size="sm"
-                    onClick={handleGeneratePdf}
-                    disabled={isGenerating}
-                  >
-                    <FileDown className="h-4 w-4 mr-1" />
-                    {isGenerating ? 'Generating...' : 'PDF'}
                   </Button>
                 </div>
               </motion.div>

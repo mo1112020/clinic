@@ -1,7 +1,6 @@
 
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { Phone, Mail } from 'lucide-react';
 
@@ -63,12 +62,6 @@ const OwnerInformation: React.FC<OwnerInformationProps> = ({ owner }) => {
           </motion.div>
         )}
       </CardContent>
-      <CardFooter>
-        <Button variant="outline" className="w-full">
-          <Phone className="mr-2 h-4 w-4" />
-          Contact Owner
-        </Button>
-      </CardFooter>
     </Card>
   );
 };
