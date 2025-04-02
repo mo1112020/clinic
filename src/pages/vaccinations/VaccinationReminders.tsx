@@ -7,9 +7,11 @@ import { useVaccinations } from '@/hooks/use-vaccinations';
 import { VaccinationReminderCard, VaccinationReminderItem } from '@/components/vaccinations/VaccinationReminderCard';
 import { VaccinationLoadingState } from '@/components/vaccinations/VaccinationLoadingState';
 import { VaccinationEmptyState } from '@/components/vaccinations/VaccinationEmptyState';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const VaccinationReminders = () => {
   const [activeTab, setActiveTab] = useState<'today' | 'upcoming' | 'overdue' | 'all'>('upcoming');
+  const { t } = useLanguage();
   
   // Use the custom hook to fetch vaccination data
   const { vaccinations, isLoading, error, sendingReminders, sendReminder } = useVaccinations(activeTab);
@@ -17,16 +19,16 @@ const VaccinationReminders = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Vaccination Reminders</h1>
+        <h1 className="text-3xl font-bold tracking-tight mb-2">{t('vaccinations')}</h1>
         <p className="text-muted-foreground">Manage upcoming vaccinations and send reminders to pet owners.</p>
       </div>
       
       <Tabs defaultValue="upcoming" onValueChange={(value) => setActiveTab(value as any)}>
         <TabsList className="grid grid-cols-4 w-full max-w-md mb-6">
-          <TabsTrigger value="today">Today</TabsTrigger>
-          <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-          <TabsTrigger value="overdue">Overdue</TabsTrigger>
-          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="today">{t('today')}</TabsTrigger>
+          <TabsTrigger value="upcoming">{t('upcoming')}</TabsTrigger>
+          <TabsTrigger value="overdue">{t('overdue')}</TabsTrigger>
+          <TabsTrigger value="all">{t('all')}</TabsTrigger>
         </TabsList>
         
         {['today', 'upcoming', 'overdue', 'all'].map((tabValue) => (
@@ -35,7 +37,7 @@ const VaccinationReminders = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Bell className="h-5 w-5" />
-                  {tabValue.charAt(0).toUpperCase() + tabValue.slice(1)} Vaccinations
+                  {t(tabValue)} {t('vaccinations')}
                 </CardTitle>
                 <CardDescription>
                   {isLoading ? 'Loading...' : 

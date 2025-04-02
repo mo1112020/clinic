@@ -1,6 +1,6 @@
 
 import { format } from 'date-fns';
-import { Send, Loader2 } from 'lucide-react';
+import { MessageSquare, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { VaccinationStatusBadge } from './VaccinationStatusBadge';
@@ -85,12 +85,12 @@ export const VaccinationReminderCard = ({
             {isSending ? (
               <div className="flex items-center">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                Sending...
+                Opening...
               </div>
             ) : (
               <>
-                <Send className="mr-2 h-4 w-4" />
-                Send Reminder
+                <MessageSquare className="mr-2 h-4 w-4" />
+                WhatsApp Reminder
               </>
             )}
           </Button>

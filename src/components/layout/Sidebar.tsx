@@ -3,6 +3,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   Dog, 
   Cat, 
@@ -20,18 +21,19 @@ import {
 export const Sidebar: React.FC = () => {
   const location = useLocation();
   const { logout } = useAuth();
+  const { t } = useLanguage();
   
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-    { icon: PlusCircle, label: 'New Patient', path: '/animals/new' },
-    { icon: Search, label: 'Search Records', path: '/animals/search' },
-    { icon: Dog, label: 'Dogs', path: '/animals/dogs' },
-    { icon: Cat, label: 'Cats', path: '/animals/cats' },
-    { icon: Bird, label: 'Birds', path: '/animals/birds' },
-    { icon: Calendar, label: 'Vaccinations', path: '/vaccinations' },
-    { icon: Package, label: 'Inventory', path: '/inventory' },
-    { icon: FileText, label: 'Records', path: '/records' },
-    { icon: Activity, label: 'Medical History', path: '/medical-history' },
+    { icon: LayoutDashboard, label: t('dashboard'), path: '/' },
+    { icon: PlusCircle, label: t('newPatient'), path: '/animals/new' },
+    { icon: Search, label: t('searchRecords'), path: '/animals/search' },
+    { icon: Dog, label: t('dogs'), path: '/animals/dogs' },
+    { icon: Cat, label: t('cats'), path: '/animals/cats' },
+    { icon: Bird, label: t('birds'), path: '/animals/birds' },
+    { icon: Calendar, label: t('vaccinations'), path: '/vaccinations' },
+    { icon: Package, label: t('inventory'), path: '/inventory' },
+    { icon: FileText, label: t('records'), path: '/records' },
+    { icon: Activity, label: t('medicalHistory'), path: '/medical-history' },
   ];
 
   const handleLogout = () => {
@@ -89,6 +91,7 @@ export const Sidebar: React.FC = () => {
           <button 
             onClick={handleLogout}
             className="p-2 rounded-md hover:bg-red-100 text-red-500 transition-colors duration-200"
+            title={t('logout')}
           >
             <LogOut size={18} />
           </button>

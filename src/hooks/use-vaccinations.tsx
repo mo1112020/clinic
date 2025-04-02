@@ -91,23 +91,42 @@ export function useVaccinations(filter: 'today' | 'upcoming' | 'overdue' | 'all'
     setSendingReminders(prev => [...prev, id]);
     
     try {
-      // In a real application, this would call a Supabase Edge Function to send SMS/email
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
+      // Find the vaccination in our state
+      const vaccination = vaccinations.find(v => v.id === id);
       
+      if (!vaccination) {
+        throw new Error('Vaccination not found');
+      }
+
+      // Format phone number for WhatsApp
+      const phoneNumber = formatPhoneForWhatsApp(vaccination.ownerPhone);
+      
+      // Create message
+      const message = `Hello ${vaccination.ownerName}, this is a reminder that ${vaccination.animalName} is due for a ${vaccination.vaccineName} vaccination on ${format(new Date(vaccination.date), 'MMMM d, yyyy')}. Please contact the clinic to confirm the appointment.`;
+      
+      // Open WhatsApp with the message
+      window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
+
       toast({
-        title: "Reminder sent",
-        description: "The vaccination reminder has been sent to the owner.",
+        title: "WhatsApp opened",
+        description: "Continue in WhatsApp to send the reminder message.",
       });
     } catch (err) {
       console.error('Error sending reminder:', err);
       toast({
         title: 'Error',
-        description: 'Failed to send reminder. Please try again.',
+        description: 'Failed to open WhatsApp. Please try again.',
         variant: 'destructive',
       });
     } finally {
       setSendingReminders(prev => prev.filter(reminderId => reminderId !== id));
     }
+  };
+
+  // Format phone number for WhatsApp API (remove any non-digit characters)
+  const formatPhoneForWhatsApp = (phone: string): string => {
+    if (!phone) return '';
+    return phone.replace(/\D/g, '');
   };
 
   return { vaccinations, isLoading, error, sendingReminders, sendReminder };

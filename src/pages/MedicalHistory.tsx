@@ -10,11 +10,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion } from 'framer-motion';
 import { useMedicalHistory, MedicalHistoryRecord } from '@/hooks/use-medical-history';
 import { format } from 'date-fns';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const MedicalHistory = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentTab, setCurrentTab] = useState('all');
   const { medicalHistory, isLoading, error } = useMedicalHistory(currentTab, searchQuery);
+  const { t } = useLanguage();
   
   const handleSearch = () => {
     // The useMedicalHistory hook will handle the search based on current state
@@ -62,29 +64,29 @@ const MedicalHistory = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Medical History</h1>
+        <h1 className="text-3xl font-bold tracking-tight mb-2">{t('medicalHistory')}</h1>
         <p className="text-muted-foreground">View and search through all medical procedures and visits.</p>
       </div>
       
       <Card className="glass-card">
         <CardHeader>
-          <CardTitle>Search Medical Records</CardTitle>
+          <CardTitle>{t('searchRecords')}</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="all" onValueChange={handleTabChange}>
             <TabsList className="grid grid-cols-4 mb-4">
-              <TabsTrigger value="all">All Animals</TabsTrigger>
+              <TabsTrigger value="all">{t('all')} {t('animals')}</TabsTrigger>
               <TabsTrigger value="dog">
                 <Dog className="h-4 w-4 mr-2" />
-                Dogs
+                {t('dogs')}
               </TabsTrigger>
               <TabsTrigger value="cat">
                 <Cat className="h-4 w-4 mr-2" />
-                Cats
+                {t('cats')}
               </TabsTrigger>
               <TabsTrigger value="bird">
                 <Bird className="h-4 w-4 mr-2" />
-                Birds
+                {t('birds')}
               </TabsTrigger>
             </TabsList>
             
@@ -98,7 +100,7 @@ const MedicalHistory = () => {
               />
               <Button onClick={handleSearch} className="btn-primary">
                 <Search className="h-4 w-4 mr-2" />
-                Search
+                {t('searchRecords')}
               </Button>
             </div>
           </Tabs>
@@ -110,7 +112,7 @@ const MedicalHistory = () => {
           <CardTitle>
             <div className="flex items-center">
               <Stethoscope className="h-5 w-5 mr-2 text-primary" />
-              Medical Records
+              {t('medicalRecords')}
             </div>
           </CardTitle>
         </CardHeader>
@@ -135,12 +137,12 @@ const MedicalHistory = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Patient</TableHead>
-                    <TableHead>Owner</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Procedure</TableHead>
-                    <TableHead>Details</TableHead>
-                    <TableHead>Veterinarian</TableHead>
+                    <TableHead>{t('patient')}</TableHead>
+                    <TableHead>{t('owner')}</TableHead>
+                    <TableHead>{t('date')}</TableHead>
+                    <TableHead>{t('procedure')}</TableHead>
+                    <TableHead>{t('details')}</TableHead>
+                    <TableHead>{t('veterinarian')}</TableHead>
                     <TableHead></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -172,7 +174,7 @@ const MedicalHistory = () => {
                         <Link to={`/animals/${record.animalId}`}>
                           <Button variant="outline" size="sm">
                             <FileText className="h-4 w-4 mr-2" />
-                            Patient Details
+                            {t('patientDetails')}
                           </Button>
                         </Link>
                       </TableCell>

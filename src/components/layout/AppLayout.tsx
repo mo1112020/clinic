@@ -8,6 +8,7 @@ import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { LanguageSwitcher } from '@/components/language/LanguageSwitcher';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -69,6 +70,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             <Menu className="h-5 w-5" />
           </Button>
           <h1 className="text-xl font-semibold">Canki Vet Clinic</h1>
+          <div className="ml-auto flex items-center gap-2">
+            <LanguageSwitcher />
+          </div>
         </div>
         
         {/* Page content with margin */}
