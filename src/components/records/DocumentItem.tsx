@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { TableRow, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -46,7 +45,6 @@ const DocumentItem: React.FC<DocumentItemProps> = ({
     }
   };
 
-  // Safely format the date with a fallback
   const formatDate = (dateString: string) => {
     if (!dateString) return 'N/A';
     
@@ -61,6 +59,12 @@ const DocumentItem: React.FC<DocumentItemProps> = ({
   const handleDownload = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    if (record.isVirtualRecord && record.animalId && generatePdf) {
+      handleGeneratePdf(e);
+      return;
+    }
+    
     downloadDocument(record);
   };
 
@@ -99,26 +103,14 @@ const DocumentItem: React.FC<DocumentItemProps> = ({
       <TableCell>{record.fileSize || 'N/A'}</TableCell>
       <TableCell>
         <div className="flex gap-2">
-          {record.fileUrl && (
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={handleDownload}
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Download
-            </Button>
-          )}
-          {record.animalId && generatePdf && (
-            <Button 
-              variant="default" 
-              size="sm"
-              onClick={handleGeneratePdf}
-            >
-              <FileDown className="h-4 w-4 mr-2" />
-              Generate PDF
-            </Button>
-          )}
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleDownload}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            {record.isVirtualRecord ? 'Download PDF' : 'Download'}
+          </Button>
         </div>
       </TableCell>
     </motion.tr>

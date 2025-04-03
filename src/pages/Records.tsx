@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { FileText, Info } from 'lucide-react';
@@ -6,8 +5,6 @@ import { useDocuments } from '@/hooks/use-documents';
 import SearchRecordsForm from '@/components/records/SearchRecordsForm';
 import DocumentsTable from '@/components/records/DocumentsTable';
 import { useToast } from '@/hooks/use-toast';
-import { generateAnimalRecordPdf } from '@/services/documents/generate-pdf';
-import { useAnimalDetails } from '@/hooks/use-animal-details';
 
 const Records = () => {
   const { toast } = useToast();
@@ -17,7 +14,7 @@ const Records = () => {
   const [generatingPdf, setGeneratingPdf] = useState(false);
   
   // Use the custom hook to fetch documents from Supabase
-  const { documents, isLoading, error, downloadDocument } = useDocuments(
+  const { documents, isLoading, error, downloadDocument, generatePdfForAnimal } = useDocuments(
     currentTab !== 'all' ? currentTab : undefined, 
     categoryFilter !== 'all' ? categoryFilter : undefined, 
     searchQuery
@@ -35,51 +32,8 @@ const Records = () => {
 
   const handleGeneratePdf = async (animalId: string) => {
     setGeneratingPdf(true);
-    
     try {
-      toast({
-        title: 'Generating PDF',
-        description: 'Please wait while we prepare your document...',
-      });
-
-      // Use the hook to get animal details
-      const animalDetailsHook = useAnimalDetails(animalId);
-      const { animal, owner, vaccinations, medicalHistory } = animalDetailsHook;
-      
-      // Call refetch but don't try to destructure its return value
-      await animalDetailsHook.refetch();
-      
-      if (!animal || !owner) {
-        throw new Error('Could not fetch animal or owner information');
-      }
-      
-      const pdfDataUrl = await generateAnimalRecordPdf({
-        animal,
-        owner,
-        vaccinations: vaccinations || [],
-        medicalRecords: medicalHistory || [],
-        title: `Medical Record - ${animal.name}`
-      });
-      
-      // Create an anchor element and trigger download
-      const link = document.createElement('a');
-      link.href = pdfDataUrl;
-      link.download = `${animal.name.replace(/\s+/g, '_')}_medical_record.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      toast({
-        title: 'PDF Generated',
-        description: 'Medical record PDF has been generated and downloaded.',
-      });
-    } catch (error: any) {
-      console.error('Error generating PDF:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to generate PDF: ' + (error.message || 'Please try again.'),
-        variant: 'destructive',
-      });
+      await generatePdfForAnimal(animalId);
     } finally {
       setGeneratingPdf(false);
     }

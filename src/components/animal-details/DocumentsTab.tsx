@@ -8,6 +8,8 @@ import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { Document } from '@/types/database.types';
 import { useToast } from '@/hooks/use-toast';
+import { generateAnimalRecordPdf } from '@/services/documents/generate-pdf';
+import { useAnimalDetails } from '@/hooks/use-animal-details';
 
 interface DocumentsTabProps {
   documents: Document[];
@@ -17,6 +19,7 @@ interface DocumentsTabProps {
 const DocumentsTab: React.FC<DocumentsTabProps> = ({ documents, animalId }) => {
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const { toast } = useToast();
+  const { animal, owner, vaccinations, medicalHistory } = useAnimalDetails(animalId);
 
   const handleDownloadDocument = async (doc: Document) => {
     if (!doc.url) {
@@ -55,13 +58,68 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ documents, animalId }) => {
       setDownloadingId(null);
     }
   };
+
+  const handleDownloadPatientPdf = async () => {
+    if (!animal || !owner) {
+      toast({
+        title: 'Error',
+        description: 'Could not fetch patient information',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    try {
+      toast({
+        title: 'Generating PDF',
+        description: 'Please wait while we prepare the patient record...',
+      });
+      
+      const pdfDataUrl = await generateAnimalRecordPdf({
+        animal,
+        owner,
+        vaccinations: vaccinations || [],
+        medicalRecords: medicalHistory || [],
+        title: `Medical Record - ${animal.name}`
+      });
+      
+      // Create an anchor element and trigger download
+      const link = document.createElement('a');
+      link.href = pdfDataUrl;
+      link.download = `${animal.name.replace(/\s+/g, '_')}_medical_record.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast({
+        title: 'PDF Generated',
+        description: 'Patient record PDF has been downloaded.',
+      });
+    } catch (error: any) {
+      console.error('Error generating PDF:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to generate PDF: ' + (error.message || 'Please try again.'),
+        variant: 'destructive',
+      });
+    }
+  };
   
   return (
     <Card>
       <CardHeader>
-        <div>
-          <CardTitle>Documents & Files</CardTitle>
-          <CardDescription>Patient documents and files</CardDescription>
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle>Documents & Files</CardTitle>
+            <CardDescription>Patient documents and files</CardDescription>
+          </div>
+          <Button 
+            variant="outline"
+            onClick={handleDownloadPatientPdf}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Download Patient PDF
+          </Button>
         </div>
       </CardHeader>
       <CardContent>
