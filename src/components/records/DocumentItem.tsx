@@ -58,6 +58,19 @@ const DocumentItem: React.FC<DocumentItemProps> = ({
     }
   };
 
+  const handleDownload = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    downloadDocument(record);
+  };
+
+  const handleGeneratePdf = (e: React.MouseEvent) => {
+    if (!generatePdf || !record.animalId) return;
+    e.preventDefault();
+    e.stopPropagation();
+    generatePdf(record.animalId);
+  };
+
   return (
     <motion.tr 
       variants={variants}
@@ -90,7 +103,7 @@ const DocumentItem: React.FC<DocumentItemProps> = ({
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => downloadDocument(record)}
+              onClick={handleDownload}
             >
               <Download className="h-4 w-4 mr-2" />
               Download
@@ -100,7 +113,7 @@ const DocumentItem: React.FC<DocumentItemProps> = ({
             <Button 
               variant="default" 
               size="sm"
-              onClick={() => generatePdf(record.animalId || '')}
+              onClick={handleGeneratePdf}
             >
               <FileDown className="h-4 w-4 mr-2" />
               Generate PDF

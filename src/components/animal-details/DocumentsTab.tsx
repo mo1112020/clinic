@@ -30,8 +30,15 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ documents, animalId }) => {
     
     setDownloadingId(doc.id);
     try {
-      // Open the URL in a new tab
-      window.open(doc.url, '_blank');
+      // Create an anchor element for downloading
+      const link = document.createElement('a');
+      link.href = doc.url;
+      link.download = doc.name || 'document';
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       
       toast({
         title: 'Download Started',

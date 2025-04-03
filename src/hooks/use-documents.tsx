@@ -89,8 +89,15 @@ export function useDocuments(animalType?: string, categoryFilter?: string, searc
     }
 
     try {
-      // Open the URL in a new tab
-      window.open(document.fileUrl, '_blank');
+      // Create an anchor element for download
+      const link = document.createElement('a');
+      link.href = document.fileUrl;
+      link.download = document.filename || 'document';
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       
       toast({
         title: 'Download started',
