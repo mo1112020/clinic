@@ -1,15 +1,8 @@
 
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { Animal, Owner, MedicalRecord, Vaccination } from '@/types/database.types';
 import { format } from 'date-fns';
-
-// Had to create this augmented type manually
-declare module 'jspdf' {
-  interface jsPDF {
-    autoTable: (options: any) => jsPDF;
-  }
-}
 
 export interface PdfGenerationData {
   animal: Animal;
@@ -47,7 +40,7 @@ export async function generateAnimalRecordPdf(data: PdfGenerationData): Promise<
     ['Health Notes', animal.healthNotes || 'None'],
   ];
   
-  doc.autoTable({
+  autoTable(doc, {
     startY: 38,
     head: [['Field', 'Value']],
     body: animalInfo,
@@ -70,7 +63,7 @@ export async function generateAnimalRecordPdf(data: PdfGenerationData): Promise<
     ['ID Number', owner.id_number],
   ];
   
-  doc.autoTable({
+  autoTable(doc, {
     startY: finalY + 3,
     head: [['Field', 'Value']],
     body: ownerInfo,
@@ -96,7 +89,7 @@ export async function generateAnimalRecordPdf(data: PdfGenerationData): Promise<
       v.status
     ]);
     
-    doc.autoTable({
+    autoTable(doc, {
       startY: ownerFinalY + 3,
       head: [['Vaccine', 'Date', 'Next Due', 'Status']],
       body: vaccinationData,
@@ -121,7 +114,7 @@ export async function generateAnimalRecordPdf(data: PdfGenerationData): Promise<
       m.notes
     ]);
     
-    doc.autoTable({
+    autoTable(doc, {
       startY: vaccinationFinalY + 3,
       head: [['Date', 'Description', 'Notes']],
       body: medicalData,
