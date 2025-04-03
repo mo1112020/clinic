@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { TableRow, TableCell } from '@/components/ui/table';
-import { FileText, Calendar, Dog, Cat, Bird } from 'lucide-react';
+import { FileText, Calendar, Dog, Cat, Bird, Check } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 
 interface DocumentItemProps {
   record: {
@@ -81,7 +82,7 @@ const DocumentItem: React.FC<DocumentItemProps> = ({
       <TableCell>{record.category || 'Other'}</TableCell>
       <TableCell>{record.fileSize || 'N/A'}</TableCell>
       <TableCell>
-        {/* Download button removed */}
+        {/* Cell is kept empty as requested */}
       </TableCell>
     </motion.tr>
   );

@@ -32,6 +32,7 @@ export interface Vaccination {
   date: string;
   next_due: string;
   status: 'completed' | 'upcoming' | 'overdue';
+  completed?: boolean;
 }
 
 export interface MedicalRecord {

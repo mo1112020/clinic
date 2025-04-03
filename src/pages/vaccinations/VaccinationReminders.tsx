@@ -14,7 +14,7 @@ const VaccinationReminders = () => {
   const { t } = useLanguage();
   
   // Use the custom hook to fetch vaccination data
-  const { vaccinations, isLoading, error, sendingReminders, sendReminder } = useVaccinations(activeTab);
+  const { vaccinations, isLoading, error, sendingReminders, sendReminder, markCompleted, completingVaccinations } = useVaccinations(activeTab);
   
   return (
     <div className="space-y-6">
@@ -66,6 +66,8 @@ const VaccinationReminders = () => {
                         index={index}
                         isSending={sendingReminders.includes(reminder.id)}
                         onSendReminder={sendReminder}
+                        onMarkCompleted={markCompleted}
+                        isCompletingVaccination={completingVaccinations.includes(reminder.id)}
                       />
                     ))}
                   </div>

@@ -1,6 +1,6 @@
 
 import { format } from 'date-fns';
-import { MessageSquare, Loader2 } from 'lucide-react';
+import { MessageSquare, Loader2, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { VaccinationStatusBadge } from './VaccinationStatusBadge';
@@ -17,6 +17,7 @@ export interface VaccinationReminderItem {
   date: string;
   nextDue: string;
   status: 'today' | 'upcoming' | 'overdue';
+  completed?: boolean;
 }
 
 interface VaccinationReminderCardProps {
@@ -24,13 +25,17 @@ interface VaccinationReminderCardProps {
   index: number;
   isSending: boolean;
   onSendReminder: (id: number) => void;
+  onMarkCompleted?: (id: number) => Promise<void>;
+  isCompletingVaccination?: boolean;
 }
 
 export const VaccinationReminderCard = ({ 
   reminder, 
   index, 
   isSending, 
-  onSendReminder 
+  onSendReminder,
+  onMarkCompleted,
+  isCompletingVaccination = false
 }: VaccinationReminderCardProps) => {
   const cardVariants = {
     initial: { opacity: 0, y: 20 },
@@ -59,7 +64,7 @@ export const VaccinationReminderCard = ({
           <div>
             <div className="flex items-center gap-2">
               <p className="font-medium">{reminder.animalName}</p>
-              <VaccinationStatusBadge status={reminder.status} />
+              <VaccinationStatusBadge status={reminder.completed ? 'completed' : reminder.status} />
             </div>
             <p className="text-sm text-muted-foreground">{reminder.vaccineName}</p>
           </div>
@@ -76,7 +81,28 @@ export const VaccinationReminderCard = ({
           </p>
         </div>
         
-        <div>
+        <div className="flex flex-col sm:flex-row gap-2">
+          {!reminder.completed && onMarkCompleted && (
+            <Button 
+              variant="outline"
+              className="w-full sm:w-auto"
+              onClick={() => onMarkCompleted(reminder.id)}
+              disabled={isCompletingVaccination}
+            >
+              {isCompletingVaccination ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
+                  Completing...
+                </div>
+              ) : (
+                <>
+                  <Check className="mr-2 h-4 w-4" />
+                  Mark Complete
+                </>
+              )}
+            </Button>
+          )}
+          
           <Button 
             className="btn-primary w-full sm:w-auto"
             onClick={() => onSendReminder(reminder.id)}
