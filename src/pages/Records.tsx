@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { FileText, Info } from 'lucide-react';
@@ -11,10 +12,9 @@ const Records = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [currentTab, setCurrentTab] = useState('all');
-  const [generatingPdf, setGeneratingPdf] = useState(false);
   
   // Use the custom hook to fetch documents from Supabase
-  const { documents, isLoading, error, downloadDocument, generatePdfForAnimal } = useDocuments(
+  const { documents, isLoading, error } = useDocuments(
     currentTab !== 'all' ? currentTab : undefined, 
     categoryFilter !== 'all' ? categoryFilter : undefined, 
     searchQuery
@@ -28,15 +28,6 @@ const Records = () => {
   const handleTabChange = (value: string) => {
     console.log('Changing tab to:', value);
     setCurrentTab(value);
-  };
-
-  const handleGeneratePdf = async (animalId: string) => {
-    setGeneratingPdf(true);
-    try {
-      await generatePdfForAnimal(animalId);
-    } finally {
-      setGeneratingPdf(false);
-    }
   };
 
   // Get unique categories for the filter
@@ -101,10 +92,7 @@ const Records = () => {
           <DocumentsTable 
             documents={documents} 
             isLoading={isLoading} 
-            error={error} 
-            downloadDocument={downloadDocument} 
-            generatePdf={handleGeneratePdf}
-            generatingPdf={generatingPdf}
+            error={error}
           />
         </CardContent>
       </Card>

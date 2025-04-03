@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Download, File } from 'lucide-react';
+import { Download, File, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { Document } from '@/types/database.types';
@@ -17,47 +17,9 @@ interface DocumentsTabProps {
 }
 
 const DocumentsTab: React.FC<DocumentsTabProps> = ({ documents, animalId }) => {
-  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
   const { toast } = useToast();
   const { animal, owner, vaccinations, medicalHistory } = useAnimalDetails(animalId);
-
-  const handleDownloadDocument = async (doc: Document) => {
-    if (!doc.url) {
-      toast({
-        title: 'Download Failed',
-        description: 'Document URL not available.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    
-    setDownloadingId(doc.id);
-    try {
-      // Create an anchor element for downloading
-      const link = document.createElement('a');
-      link.href = doc.url;
-      link.download = doc.name || 'document';
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      toast({
-        title: 'Download Started',
-        description: `Downloading ${doc.name}`,
-      });
-    } catch (error) {
-      console.error('Error downloading document:', error);
-      toast({
-        title: 'Download Failed',
-        description: 'Failed to download document. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setDownloadingId(null);
-    }
-  };
 
   const handleDownloadPatientPdf = async () => {
     if (!animal || !owner) {
@@ -69,6 +31,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ documents, animalId }) => {
       return;
     }
     
+    setGeneratingPdf(true);
     try {
       toast({
         title: 'Generating PDF',
@@ -102,6 +65,8 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ documents, animalId }) => {
         description: 'Failed to generate PDF: ' + (error.message || 'Please try again.'),
         variant: 'destructive',
       });
+    } finally {
+      setGeneratingPdf(false);
     }
   };
   
@@ -116,9 +81,19 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ documents, animalId }) => {
           <Button 
             variant="outline"
             onClick={handleDownloadPatientPdf}
+            disabled={generatingPdf}
           >
-            <Download className="h-4 w-4 mr-2" />
-            Download Patient PDF
+            {generatingPdf ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <Download className="h-4 w-4 mr-2" />
+                Download Patient PDF
+              </>
+            )}
           </Button>
         </div>
       </CardHeader>
@@ -150,17 +125,6 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ documents, animalId }) => {
                       </span>
                     </div>
                   </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleDownloadDocument(doc)}
-                    disabled={downloadingId === doc.id}
-                  >
-                    <Download className="h-4 w-4 mr-1" />
-                    {downloadingId === doc.id ? 'Downloading...' : 'Download'}
-                  </Button>
                 </div>
               </motion.div>
             ))}

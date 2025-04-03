@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import DocumentItem from './DocumentItem';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -11,18 +11,12 @@ interface DocumentsTableProps {
   documents: any[];
   isLoading: boolean;
   error: string | null;
-  downloadDocument: (record: any) => void;
-  generatePdf?: (animalId: string) => void;
-  generatingPdf?: boolean;
 }
 
 const DocumentsTable: React.FC<DocumentsTableProps> = ({ 
   documents, 
   isLoading, 
-  error, 
-  downloadDocument,
-  generatePdf,
-  generatingPdf
+  error
 }) => {
   const listVariants = {
     initial: { opacity: 0 },
@@ -33,17 +27,6 @@ const DocumentsTable: React.FC<DocumentsTableProps> = ({
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0, transition: { duration: 0.3 } },
   };
-
-  if (generatingPdf) {
-    return (
-      <div className="flex justify-center items-center h-[200px]">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-primary" />
-          <p className="text-muted-foreground">Generating PDF...</p>
-        </div>
-      </div>
-    );
-  }
 
   if (isLoading) {
     return (
@@ -95,9 +78,6 @@ const DocumentsTable: React.FC<DocumentsTableProps> = ({
     );
   }
 
-  // Debug the documents
-  console.log('Documents in DocumentsTable:', documents);
-
   return (
     <div className="rounded-md border">
       <Table>
@@ -116,9 +96,8 @@ const DocumentsTable: React.FC<DocumentsTableProps> = ({
           {documents.map((record) => (
             <DocumentItem 
               key={record.id} 
-              record={record} 
-              downloadDocument={downloadDocument} 
-              generatePdf={generatePdf}
+              record={record}
+              downloadDocument={() => {}}
               variants={itemVariants}
             />
           ))}

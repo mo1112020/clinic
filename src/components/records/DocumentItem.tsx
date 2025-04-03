@@ -1,7 +1,7 @@
+
 import React from 'react';
 import { TableRow, TableCell } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { FileText, Download, Calendar, Dog, Cat, Bird, FileDown } from 'lucide-react';
+import { FileText, Calendar, Dog, Cat, Bird } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 
@@ -28,8 +28,6 @@ interface DocumentItemProps {
 
 const DocumentItem: React.FC<DocumentItemProps> = ({ 
   record, 
-  downloadDocument, 
-  generatePdf,
   variants 
 }) => {
   const getAnimalIcon = (type: string = '') => {
@@ -54,25 +52,6 @@ const DocumentItem: React.FC<DocumentItemProps> = ({
       console.error('Error formatting date:', error, dateString);
       return 'Invalid date';
     }
-  };
-
-  const handleDownload = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (record.isVirtualRecord && record.animalId && generatePdf) {
-      handleGeneratePdf(e);
-      return;
-    }
-    
-    downloadDocument(record);
-  };
-
-  const handleGeneratePdf = (e: React.MouseEvent) => {
-    if (!generatePdf || !record.animalId) return;
-    e.preventDefault();
-    e.stopPropagation();
-    generatePdf(record.animalId);
   };
 
   return (
@@ -102,16 +81,7 @@ const DocumentItem: React.FC<DocumentItemProps> = ({
       <TableCell>{record.category || 'Other'}</TableCell>
       <TableCell>{record.fileSize || 'N/A'}</TableCell>
       <TableCell>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={handleDownload}
-          >
-            <Download className="h-4 w-4 mr-2" />
-            {record.isVirtualRecord ? 'Download PDF' : 'Download'}
-          </Button>
-        </div>
+        {/* Download button removed */}
       </TableCell>
     </motion.tr>
   );
