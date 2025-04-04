@@ -10,7 +10,8 @@ export const animalFormSchema = z.object({
   chipNumber: z.string().optional(),
   ownerName: z.string().min(2, 'Owner name is required'),
   ownerId: z.string().min(2, 'Owner ID is required'),
-  ownerPhone: z.string().min(8, 'Valid phone number is required'),
+  ownerPhoneCountryCode: z.string().default('+90'),
+  ownerPhone: z.string().min(5, 'Valid phone number is required'),
   healthNotes: z.string().optional(),
 });
 
@@ -23,6 +24,7 @@ export const defaultAnimalFormValues: AnimalFormValues = {
   chipNumber: '',
   ownerName: '',
   ownerId: '',
+  ownerPhoneCountryCode: '+90',
   ownerPhone: '',
   healthNotes: '',
 };

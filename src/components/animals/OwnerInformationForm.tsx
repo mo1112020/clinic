@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { UseFormReturn } from 'react-hook-form';
 import { AnimalFormValues } from '@/schemas/animal-form-schema';
 import { motion } from 'framer-motion';
+import { CountryCodeSelector, Country } from '@/components/ui/country-code-selector';
 
 interface OwnerInformationFormProps {
   form: UseFormReturn<AnimalFormValues>;
@@ -56,9 +57,28 @@ const OwnerInformationForm: React.FC<OwnerInformationFormProps> = ({ form }) => 
         render={({ field }) => (
           <FormItem>
             <FormLabel>Owner Phone Number</FormLabel>
-            <FormControl>
-              <Input placeholder="Enter owner phone number" {...field} className="glass-input" />
-            </FormControl>
+            <div className="flex">
+              <FormField
+                control={form.control}
+                name="ownerPhoneCountryCode"
+                render={({ field: countryCodeField }) => (
+                  <CountryCodeSelector 
+                    value={countryCodeField.value} 
+                    onChange={(country: Country) => {
+                      countryCodeField.onChange(country.dialCode);
+                    }}
+                    className="rounded-r-none border-r-0"
+                  />
+                )}
+              />
+              <FormControl>
+                <Input 
+                  placeholder="Enter phone number" 
+                  {...field} 
+                  className="glass-input rounded-l-none flex-1" 
+                />
+              </FormControl>
+            </div>
             <FormMessage />
           </FormItem>
         )}

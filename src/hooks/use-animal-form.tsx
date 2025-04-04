@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,6 +27,17 @@ export function useAnimalForm(animalId?: string) {
         try {
           const animal = await getAnimalById(animalId!);
           
+          // Handle phone number with country code
+          let phoneNumber = animal.owner.phone_number || '';
+          let countryCode = '+90'; // Default
+          
+          // Try to extract country code if present
+          const phoneMatch = phoneNumber.match(/^(\+\d+)\s*(.*)$/);
+          if (phoneMatch) {
+            countryCode = phoneMatch[1];
+            phoneNumber = phoneMatch[2];
+          }
+          
           form.reset({
             animalType: animal.animal_type as AnimalType,
             name: animal.name,
@@ -33,7 +45,8 @@ export function useAnimalForm(animalId?: string) {
             chipNumber: animal.chip_number || '',
             ownerName: animal.owner.full_name,
             ownerId: animal.owner.id_number,
-            ownerPhone: animal.owner.phone_number,
+            ownerPhoneCountryCode: countryCode,
+            ownerPhone: phoneNumber,
             healthNotes: animal.prone_diseases ? animal.prone_diseases.join(', ') : '',
           });
         } catch (error) {
@@ -56,6 +69,9 @@ export function useAnimalForm(animalId?: string) {
     console.log('Submitting form with data:', data);
     setIsSubmitting(true);
     try {
+      // Combine country code with phone number
+      const fullPhoneNumber = `${data.ownerPhoneCountryCode} ${data.ownerPhone}`;
+      
       if (isNewAnimal) {
         const result = await createAnimal({
           animalType: data.animalType,
@@ -64,7 +80,7 @@ export function useAnimalForm(animalId?: string) {
           chipNumber: data.chipNumber,
           ownerName: data.ownerName,
           ownerId: data.ownerId,
-          ownerPhone: data.ownerPhone,
+          ownerPhone: fullPhoneNumber,
           healthNotes: data.healthNotes,
         });
         
@@ -82,7 +98,7 @@ export function useAnimalForm(animalId?: string) {
           chipNumber: data.chipNumber,
           ownerName: data.ownerName,
           ownerId: data.ownerId,
-          ownerPhone: data.ownerPhone,
+          ownerPhone: fullPhoneNumber,
           healthNotes: data.healthNotes,
         });
         
