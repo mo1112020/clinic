@@ -70,7 +70,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           >
             <Menu className="h-5 w-5" />
           </Button>
-          <h1 className="text-xl font-semibold truncate">Canki Vet Clinic</h1>
+          <h1 className="text-xl font-semibold truncate">Canki-Klinik</h1>
           <div className="ml-auto flex items-center gap-2">
             <LanguageSwitcher />
           </div>

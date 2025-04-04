@@ -34,7 +34,7 @@ const Login = () => {
     if (success) {
       toast({
         title: "Login successful",
-        description: "Welcome to Canki Vet Clinic",
+        description: "Welcome to Canki-Klinik",
       });
       navigate('/');
     } else {
@@ -56,12 +56,12 @@ const Login = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <img 
-            src="/lovable-uploads/794ea767-dad6-4f2c-9607-84ace668de52.png" 
-            alt="Canki Vet Clinic" 
-            className="mx-auto w-48 h-48 mb-6"
+            src="/lovable-uploads/photo-1535268647677-300dbf3d78d1.jpg" 
+            alt="Canki-Klinik" 
+            className="mx-auto w-48 h-48 mb-6 object-cover rounded-full"
           />
-          <h1 className="text-3xl font-bold text-canki">Canki Vet Clinic</h1>
-          <p className="text-gray-600 mt-2">Admin Login</p>
+          <h1 className="text-3xl font-bold text-canki">Canki-Klinik</h1>
+          <p className="text-gray-600 mt-2">Veterinary Management System</p>
         </div>
         
         <Card className="shadow-lg border-t-4 border-t-canki">
@@ -121,7 +121,7 @@ const Login = () => {
           </CardContent>
           
           <CardFooter className="flex justify-center text-sm text-muted-foreground">
-            <p>Canki Vet Clinic Management System</p>
+            <p>Canki-Klinik Management System</p>
           </CardFooter>
         </Card>
       </div>
