@@ -192,7 +192,7 @@ export function useVaccinations(filter: 'today' | 'upcoming' | 'overdue' | 'all'
       const { error } = await supabase
         .from('vaccinations')
         .update({ completed: true })
-        .eq('id', id);
+        .eq('id', id.toString()); // Convert number to string here
       
       if (error) throw error;
       
