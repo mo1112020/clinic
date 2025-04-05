@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Dog, Cat, Bird, Calendar, File, Clipboard, Phone, Loader2 } from 'lucide-react';
+import { Search, Dog, Cat, Bird, Clipboard, Phone, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAnimals } from '@/hooks/use-animals';
@@ -139,7 +139,7 @@ const AnimalSearch = () => {
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{animal.owner?.name || 'Unknown Owner'}</span>
+                        <span className="text-sm font-medium">{animal.owner ? animal.owner.name : 'No Owner'}</span>
                       </div>
                     </div>
                   </Link>

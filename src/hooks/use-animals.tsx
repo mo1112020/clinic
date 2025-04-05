@@ -31,11 +31,8 @@ export function useAnimals(type?: AnimalType, searchQuery?: string, searchBy: st
           } else if (searchBy === 'chip') {
             query = query.ilike('chip_number', `%${searchQuery}%`);
           } else if (searchBy === 'owner') {
-            // Instead of filtering in the query, we'll filter the results after fetching
-            // This is a workaround for issues with Supabase's handling of joins in filters
-            query = query.eq('owner_id', query.in('owners.id', query => {
-              query.from('owners').select('id').ilike('full_name', `%${searchQuery}%`);
-            }));
+            // For owner search, we'll fetch all animals and filter them client-side
+            // This is a more reliable approach when dealing with joined tables
           }
         }
 
@@ -60,16 +57,14 @@ export function useAnimals(type?: AnimalType, searchQuery?: string, searchBy: st
               name: animal.owners.full_name,
               phone: animal.owners.phone_number,
               id_number: animal.owners.id_number
-            } : undefined,
-            owners: animal.owners
+            } : undefined
           }));
 
-        // If searching by owner, filter results client-side if the database query didn't work properly
+        // If searching by owner, filter results client-side
         let filteredAnimals = mappedAnimals;
         if (searchBy === 'owner' && searchQuery && searchQuery.trim() !== '') {
           filteredAnimals = mappedAnimals.filter(animal => 
-            animal.owner?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            animal.owners?.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
+            animal.owner?.name?.toLowerCase().includes(searchQuery.toLowerCase())
           );
         }
 
