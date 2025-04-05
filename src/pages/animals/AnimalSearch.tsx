@@ -16,7 +16,8 @@ const AnimalSearch = () => {
   const { animals, isLoading, error } = useAnimals(undefined, searchQuery, searchBy);
   
   const handleSearch = () => {
-    // The useAnimals hook will handle the search based on the searchQuery and searchBy
+    // The useAnimals hook will automatically update based on the searchQuery and searchBy
+    console.log('Searching with query:', searchQuery, 'by:', searchBy);
   };
 
   const getAnimalIcon = (type: AnimalType) => {
@@ -130,15 +131,15 @@ const AnimalSearch = () => {
                             <span className="text-sm text-muted-foreground">{animal.chipNo}</span>
                           </div>
                         )}
-                        {animal.owners && (
+                        {animal.owner && (
                           <div className="flex items-center gap-2">
                             <Phone className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm text-muted-foreground">{animal.owners.phone}</span>
+                            <span className="text-sm text-muted-foreground">{animal.owner.phone}</span>
                           </div>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{animal.owners?.name || 'Unknown Owner'}</span>
+                        <span className="text-sm font-medium">{animal.owner?.name || 'Unknown Owner'}</span>
                       </div>
                     </div>
                   </Link>

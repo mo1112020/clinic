@@ -31,8 +31,11 @@ export function useAnimals(type?: AnimalType, searchQuery?: string, searchBy: st
           } else if (searchBy === 'chip') {
             query = query.ilike('chip_number', `%${searchQuery}%`);
           } else if (searchBy === 'owner') {
-            // Use a join to filter by owner name instead of text search
-            query = query.filter('owners.full_name', 'ilike', `%${searchQuery}%`);
+            // Instead of filtering in the query, we'll filter the results after fetching
+            // This is a workaround for issues with Supabase's handling of joins in filters
+            query = query.eq('owner_id', query.in('owners.id', query => {
+              query.from('owners').select('id').ilike('full_name', `%${searchQuery}%`);
+            }));
           }
         }
 
@@ -40,26 +43,37 @@ export function useAnimals(type?: AnimalType, searchQuery?: string, searchBy: st
 
         if (error) throw error;
 
-        // Map database animals to application Animal type
-        const mappedAnimals: Animal[] = data.map(animal => ({
-          id: animal.id,
-          name: animal.name,
-          type: animal.animal_type as AnimalType, // Explicitly cast to AnimalType
-          breed: animal.breed || '',
-          chipNo: animal.chip_number || '',
-          healthNotes: animal.prone_diseases ? animal.prone_diseases.join(', ') : '',
-          owner_id: animal.owner_id,
-          created_at: animal.created_at,
-          owner: {
-            id: animal.owners.id,
-            name: animal.owners.full_name,
-            phone: animal.owners.phone_number,
-            id_number: animal.owners.id_number
-          },
-          owners: animal.owners
-        }));
+        // Map database animals to application Animal type with null checks
+        const mappedAnimals: Animal[] = data
+          .filter(animal => animal) // Filter out any null animals
+          .map(animal => ({
+            id: animal.id,
+            name: animal.name,
+            type: animal.animal_type as AnimalType,
+            breed: animal.breed || '',
+            chipNo: animal.chip_number || '',
+            healthNotes: animal.prone_diseases ? animal.prone_diseases.join(', ') : '',
+            owner_id: animal.owner_id,
+            created_at: animal.created_at,
+            owner: animal.owners ? {
+              id: animal.owners.id,
+              name: animal.owners.full_name,
+              phone: animal.owners.phone_number,
+              id_number: animal.owners.id_number
+            } : undefined,
+            owners: animal.owners
+          }));
 
-        setAnimals(mappedAnimals);
+        // If searching by owner, filter results client-side if the database query didn't work properly
+        let filteredAnimals = mappedAnimals;
+        if (searchBy === 'owner' && searchQuery && searchQuery.trim() !== '') {
+          filteredAnimals = mappedAnimals.filter(animal => 
+            animal.owner?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            animal.owners?.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+        }
+
+        setAnimals(filteredAnimals);
       } catch (err) {
         console.error('Error fetching animals:', err);
         setError('Failed to load animals');
