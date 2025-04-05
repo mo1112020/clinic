@@ -30,8 +30,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   return (
-    <div className="min-h-screen flex w-full overflow-x-hidden">
-      {/* Sidebar */}
+    <div className="h-screen flex w-full overflow-hidden">
+      {/* Sidebar - now fixed position */}
       <AnimatePresence mode="wait">
         {sidebarOpen && (
           <motion.div
@@ -40,11 +40,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             exit={{ x: -300, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className={cn(
-              "z-30 fixed top-0 left-0 h-full md:relative",
+              "z-30 fixed top-0 left-0 h-screen md:relative",
               isMobile ? "w-[280px]" : "w-[280px]"
             )}
           >
-            <Sidebar />
+            <div className="h-full overflow-hidden flex flex-col">
+              <Sidebar />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -57,9 +59,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         />
       )}
       
-      {/* Main content */}
-      <div className="flex-1 w-full transition-all duration-300 ease-in-out">
-        {/* Navbar */}
+      {/* Main content with overflow handling */}
+      <div className="flex-1 w-full h-screen flex flex-col overflow-hidden transition-all duration-300 ease-in-out">
+        {/* Navbar - fixed at top */}
         <div className="sticky top-0 z-10 bg-background/70 backdrop-blur-md border-b border-border h-16 flex items-center px-4">
           <Button 
             variant="ghost" 
@@ -76,8 +78,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           </div>
         </div>
         
-        {/* Page content with responsive padding */}
-        <main className="p-3 sm:p-4 md:p-6">
+        {/* Page content with overflow scrolling */}
+        <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto">
           {children}
         </main>
       </div>

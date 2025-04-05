@@ -25,16 +25,14 @@ export function useAnimals(type?: AnimalType, searchQuery?: string, searchBy: st
           query = query.eq('animal_type', type);
         }
 
-        if (searchQuery) {
+        if (searchQuery && searchQuery.trim() !== '') {
           if (searchBy === 'name') {
             query = query.ilike('name', `%${searchQuery}%`);
           } else if (searchBy === 'chip') {
             query = query.ilike('chip_number', `%${searchQuery}%`);
           } else if (searchBy === 'owner') {
-            query = query.textSearch('owners.full_name', searchQuery, {
-              config: 'english',
-              type: 'websearch'
-            });
+            // Use a join to filter by owner name instead of text search
+            query = query.filter('owners.full_name', 'ilike', `%${searchQuery}%`);
           }
         }
 
