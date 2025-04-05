@@ -8,6 +8,7 @@ import { Search, Bird, Calendar, File, Clipboard, Phone, Loader2 } from 'lucide-
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAnimals } from '@/hooks/use-animals';
+import { format } from 'date-fns';
 
 const BirdsList = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -96,58 +97,45 @@ const BirdsList = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <motion.div 
-                    variants={listVariants}
-                    initial="initial"
-                    animate="animate"
-                    className="contents"
-                  >
-                    {birds.map((bird) => (
-                      <motion.div 
-                        key={bird.id}
-                        variants={itemVariants}
-                        className="contents"
-                      >
-                        <TableRow>
-                          <TableCell className="font-medium">{bird.name}</TableCell>
-                          <TableCell>{bird.breed}</TableCell>
-                          <TableCell>
-                            {bird.chipNo && (
-                              <div className="flex items-center gap-2">
-                                <Clipboard className="h-4 w-4 text-muted-foreground" />
-                                <span>{bird.chipNo}</span>
-                              </div>
-                            )}
-                          </TableCell>
-                          <TableCell>{bird.owners?.name || 'N/A'}</TableCell>
-                          <TableCell>
-                            {bird.owners?.phone && (
-                              <div className="flex items-center gap-2">
-                                <Phone className="h-4 w-4 text-muted-foreground" />
-                                <span>{bird.owners.phone}</span>
-                              </div>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {bird.last_visit && (
-                              <div className="flex items-center gap-2">
-                                <Calendar className="h-4 w-4 text-muted-foreground" />
-                                <span>{bird.last_visit}</span>
-                              </div>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <Link to={`/animals/${bird.id}`}>
-                              <Button variant="outline" size="sm">
-                                <File className="h-4 w-4 mr-2" />
-                                View
-                              </Button>
-                            </Link>
-                          </TableCell>
-                        </TableRow>
-                      </motion.div>
-                    ))}
-                  </motion.div>
+                  {birds.map((bird) => (
+                    <TableRow key={bird.id}>
+                      <TableCell className="font-medium">{bird.name}</TableCell>
+                      <TableCell>{bird.breed}</TableCell>
+                      <TableCell>
+                        {bird.chipNo && (
+                          <div className="flex items-center gap-2">
+                            <Clipboard className="h-4 w-4 text-muted-foreground" />
+                            <span>{bird.chipNo}</span>
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>{bird.owner?.name || 'N/A'}</TableCell>
+                      <TableCell>
+                        {bird.owner?.phone && (
+                          <div className="flex items-center gap-2">
+                            <Phone className="h-4 w-4 text-muted-foreground" />
+                            <span>{bird.owner.phone}</span>
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {bird.last_visit && (
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-muted-foreground" />
+                            <span>{format(new Date(bird.last_visit), 'yyyy-MM-dd')}</span>
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Link to={`/animals/${bird.id}`}>
+                          <Button variant="outline" size="sm">
+                            <File className="h-4 w-4 mr-2" />
+                            View
+                          </Button>
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </div>

@@ -49,15 +49,16 @@ export function useAnimals(type?: AnimalType, searchQuery?: string, searchBy: st
             type: animal.animal_type as AnimalType,
             breed: animal.breed || '',
             chipNo: animal.chip_number || '',
-            healthNotes: animal.prone_diseases ? animal.prone_diseases.join(', ') : '',
+            healthNotes: animal.health_notes || '',
             owner_id: animal.owner_id,
             created_at: animal.created_at,
+            last_visit: animal.updated_at || animal.created_at, // Use updated_at as last_visit if available
             owner: animal.owners ? {
               id: animal.owners.id,
               name: animal.owners.full_name,
               phone: animal.owners.phone_number,
               id_number: animal.owners.id_number
-            } : undefined
+            } : null
           }));
 
         // If searching by owner, filter results client-side
