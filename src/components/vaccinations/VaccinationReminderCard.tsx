@@ -49,6 +49,18 @@ export const VaccinationReminderCard = ({
     }),
   };
 
+  const handleSendReminder = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onSendReminder(reminder.id);
+  };
+
+  const handleMarkCompleted = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (onMarkCompleted) {
+      onMarkCompleted(reminder.id);
+    }
+  };
+
   return (
     <motion.div
       variants={cardVariants}
@@ -86,7 +98,7 @@ export const VaccinationReminderCard = ({
             <Button 
               variant="outline"
               className="w-full sm:w-auto"
-              onClick={() => onMarkCompleted(reminder.id)}
+              onClick={handleMarkCompleted}
               disabled={isCompletingVaccination}
             >
               {isCompletingVaccination ? (
@@ -105,7 +117,7 @@ export const VaccinationReminderCard = ({
           
           <Button 
             className="btn-primary w-full sm:w-auto"
-            onClick={() => onSendReminder(reminder.id)}
+            onClick={handleSendReminder}
             disabled={isSending}
           >
             {isSending ? (

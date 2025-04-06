@@ -29,7 +29,12 @@ export function ScheduleVaccinationDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const handleSchedule = async () => {
+  const handleSchedule = async (e?: React.MouseEvent) => {
+    // Prevent default behavior if event is provided
+    if (e) {
+      e.preventDefault();
+    }
+    
     if (!vaccineName || !scheduledDate) {
       toast({
         title: 'Missing information',
@@ -88,7 +93,10 @@ export function ScheduleVaccinationDialog({
             Schedule a new vaccination for {animalName}.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-4">
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          handleSchedule();
+        }} className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="vaccine-name">Vaccine Name</Label>
             <Input 
@@ -103,6 +111,7 @@ export function ScheduleVaccinationDialog({
             <Popover>
               <PopoverTrigger asChild>
                 <Button
+                  type="button" // Prevent form submission
                   variant={"outline"}
                   className={cn(
                     "w-full justify-start text-left font-normal",
@@ -125,22 +134,27 @@ export function ScheduleVaccinationDialog({
               </PopoverContent>
             </Popover>
           </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)} disabled={isSubmitting}>
-            Cancel
-          </Button>
-          <Button type="submit" onClick={handleSchedule} disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Scheduling...
-              </>
-            ) : (
-              'Schedule Vaccination'
-            )}
-          </Button>
-        </DialogFooter>
+          <DialogFooter className="mt-6">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => setOpen(false)} 
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Scheduling...
+                </>
+              ) : (
+                'Schedule Vaccination'
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

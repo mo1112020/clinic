@@ -37,7 +37,9 @@ const VaccinationsTab: React.FC<VaccinationsTabProps> = ({
   };
   
   // Function to mark vaccination as completed
-  const markVaccinationAsCompleted = async (vaccination: Vaccination) => {
+  const markVaccinationAsCompleted = async (e: React.MouseEvent, vaccination: Vaccination) => {
+    e.preventDefault();
+    
     try {
       const { error } = await supabase
         .from('vaccinations')
@@ -121,7 +123,7 @@ const VaccinationsTab: React.FC<VaccinationsTabProps> = ({
                       size="sm"
                       variant="outline"
                       className="flex items-center gap-2"
-                      onClick={() => markVaccinationAsCompleted(vax)}
+                      onClick={(e) => markVaccinationAsCompleted(e, vax)}
                     >
                       <Check className="h-4 w-4" />
                       Mark Completed

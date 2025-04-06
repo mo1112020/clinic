@@ -16,6 +16,10 @@ const VaccinationReminders = () => {
   // Use the custom hook to fetch vaccination data
   const { vaccinations, isLoading, error, sendingReminders, sendReminder, markCompleted, completingVaccinations } = useVaccinations(activeTab);
   
+  const handleTabChange = (value: string) => {
+    setActiveTab(value as any);
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -23,7 +27,7 @@ const VaccinationReminders = () => {
         <p className="text-muted-foreground">Manage upcoming vaccinations and send reminders to pet owners.</p>
       </div>
       
-      <Tabs defaultValue="upcoming" onValueChange={(value) => setActiveTab(value as any)}>
+      <Tabs defaultValue="upcoming" onValueChange={handleTabChange}>
         <TabsList className="grid grid-cols-4 w-full max-w-md mb-6">
           <TabsTrigger value="today">{t('today')}</TabsTrigger>
           <TabsTrigger value="upcoming">{t('upcoming')}</TabsTrigger>
