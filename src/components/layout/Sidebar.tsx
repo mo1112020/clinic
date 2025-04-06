@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -9,7 +8,6 @@ import {
   Cat, 
   Bird, 
   Calendar, 
-  FileText, 
   Search, 
   Package, 
   LayoutDashboard,
@@ -32,7 +30,6 @@ export const Sidebar: React.FC = () => {
     { icon: Bird, label: t('birds'), path: '/animals/birds' },
     { icon: Calendar, label: t('vaccinations'), path: '/vaccinations' },
     { icon: Package, label: t('inventory'), path: '/inventory' },
-    { icon: FileText, label: t('records'), path: '/records' },
     { icon: Activity, label: t('medicalHistory'), path: '/medical-history' },
   ];
 

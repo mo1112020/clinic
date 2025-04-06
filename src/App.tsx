@@ -16,7 +16,6 @@ import DogsList from './pages/animals/DogsList';
 import CatsList from './pages/animals/CatsList';
 import BirdsList from './pages/animals/BirdsList';
 import MedicalHistory from './pages/MedicalHistory';
-import Records from './pages/Records';
 
 function App() {
   return (
@@ -75,11 +74,6 @@ function App() {
           <Route path="/inventory" element={
             <ProtectedRoute>
               <AppLayout><InventoryManagement /></AppLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/records" element={
-            <ProtectedRoute>
-              <AppLayout><Records /></AppLayout>
             </ProtectedRoute>
           } />
           <Route path="/medical-history" element={
