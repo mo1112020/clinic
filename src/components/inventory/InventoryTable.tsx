@@ -6,6 +6,7 @@ import { InventoryErrorState } from './InventoryErrorState';
 import { InventoryEmptyState } from './InventoryEmptyState';
 import { InventoryTableHeader } from './InventoryTableHeader';
 import { InventoryItemCard } from './InventoryItem';
+import { motion } from 'framer-motion';
 
 type InventoryTableProps = {
   inventoryItems: InventoryItem[];
@@ -38,15 +39,29 @@ export function InventoryTable({
     return <InventoryEmptyState />;
   }
   
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08
+      }
+    }
+  };
+  
   return (
-    <>
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
       <InventoryTableHeader
         sortBy={sortBy}
         sortDirection={sortDirection}
         toggleSort={toggleSort}
       />
       
-      <div className="space-y-3">
+      <motion.div className="space-y-3">
         {inventoryItems.map((item, index) => (
           <InventoryItemCard
             key={item.id}
@@ -55,7 +70,7 @@ export function InventoryTable({
             onEditItem={onEditItem}
           />
         ))}
-      </div>
-    </>
+      </motion.div>
+    </motion.div>
   );
 }
