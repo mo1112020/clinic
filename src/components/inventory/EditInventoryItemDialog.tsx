@@ -14,9 +14,10 @@ type EditInventoryItemDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   item: InventoryItem | null;
+  onItemUpdated?: (item: any) => void;
 };
 
-export function EditInventoryItemDialog({ open, onOpenChange, item }: EditInventoryItemDialogProps) {
+export function EditInventoryItemDialog({ open, onOpenChange, item, onItemUpdated }: EditInventoryItemDialogProps) {
   const [editedItem, setEditedItem] = useState<InventoryItem | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -50,14 +51,16 @@ export function EditInventoryItemDialog({ open, onOpenChange, item }: EditInvent
     setIsSubmitting(true);
     
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('inventory')
         .update({
           product_name: editedItem.name,
           quantity: editedItem.stock,
           price: editedItem.price
         })
-        .eq('id', editedItem.id);
+        .eq('id', editedItem.id)
+        .select()
+        .single();
       
       if (error) throw error;
       
@@ -66,10 +69,12 @@ export function EditInventoryItemDialog({ open, onOpenChange, item }: EditInvent
         description: `${editedItem.name} has been updated.`,
       });
       
-      onOpenChange(false);
+      // Call the callback to update the item in the local state
+      if (onItemUpdated && data) {
+        onItemUpdated(data);
+      }
       
-      // Refresh the page to show the updated item
-      window.location.reload();
+      onOpenChange(false);
       
     } catch (err) {
       console.error('Error updating inventory item:', err);

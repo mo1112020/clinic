@@ -20,7 +20,14 @@ const InventoryManagement = () => {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   
   // Use the custom hook to fetch inventory data from Supabase
-  const { inventoryItems, stats, isLoading, error } = useInventory(
+  const { 
+    inventoryItems, 
+    stats, 
+    isLoading, 
+    error, 
+    addItem, 
+    updateItem 
+  } = useInventory(
     searchQuery,
     categoryFilter,
     stockFilter,
@@ -40,6 +47,14 @@ const InventoryManagement = () => {
   const handleEditItem = (item: InventoryItem) => {
     setCurrentEditItem(item);
     setEditItemDialogOpen(true);
+  };
+
+  const handleItemAdded = (newItem: any) => {
+    addItem(newItem);
+  };
+
+  const handleItemUpdated = (updatedItem: any) => {
+    updateItem(updatedItem);
   };
 
   return (
@@ -66,6 +81,7 @@ const InventoryManagement = () => {
             <AddInventoryItemDialog 
               open={addItemDialogOpen}
               onOpenChange={setAddItemDialogOpen}
+              onItemAdded={handleItemAdded}
             />
           </div>
         </CardHeader>
@@ -108,6 +124,7 @@ const InventoryManagement = () => {
         open={editItemDialogOpen}
         onOpenChange={setEditItemDialogOpen}
         item={currentEditItem}
+        onItemUpdated={handleItemUpdated}
       />
     </div>
   );

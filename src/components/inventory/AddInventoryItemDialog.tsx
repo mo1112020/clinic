@@ -20,9 +20,10 @@ type NewInventoryItem = {
 type AddInventoryItemDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onItemAdded?: (item: any) => void;
 }
 
-export function AddInventoryItemDialog({ open, onOpenChange }: AddInventoryItemDialogProps) {
+export function AddInventoryItemDialog({ open, onOpenChange, onItemAdded }: AddInventoryItemDialogProps) {
   const [newItem, setNewItem] = useState<NewInventoryItem>({
     name: '',
     category: '',
@@ -47,7 +48,7 @@ export function AddInventoryItemDialog({ open, onOpenChange }: AddInventoryItemD
     console.log('Adding new inventory item:', newItem);
     
     try {
-      await addInventoryItem({
+      const addedItem = await addInventoryItem({
         productName: newItem.name,
         quantity: newItem.stock,
         price: newItem.price
@@ -58,6 +59,11 @@ export function AddInventoryItemDialog({ open, onOpenChange }: AddInventoryItemD
         description: `${newItem.name} has been added to inventory.`,
       });
       
+      // Call the callback to add the item to the local state
+      if (onItemAdded) {
+        onItemAdded(addedItem);
+      }
+      
       onOpenChange(false);
       setNewItem({
         name: '',
@@ -66,9 +72,6 @@ export function AddInventoryItemDialog({ open, onOpenChange }: AddInventoryItemD
         price: 0,
         reorderLevel: 0
       });
-      
-      // Refresh the page to show the new item
-      window.location.reload();
       
     } catch (err) {
       console.error('Error adding inventory item:', err);
