@@ -3,6 +3,7 @@ import { AnimalType } from '@/types/database.types';
 
 export interface AnimalFormData {
   animalType: AnimalType;
+  customAnimalType?: string;
   name: string;
   breed: string;
   chipNumber?: string;

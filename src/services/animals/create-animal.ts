@@ -37,6 +37,7 @@ export async function createAnimal(data: AnimalFormData): Promise<Animal> {
       .insert({
         name: data.name,
         animal_type: data.animalType,
+        custom_animal_type: data.customAnimalType,
         breed: data.breed || null,
         chip_number: data.chipNumber || null,
         prone_diseases: proneDiseasesArray,
@@ -66,6 +67,7 @@ export async function createAnimal(data: AnimalFormData): Promise<Animal> {
       id: animalData.id,
       name: animalData.name,
       type: animalData.animal_type as AnimalType,
+      customAnimalType: animalData.custom_animal_type,
       breed: animalData.breed || '',
       chipNo: animalData.chip_number || undefined,
       healthNotes: animalData.prone_diseases ? animalData.prone_diseases.join(', ') : undefined,

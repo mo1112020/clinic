@@ -13,6 +13,9 @@ interface AnimalInformationFormProps {
 }
 
 const AnimalInformationForm: React.FC<AnimalInformationFormProps> = ({ form }) => {
+  const animalType = form.watch('animalType');
+  const showCustomAnimalTypeField = animalType === 'other';
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -31,7 +34,7 @@ const AnimalInformationForm: React.FC<AnimalInformationFormProps> = ({ form }) =
             <RadioGroup
               onValueChange={field.onChange}
               defaultValue={field.value}
-              className="flex space-x-4"
+              className="flex flex-wrap gap-4"
             >
               <FormItem className="flex items-center space-x-2">
                 <FormControl>
@@ -51,11 +54,44 @@ const AnimalInformationForm: React.FC<AnimalInformationFormProps> = ({ form }) =
                 </FormControl>
                 <FormLabel className="font-normal cursor-pointer">Bird</FormLabel>
               </FormItem>
+              <FormItem className="flex items-center space-x-2">
+                <FormControl>
+                  <RadioGroupItem value="other" />
+                </FormControl>
+                <FormLabel className="font-normal cursor-pointer">Other</FormLabel>
+              </FormItem>
             </RadioGroup>
             <FormMessage />
           </FormItem>
         )}
       />
+      
+      {showCustomAnimalTypeField && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <FormField
+            control={form.control}
+            name="customAnimalType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Specify Animal Type</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="e.g., Rabbit, Turtle, Hedgehog" 
+                    {...field} 
+                    className="glass-input" 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </motion.div>
+      )}
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField

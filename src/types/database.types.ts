@@ -1,5 +1,4 @@
-
-export type AnimalType = 'dog' | 'cat' | 'bird';
+export type AnimalType = 'dog' | 'cat' | 'bird' | 'other';
 
 export interface Animal {
   id: string;
@@ -15,6 +14,7 @@ export interface Animal {
   created_at: string;
   last_visit?: string;
   next_appointment?: string;
+  customAnimalType?: string; // Add this field for the custom animal type
 }
 
 export interface Owner {

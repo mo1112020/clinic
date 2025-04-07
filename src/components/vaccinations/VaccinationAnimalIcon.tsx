@@ -1,5 +1,5 @@
 
-import { Dog, Cat, Bird } from 'lucide-react';
+import { Dog, Cat, Bird, Rabbit } from 'lucide-react';
 import { AnimalType } from '@/types/database.types';
 
 interface VaccinationAnimalIconProps {
@@ -15,6 +15,8 @@ export const VaccinationAnimalIcon = ({ type, className = "h-5 w-5" }: Vaccinati
       return <Cat className={`${className} text-green-500`} />;
     case 'bird':
       return <Bird className={`${className} text-purple-500`} />;
+    case 'other':
+      return <Rabbit className={`${className} text-blue-500`} />;
     default:
       return null;
   }

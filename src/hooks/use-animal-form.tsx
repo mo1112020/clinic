@@ -38,8 +38,17 @@ export function useAnimalForm(animalId?: string) {
             phoneNumber = phoneMatch[2];
           }
           
+          // Determine if this is a custom animal type
+          let animalType: AnimalType = animal.animal_type as AnimalType;
+          let customAnimalType = '';
+          
+          if (animalType === 'other' && animal.custom_animal_type) {
+            customAnimalType = animal.custom_animal_type;
+          }
+          
           form.reset({
-            animalType: animal.animal_type as AnimalType,
+            animalType: animalType,
+            customAnimalType: customAnimalType,
             name: animal.name,
             breed: animal.breed || '',
             chipNumber: animal.chip_number || '',
@@ -75,6 +84,7 @@ export function useAnimalForm(animalId?: string) {
       if (isNewAnimal) {
         const result = await createAnimal({
           animalType: data.animalType,
+          customAnimalType: data.animalType === 'other' ? data.customAnimalType : undefined,
           name: data.name,
           breed: data.breed,
           chipNumber: data.chipNumber,
@@ -93,6 +103,7 @@ export function useAnimalForm(animalId?: string) {
       } else {
         const result = await updateAnimal(animalId!, {
           animalType: data.animalType,
+          customAnimalType: data.animalType === 'other' ? data.customAnimalType : undefined,
           name: data.name,
           breed: data.breed,
           chipNumber: data.chipNumber,
