@@ -67,7 +67,7 @@ export async function createAnimal(data: AnimalFormData): Promise<Animal> {
       id: animalData.id,
       name: animalData.name,
       type: animalData.animal_type as AnimalType,
-      customAnimalType: animalData.custom_animal_type,
+      customAnimalType: animalData.custom_animal_type || undefined,
       breed: animalData.breed || '',
       chipNo: animalData.chip_number || undefined,
       healthNotes: animalData.prone_diseases ? animalData.prone_diseases.join(', ') : undefined,

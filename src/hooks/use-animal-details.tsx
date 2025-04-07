@@ -37,6 +37,7 @@ export function useAnimalDetails(animalId: string): UseAnimalDetailsResult {
         id: animalData.id,
         name: animalData.name,
         type: animalData.animal_type,
+        customAnimalType: animalData.custom_animal_type,
         breed: animalData.breed || '',
         chipNo: animalData.chip_number,
         healthNotes: animalData.prone_diseases ? animalData.prone_diseases.join(', ') : '',
