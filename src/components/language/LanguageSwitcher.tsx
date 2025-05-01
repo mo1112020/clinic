@@ -21,9 +21,9 @@ export const LanguageSwitcher = () => {
   
   // Load language preference from localStorage on component mount
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('preferredLanguage') as Language;
+    const savedLanguage = localStorage.getItem('preferredLanguage');
     if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'tr')) {
-      setLanguage(savedLanguage);
+      setLanguage(savedLanguage as Language);
     }
   }, [setLanguage]);
 
@@ -31,7 +31,7 @@ export const LanguageSwitcher = () => {
     switch (code) {
       case 'en': return 'English';
       case 'tr': return 'Türkçe';
-      default: return code.toUpperCase();
+      default: return code;
     }
   };
 
