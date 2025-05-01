@@ -7,9 +7,11 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useDashboardStats } from '@/hooks/use-dashboard-stats';
 import { format } from 'date-fns';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Dashboard = () => {
   const { data: stats, isLoading, error } = useDashboardStats();
+  const { t } = useLanguage();
   
   const cardVariants = {
     initial: { opacity: 0, y: 20 },
@@ -28,7 +30,7 @@ const Dashboard = () => {
     return (
       <div className="flex flex-col items-center justify-center h-96">
         <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-        <p className="text-muted-foreground">Loading dashboard data...</p>
+        <p className="text-muted-foreground">{t('loadingDashboard')}</p>
       </div>
     );
   }
@@ -37,33 +39,33 @@ const Dashboard = () => {
   if (error) {
     return (
       <div className="p-6 bg-destructive/10 rounded-lg text-center">
-        <h2 className="text-xl font-semibold mb-2">Error Loading Dashboard</h2>
+        <h2 className="text-xl font-semibold mb-2">{t('errorLoadingDashboard')}</h2>
         <p className="text-muted-foreground">
-          {error instanceof Error ? error.message : 'Failed to load dashboard data'}
+          {error instanceof Error ? error.message : t('failedToLoad')}
         </p>
       </div>
     );
   }
 
   const statCards = [
-    { title: "Total Patients", value: stats?.totalPatients.toString() || "0", icon: Activity, color: "bg-blue-500", link: "/animals/search" },
-    { title: "Dogs", value: stats?.dogs.toString() || "0", icon: Dog, color: "bg-amber-500", link: "/animals/dogs" },
-    { title: "Cats", value: stats?.cats.toString() || "0", icon: Cat, color: "bg-green-500", link: "/animals/cats" },
-    { title: "Birds", value: stats?.birds.toString() || "0", icon: Bird, color: "bg-purple-500", link: "/animals/birds" },
+    { title: t('totalPatients'), value: stats?.totalPatients.toString() || "0", icon: Activity, color: "bg-blue-500", link: "/animals/search" },
+    { title: t('dogs'), value: stats?.dogs.toString() || "0", icon: Dog, color: "bg-amber-500", link: "/animals/dogs" },
+    { title: t('cats'), value: stats?.cats.toString() || "0", icon: Cat, color: "bg-green-500", link: "/animals/cats" },
+    { title: t('birds'), value: stats?.birds.toString() || "0", icon: Bird, color: "bg-purple-500", link: "/animals/birds" },
   ];
   
   const actionCards = [
-    { title: "Add New Patient", description: "Register a new animal", icon: Dog, color: "bg-canki", link: "/animals/new" },
-    { title: "Upcoming Vaccinations", description: "View scheduled reminders", icon: Calendar, color: "bg-amber-500", link: "/vaccinations" },
-    { title: "Inventory Management", description: "Check stock levels", icon: ShoppingCart, color: "bg-emerald-500", link: "/inventory" },
-    { title: "Recent Activity", description: "View latest clinic activity", icon: Clock, color: "bg-purple-500", link: "/medical-history" },
+    { title: t('addNewPatient'), description: t('registerNewAnimal'), icon: Dog, color: "bg-canki", link: "/animals/new" },
+    { title: t('upcomingVaccinations'), description: t('viewScheduledReminders'), icon: Calendar, color: "bg-amber-500", link: "/vaccinations" },
+    { title: t('inventoryManagement'), description: t('checkStockLevels'), icon: ShoppingCart, color: "bg-emerald-500", link: "/inventory" },
+    { title: t('recentActivity'), description: t('viewLatestActivity'), icon: Clock, color: "bg-purple-500", link: "/medical-history" },
   ];
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Dashboard</h1>
-        <p className="text-muted-foreground">Manage your veterinary clinic operations.</p>
+        <h1 className="text-3xl font-bold tracking-tight mb-2">{t('dashboard')}</h1>
+        <p className="text-muted-foreground">{t('manageClinicOperations')}</p>
       </div>
       
       {/* Stats */}
@@ -97,7 +99,7 @@ const Dashboard = () => {
       
       {/* Quick Actions */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
+        <h2 className="text-xl font-semibold mb-4">{t('quickActions')}</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {actionCards.map((card, index) => (
             <motion.div
@@ -125,10 +127,10 @@ const Dashboard = () => {
       
       {/* Recent Patients */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Recent Patients</h2>
+        <h2 className="text-xl font-semibold mb-4">{t('recentPatients')}</h2>
         <Card>
           <CardHeader>
-            <CardTitle>Latest Visits</CardTitle>
+            <CardTitle>{t('latestVisits')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -167,7 +169,7 @@ const Dashboard = () => {
                 ))
               ) : (
                 <div className="text-center py-6 text-muted-foreground">
-                  <p>No recent patients found</p>
+                  <p>{t('noRecentPatients')}</p>
                 </div>
               )}
             </div>

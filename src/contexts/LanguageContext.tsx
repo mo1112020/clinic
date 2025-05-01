@@ -23,7 +23,6 @@ export const translations: TranslationsType = {
   records: { en: 'Records', tr: 'Kayıtlar' },
   medicalHistory: { en: 'Medical History', tr: 'Medikal Geçmiş' },
   logout: { en: 'Logout', tr: 'Çıkış' },
-  // Add more translations as needed
   
   // Medical History page
   medicalRecords: { en: 'Medical Records', tr: 'Medikal Kayıtlar' },
@@ -43,6 +42,62 @@ export const translations: TranslationsType = {
   overdue: { en: 'Overdue', tr: 'Gecikmiş' },
   all: { en: 'All', tr: 'Tümü' },
   opening: { en: 'Opening...', tr: 'Açılıyor...' },
+  
+  // Additional translations for Medical History page
+  viewAndSearchRecords: { en: 'View and search medical records', tr: 'Medikal kayıtları görüntüle ve ara' },
+  searchPlaceholder: { en: 'Search by patient name, owner...', tr: 'Hasta adı, sahip bilgisi ile ara...' },
+  search: { en: 'Search', tr: 'Ara' },
+  loadingRecords: { en: 'Loading records...', tr: 'Kayıtlar yükleniyor...' },
+  noRecordsFound: { en: 'No medical records found', tr: 'Medikal kayıt bulunamadı' },
+  
+  // Dashboard page
+  manageClinicOperations: { en: 'Manage your veterinary clinic operations.', tr: 'Veteriner kliniği operasyonlarınızı yönetin.' },
+  totalPatients: { en: 'Total Patients', tr: 'Toplam Hasta' },
+  addNewPatient: { en: 'Add New Patient', tr: 'Yeni Hasta Ekle' },
+  registerNewAnimal: { en: 'Register a new animal', tr: 'Yeni hayvan kaydı' },
+  upcomingVaccinations: { en: 'Upcoming Vaccinations', tr: 'Yaklaşan Aşılar' },
+  viewScheduledReminders: { en: 'View scheduled reminders', tr: 'Planlanmış hatırlatıcıları görüntüle' },
+  inventoryManagement: { en: 'Inventory Management', tr: 'Envanter Yönetimi' },
+  checkStockLevels: { en: 'Check stock levels', tr: 'Stok seviyelerini kontrol et' },
+  recentActivity: { en: 'Recent Activity', tr: 'Son Aktivite' },
+  viewLatestActivity: { en: 'View latest clinic activity', tr: 'En son klinik aktivitelerini görüntüle' },
+  quickActions: { en: 'Quick Actions', tr: 'Hızlı İşlemler' },
+  recentPatients: { en: 'Recent Patients', tr: 'Son Hastalar' },
+  latestVisits: { en: 'Latest Visits', tr: 'Son Ziyaretler' },
+  noRecentPatients: { en: 'No recent patients found', tr: 'Son hasta bulunamadı' },
+  loadingDashboard: { en: 'Loading dashboard data...', tr: 'Panel verileri yükleniyor...' },
+  errorLoadingDashboard: { en: 'Error Loading Dashboard', tr: 'Panel Yüklenirken Hata' },
+  failedToLoad: { en: 'Failed to load dashboard data', tr: 'Panel verileri yüklenemedi' },
+  
+  // Animal details page
+  editDetails: { en: 'Edit Details', tr: 'Detayları Düzenle' },
+  delete: { en: 'Delete', tr: 'Sil' },
+  deletePatient: { en: 'Delete Patient Record', tr: 'Hasta Kaydını Sil' },
+  deleteWarning: { en: 'This will permanently delete the patient record from the system. This action cannot be undone.', tr: 'Bu, hasta kaydını sistemden kalıcı olarak silecektir. Bu işlem geri alınamaz.' },
+  cancel: { en: 'Cancel', tr: 'İptal' },
+  deleting: { en: 'Deleting...', tr: 'Siliniyor...' },
+  ownerInformation: { en: 'Owner Information', tr: 'Sahip Bilgileri' },
+  ownerName: { en: 'Owner Name', tr: 'Sahip Adı' },
+  idNumber: { en: 'ID Number', tr: 'Kimlik Numarası' },
+  contactPhone: { en: 'Contact Phone', tr: 'İletişim Telefonu' },
+  email: { en: 'Email', tr: 'E-posta' },
+  
+  // Tabs
+  vaccinationsTab: { en: 'Vaccinations', tr: 'Aşılar' },
+  medicalHistoryTab: { en: 'Medical History', tr: 'Medikal Geçmiş' },
+  documentsTab: { en: 'Documents', tr: 'Belgeler' },
+  
+  // Login page
+  login: { en: 'Login', tr: 'Giriş' },
+  username: { en: 'Username', tr: 'Kullanıcı Adı' },
+  password: { en: 'Password', tr: 'Şifre' },
+  signIn: { en: 'Sign In', tr: 'Oturum Aç' },
+  signingIn: { en: 'Signing in...', tr: 'Oturum açılıyor...' },
+  loginSuccessful: { en: 'Login successful', tr: 'Giriş başarılı' },
+  welcomeMessage: { en: 'Welcome to Canki-Klinik', tr: 'Canki-Klinik\'e Hoş Geldiniz' },
+  loginFailed: { en: 'Login failed', tr: 'Giriş başarısız' },
+  invalidCredentials: { en: 'Invalid username or password', tr: 'Geçersiz kullanıcı adı veya şifre' },
+  veterinaryManagement: { en: 'Veterinary Management System', tr: 'Veteriner Yönetim Sistemi' },
 };
 
 interface LanguageContextType {

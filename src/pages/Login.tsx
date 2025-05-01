@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/componen
 import { useToast } from '@/components/ui/use-toast';
 import { Eye, EyeOff, User, Lock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -16,6 +17,7 @@ const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { login, isAuthenticated } = useAuth();
+  const { t } = useLanguage();
 
   // Check if already authenticated, redirect to dashboard
   useEffect(() => {
@@ -33,14 +35,14 @@ const Login = () => {
     
     if (success) {
       toast({
-        title: "Login successful",
-        description: "Welcome to Canki-Klinik",
+        title: t('loginSuccessful'),
+        description: t('welcomeMessage'),
       });
       navigate('/');
     } else {
       toast({
-        title: "Login failed",
-        description: "Invalid username or password",
+        title: t('loginFailed'),
+        description: t('invalidCredentials'),
         variant: "destructive",
       });
       setIsLoading(false);
@@ -61,12 +63,12 @@ const Login = () => {
             className="mx-auto w-48 h-48 mb-6 object-cover"
           />
           <h1 className="text-3xl font-bold text-canki">Canki-Klinik</h1>
-          <p className="text-gray-600 mt-2">Veterinary Management System</p>
+          <p className="text-gray-600 mt-2">{t('veterinaryManagement')}</p>
         </div>
         
         <Card className="shadow-lg border-t-4 border-t-canki">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Sign In</CardTitle>
+            <CardTitle className="text-2xl text-center">{t('signIn')}</CardTitle>
           </CardHeader>
           
           <CardContent>
@@ -76,7 +78,7 @@ const Login = () => {
                   <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     type="text"
-                    placeholder="Username"
+                    placeholder={t('username')}
                     className="pl-10"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
@@ -90,7 +92,7 @@ const Login = () => {
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     type={showPassword ? "text" : "password"}
-                    placeholder="Password"
+                    placeholder={t('password')}
                     className="pl-10"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -115,7 +117,7 @@ const Login = () => {
                 className="w-full bg-canki hover:bg-canki/90"
                 disabled={isLoading}
               >
-                {isLoading ? "Signing in..." : "Sign In"}
+                {isLoading ? t('signingIn') : t('signIn')}
               </Button>
             </form>
           </CardContent>

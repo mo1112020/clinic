@@ -8,12 +8,31 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useEffect } from "react";
 
 export const LanguageSwitcher = () => {
   const { language, setLanguage } = useLanguage();
   
   const handleLanguageChange = (newLanguage: Language) => {
     setLanguage(newLanguage);
+    // Store the language preference in localStorage
+    localStorage.setItem('preferredLanguage', newLanguage);
+  };
+  
+  // Load language preference from localStorage on component mount
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('preferredLanguage') as Language;
+    if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'tr')) {
+      setLanguage(savedLanguage);
+    }
+  }, [setLanguage]);
+
+  const getLanguageName = (code: Language): string => {
+    switch (code) {
+      case 'en': return 'English';
+      case 'tr': return 'Türkçe';
+      default: return code.toUpperCase();
+    }
   };
 
   return (
@@ -28,10 +47,16 @@ export const LanguageSwitcher = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-[120px]">
-        <DropdownMenuItem onClick={() => handleLanguageChange('en')}>
+        <DropdownMenuItem 
+          onClick={() => handleLanguageChange('en')}
+          className={language === 'en' ? 'bg-accent font-medium' : ''}
+        >
           English
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleLanguageChange('tr')}>
+        <DropdownMenuItem 
+          onClick={() => handleLanguageChange('tr')}
+          className={language === 'tr' ? 'bg-accent font-medium' : ''}
+        >
           Türkçe
         </DropdownMenuItem>
       </DropdownMenuContent>
