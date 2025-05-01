@@ -1,6 +1,5 @@
-
 import { format } from 'date-fns';
-import { MessageSquare, Loader2, Check, WhatsApp } from 'lucide-react';
+import { MessageCircle, Loader2, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { VaccinationStatusBadge } from './VaccinationStatusBadge';
@@ -129,7 +128,7 @@ export const VaccinationReminderCard = ({
               </div>
             ) : (
               <>
-                <WhatsApp className="mr-2 h-4 w-4" />
+                <MessageCircle className="mr-2 h-4 w-4" />
                 {t('whatsappReminder')}
               </>
             )}
