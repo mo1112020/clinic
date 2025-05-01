@@ -1,11 +1,12 @@
 
 import { format } from 'date-fns';
-import { MessageSquare, Loader2, Check } from 'lucide-react';
+import { MessageSquare, Loader2, Check, WhatsApp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { VaccinationStatusBadge } from './VaccinationStatusBadge';
 import { VaccinationAnimalIcon } from './VaccinationAnimalIcon';
 import { AnimalType } from '@/types/database.types';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export interface VaccinationReminderItem {
   id: number;
@@ -37,6 +38,7 @@ export const VaccinationReminderCard = ({
   onMarkCompleted,
   isCompletingVaccination = false
 }: VaccinationReminderCardProps) => {
+  const { t, language } = useLanguage();
   const cardVariants = {
     initial: { opacity: 0, y: 20 },
     animate: (index: number) => ({
@@ -84,11 +86,11 @@ export const VaccinationReminderCard = ({
         
         <div className="sm:text-right">
           <p className="text-sm">
-            <span className="text-muted-foreground">Owner: </span>
+            <span className="text-muted-foreground">{t('owner')}: </span>
             <span className="font-medium">{reminder.ownerName}</span>
           </p>
           <p className="text-sm">
-            <span className="text-muted-foreground">Date: </span>
+            <span className="text-muted-foreground">{t('date')}: </span>
             <span className="font-medium">{format(new Date(reminder.date), 'MMMM d, yyyy')}</span>
           </p>
         </div>
@@ -104,12 +106,12 @@ export const VaccinationReminderCard = ({
               {isCompletingVaccination ? (
                 <div className="flex items-center">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
-                  Completing...
+                  {t('completing')}...
                 </div>
               ) : (
                 <>
                   <Check className="mr-2 h-4 w-4" />
-                  Mark Complete
+                  {t('markComplete')}
                 </>
               )}
             </Button>
@@ -123,12 +125,12 @@ export const VaccinationReminderCard = ({
             {isSending ? (
               <div className="flex items-center">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                Opening...
+                {t('opening')}...
               </div>
             ) : (
               <>
-                <MessageSquare className="mr-2 h-4 w-4" />
-                WhatsApp Reminder
+                <WhatsApp className="mr-2 h-4 w-4" />
+                {t('whatsappReminder')}
               </>
             )}
           </Button>

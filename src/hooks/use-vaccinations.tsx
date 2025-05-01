@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Vaccination } from '@/types/database.types';
 import { useToast } from '@/hooks/use-toast';
 import { format, isPast, isToday, addDays, isAfter } from 'date-fns';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export function useVaccinations(filter: 'today' | 'upcoming' | 'overdue' | 'all' = 'all') {
   const [vaccinations, setVaccinations] = useState<any[]>([]);
@@ -12,6 +13,7 @@ export function useVaccinations(filter: 'today' | 'upcoming' | 'overdue' | 'all'
   const [sendingReminders, setSendingReminders] = useState<number[]>([]);
   const [completingVaccinations, setCompletingVaccinations] = useState<number[]>([]);
   const { toast } = useToast();
+  const { language } = useLanguage();
 
   useEffect(() => {
     const fetchVaccinations = async () => {
@@ -230,8 +232,11 @@ export function useVaccinations(filter: 'today' | 'upcoming' | 'overdue' | 'all'
       // Format phone number for WhatsApp
       const phoneNumber = formatPhoneForWhatsApp(vaccination.ownerPhone);
       
-      // Create message
-      const message = `Hello ${vaccination.ownerName}, this is a reminder that ${vaccination.animalName} is due for a ${vaccination.vaccineName} vaccination on ${format(new Date(vaccination.date), 'MMMM d, yyyy')}. Please contact the clinic to confirm the appointment.`;
+      // Format the date for display
+      const formattedDate = format(new Date(vaccination.date), 'dd.MM.yyyy');
+      
+      // Create Turkish message with placeholders filled in
+      const message = `${vaccination.ownerName}, sevgili ${vaccination.animalName}'in ${vaccination.vaccineName} aşı uygulama zamanı gelmiştir (${formattedDate}). Kliniğimize bekleriz. Sağlıklı günler dileriz.`;
       
       // Open WhatsApp with the message
       window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
