@@ -1,7 +1,7 @@
 
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { allTranslations } from '@/translations/merge-translations';
-import { Language } from '@/translations/merge-translations';
+import type { Language } from '@/translations/merge-translations';
 
 interface LanguageContextType {
   language: Language;
@@ -36,5 +36,5 @@ export const useLanguage = () => {
   return context;
 };
 
-// Re-export Language type for convenience
-export { Language };
+// Re-export Language type for convenience with proper TypeScript syntax for isolatedModules
+export type { Language };
