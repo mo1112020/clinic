@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Save } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AnimalFormActionsProps {
   isSubmitting: boolean;
@@ -12,6 +13,7 @@ interface AnimalFormActionsProps {
 
 const AnimalFormActions: React.FC<AnimalFormActionsProps> = ({ isSubmitting, isNewAnimal }) => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   
   return (
     <motion.div 
@@ -25,7 +27,7 @@ const AnimalFormActions: React.FC<AnimalFormActionsProps> = ({ isSubmitting, isN
         variant="outline" 
         onClick={() => navigate(-1)}
       >
-        Cancel
+        {t('cancel')}
       </Button>
       <Button 
         type="submit" 
@@ -35,12 +37,12 @@ const AnimalFormActions: React.FC<AnimalFormActionsProps> = ({ isSubmitting, isN
         {isSubmitting ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            {isNewAnimal ? 'Registering...' : 'Updating...'}
+            {isNewAnimal ? t('registering') : t('updating')}
           </>
         ) : (
           <>
             <Save className="mr-2 h-4 w-4" />
-            {isNewAnimal ? 'Register Patient' : 'Update Patient'}
+            {isNewAnimal ? t('registerPatient') : t('updatePatient')}
           </>
         )}
       </Button>

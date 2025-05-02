@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { Loader2 } from 'lucide-react';
@@ -9,11 +9,32 @@ import AnimalInformationForm from '@/components/animals/AnimalInformationForm';
 import OwnerInformationForm from '@/components/animals/OwnerInformationForm';
 import AnimalFormActions from '@/components/animals/AnimalFormActions';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { toast } from '@/hooks/use-toast';
 
 const AnimalForm = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { form, isLoading, isSubmitting, isNewAnimal, onSubmit } = useAnimalForm(id);
   const { t } = useLanguage();
+  
+  // Debug submission process
+  useEffect(() => {
+    console.log('Animal form rendered, isSubmitting:', isSubmitting);
+  }, [isSubmitting]);
+
+  const handleFormSubmit = async (data: any) => {
+    try {
+      console.log('Form submission triggered with data:', data);
+      await onSubmit(data);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      toast({
+        title: t('errorOccurred'),
+        description: t('errorSavingAnimal'),
+        variant: 'destructive',
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -36,7 +57,7 @@ const AnimalForm = () => {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
             <AnimalInformationForm form={form} />
             <OwnerInformationForm form={form} />
             <AnimalFormActions isSubmitting={isSubmitting} isNewAnimal={isNewAnimal} />
