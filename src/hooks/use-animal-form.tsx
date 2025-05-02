@@ -107,7 +107,6 @@ export function useAnimalForm(animalId?: string) {
         
         toast({
           title: t('success'),
-          // Fix here: The t() function is expecting only 1 argument
           description: t('animalCreatedSuccessfully'),
         });
       } else {
@@ -116,7 +115,6 @@ export function useAnimalForm(animalId?: string) {
         
         toast({
           title: t('success'),
-          // Fix here: The t() function is expecting only 1 argument
           description: t('animalUpdatedSuccessfully'),
         });
       }

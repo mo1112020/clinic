@@ -30,9 +30,8 @@ const AnimalFormActions: React.FC<AnimalFormActionsProps> = ({ isSubmitting, isN
         {t('cancel')}
       </Button>
       <Button 
-        type="submit" 
+        type="submit"
         disabled={isSubmitting}
-        // We don't need an onClick handler here since the form's onSubmit will handle this
       >
         {isSubmitting ? (
           <>

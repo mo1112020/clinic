@@ -34,8 +34,8 @@ const AnimalForm = () => {
     } catch (error) {
       console.error('Error submitting form:', error);
       toast({
-        title: t('errorOccurred'),
-        description: t('errorSavingAnimal'),
+        title: t('error'),
+        description: t('failedToSaveAnimal'),
         variant: 'destructive',
       });
     }

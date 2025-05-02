@@ -31,6 +31,43 @@ export const uiTranslations = {
   saving: { en: 'Saving...', tr: 'Kaydediliyor...' },
   addItem: { en: 'Add Item', tr: 'Öğe Ekle' },
   
+  // Animal Form Translations
+  animalInformation: { en: 'Animal Information', tr: 'Hayvan Bilgileri' },
+  animalType: { en: 'Animal Type', tr: 'Hayvan Türü' },
+  dog: { en: 'Dog', tr: 'Köpek' },
+  cat: { en: 'Cat', tr: 'Kedi' },
+  bird: { en: 'Bird', tr: 'Kuş' },
+  other: { en: 'Other', tr: 'Diğer' },
+  specifyAnimalType: { en: 'Specify Animal Type', tr: 'Hayvan Türünü Belirtin' },
+  animalTypeExamples: { en: 'e.g., Rabbit, Turtle, Hedgehog', tr: 'örn., Tavşan, Kaplumbağa, Kirpi' },
+  animalName: { en: 'Animal Name', tr: 'Hayvan Adı' },
+  enterAnimalName: { en: 'Enter animal name', tr: 'Hayvan adını girin' },
+  breed: { en: 'Breed', tr: 'Irk' },
+  enterBreed: { en: 'Enter breed', tr: 'Irk girin' },
+  microchipNumber: { en: 'Microchip Number (optional)', tr: 'Mikroçip Numarası (isteğe bağlı)' },
+  enterMicrochipNumber: { en: 'Enter microchip number', tr: 'Mikroçip numarasını girin' },
+  healthNotes: { en: 'Health Notes', tr: 'Sağlık Notları' },
+  enterHealthNotes: { en: 'Enter any health conditions, allergies, or diseases the animal is prone to', tr: 'Hayvanın sahip olduğu herhangi bir sağlık koşulu, alerji veya hastalığı girin' },
+  ownerInformation: { en: 'Owner Information', tr: 'Sahip Bilgileri' },
+  ownerName: { en: 'Owner Name', tr: 'Sahip Adı' },
+  enterOwnerName: { en: 'Enter owner name', tr: 'Sahip adını girin' },
+  ownerIdNumber: { en: 'Owner ID Number', tr: 'Sahip Kimlik Numarası' },
+  enterOwnerId: { en: 'Enter owner ID number', tr: 'Sahip kimlik numarasını girin' },
+  ownerPhoneNumber: { en: 'Owner Phone Number', tr: 'Sahip Telefon Numarası' },
+  enterPhoneNumber: { en: 'Enter phone number', tr: 'Telefon numarasını girin' },
+  
+  // Form Actions
+  cancel: { en: 'Cancel', tr: 'İptal' },
+  registering: { en: 'Registering...', tr: 'Kaydediliyor...' },
+  updating: { en: 'Updating...', tr: 'Güncelleniyor...' },
+  registerPatient: { en: 'Register Patient', tr: 'Hastayı Kaydet' },
+  updatePatient: { en: 'Update Patient', tr: 'Hastayı Güncelle' },
+  registerNewPatient: { en: 'Register New Patient', tr: 'Yeni Hasta Kaydı' },
+  editPatient: { en: 'Edit Patient', tr: 'Hastayı Düzenle' },
+  addNewAnimal: { en: 'Add a new patient to the system', tr: 'Sisteme yeni bir hasta ekleyin' },
+  updateAnimalInfo: { en: 'Update patient information', tr: 'Hasta bilgilerini güncelleyin' },
+  loadingAnimalData: { en: 'Loading animal data...', tr: 'Hayvan verileri yükleniyor...' },
+  
   // Status messages and notifications
   success: { en: 'Success', tr: 'Başarılı' },
   error: { en: 'Error', tr: 'Hata' },
@@ -39,4 +76,6 @@ export const uiTranslations = {
   failedToSaveAnimal: { en: 'Failed to save animal', tr: 'Hayvan kaydedilemedi' },
   chipNumberAlreadyExists: { en: 'An animal with this chip number already exists', tr: 'Bu çip numarasına sahip bir hayvan zaten mevcut' },
   failedToLoadAnimalData: { en: 'Failed to load animal data', tr: 'Hayvan verisi yüklenemedi' },
+  errorOccurred: { en: 'An error occurred', tr: 'Bir hata oluştu' },
+  errorSavingAnimal: { en: 'Error saving animal data', tr: 'Hayvan verisi kaydedilirken hata oluştu' }
 };

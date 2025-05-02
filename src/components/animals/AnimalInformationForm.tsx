@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { UseFormReturn } from 'react-hook-form';
 import { AnimalFormValues } from '@/schemas/animal-form-schema';
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AnimalInformationFormProps {
   form: UseFormReturn<AnimalFormValues>;
@@ -15,6 +16,7 @@ interface AnimalInformationFormProps {
 const AnimalInformationForm: React.FC<AnimalInformationFormProps> = ({ form }) => {
   const animalType = form.watch('animalType');
   const showCustomAnimalTypeField = animalType === 'other';
+  const { t } = useLanguage();
 
   return (
     <motion.div
@@ -23,14 +25,14 @@ const AnimalInformationForm: React.FC<AnimalInformationFormProps> = ({ form }) =
       transition={{ duration: 0.3 }}
       className="space-y-4"
     >
-      <h3 className="text-lg font-medium">Animal Information</h3>
+      <h3 className="text-lg font-medium">{t('animalInformation')}</h3>
       
       <FormField
         control={form.control}
         name="animalType"
         render={({ field }) => (
           <FormItem className="space-y-2">
-            <FormLabel>Animal Type</FormLabel>
+            <FormLabel>{t('animalType')}</FormLabel>
             <RadioGroup
               onValueChange={field.onChange}
               defaultValue={field.value}
@@ -40,25 +42,25 @@ const AnimalInformationForm: React.FC<AnimalInformationFormProps> = ({ form }) =
                 <FormControl>
                   <RadioGroupItem value="dog" />
                 </FormControl>
-                <FormLabel className="font-normal cursor-pointer">Dog</FormLabel>
+                <FormLabel className="font-normal cursor-pointer">{t('dog')}</FormLabel>
               </FormItem>
               <FormItem className="flex items-center space-x-2">
                 <FormControl>
                   <RadioGroupItem value="cat" />
                 </FormControl>
-                <FormLabel className="font-normal cursor-pointer">Cat</FormLabel>
+                <FormLabel className="font-normal cursor-pointer">{t('cat')}</FormLabel>
               </FormItem>
               <FormItem className="flex items-center space-x-2">
                 <FormControl>
                   <RadioGroupItem value="bird" />
                 </FormControl>
-                <FormLabel className="font-normal cursor-pointer">Bird</FormLabel>
+                <FormLabel className="font-normal cursor-pointer">{t('bird')}</FormLabel>
               </FormItem>
               <FormItem className="flex items-center space-x-2">
                 <FormControl>
                   <RadioGroupItem value="other" />
                 </FormControl>
-                <FormLabel className="font-normal cursor-pointer">Other</FormLabel>
+                <FormLabel className="font-normal cursor-pointer">{t('other')}</FormLabel>
               </FormItem>
             </RadioGroup>
             <FormMessage />
@@ -78,10 +80,10 @@ const AnimalInformationForm: React.FC<AnimalInformationFormProps> = ({ form }) =
             name="customAnimalType"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Specify Animal Type</FormLabel>
+                <FormLabel>{t('specifyAnimalType')}</FormLabel>
                 <FormControl>
                   <Input 
-                    placeholder="e.g., Rabbit, Turtle, Hedgehog" 
+                    placeholder={t('animalTypeExamples')}
                     {...field} 
                     className="glass-input" 
                   />
@@ -99,9 +101,9 @@ const AnimalInformationForm: React.FC<AnimalInformationFormProps> = ({ form }) =
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Animal Name</FormLabel>
+              <FormLabel>{t('animalName')}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter animal name" {...field} className="glass-input" />
+                <Input placeholder={t('enterAnimalName')} {...field} className="glass-input" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -113,9 +115,9 @@ const AnimalInformationForm: React.FC<AnimalInformationFormProps> = ({ form }) =
           name="breed"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Breed</FormLabel>
+              <FormLabel>{t('breed')}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter breed" {...field} className="glass-input" />
+                <Input placeholder={t('enterBreed')} {...field} className="glass-input" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -128,9 +130,9 @@ const AnimalInformationForm: React.FC<AnimalInformationFormProps> = ({ form }) =
         name="chipNumber"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Microchip Number (optional)</FormLabel>
+            <FormLabel>{t('microchipNumber')}</FormLabel>
             <FormControl>
-              <Input placeholder="Enter microchip number" {...field} className="glass-input" />
+              <Input placeholder={t('enterMicrochipNumber')} {...field} className="glass-input" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -142,10 +144,10 @@ const AnimalInformationForm: React.FC<AnimalInformationFormProps> = ({ form }) =
         name="healthNotes"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Health Notes</FormLabel>
+            <FormLabel>{t('healthNotes')}</FormLabel>
             <FormControl>
               <Textarea 
-                placeholder="Enter any health conditions, allergies, or diseases the animal is prone to"
+                placeholder={t('enterHealthNotes')}
                 className="glass-input min-h-24"
                 {...field}
               />

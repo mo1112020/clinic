@@ -6,12 +6,15 @@ import { UseFormReturn } from 'react-hook-form';
 import { AnimalFormValues } from '@/schemas/animal-form-schema';
 import { motion } from 'framer-motion';
 import { CountryCodeSelector, Country } from '@/components/ui/country-code-selector';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface OwnerInformationFormProps {
   form: UseFormReturn<AnimalFormValues>;
 }
 
 const OwnerInformationForm: React.FC<OwnerInformationFormProps> = ({ form }) => {
+  const { t } = useLanguage();
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -19,7 +22,7 @@ const OwnerInformationForm: React.FC<OwnerInformationFormProps> = ({ form }) => 
       transition={{ duration: 0.3, delay: 0.2 }}
       className="space-y-4"
     >
-      <h3 className="text-lg font-medium">Owner Information</h3>
+      <h3 className="text-lg font-medium">{t('ownerInformation')}</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
@@ -27,9 +30,9 @@ const OwnerInformationForm: React.FC<OwnerInformationFormProps> = ({ form }) => 
           name="ownerName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Owner Name</FormLabel>
+              <FormLabel>{t('ownerName')}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter owner name" {...field} className="glass-input" />
+                <Input placeholder={t('enterOwnerName')} {...field} className="glass-input" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -41,9 +44,9 @@ const OwnerInformationForm: React.FC<OwnerInformationFormProps> = ({ form }) => 
           name="ownerId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Owner ID Number</FormLabel>
+              <FormLabel>{t('ownerIdNumber')}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter owner ID number" {...field} className="glass-input" />
+                <Input placeholder={t('enterOwnerId')} {...field} className="glass-input" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -56,7 +59,7 @@ const OwnerInformationForm: React.FC<OwnerInformationFormProps> = ({ form }) => 
         name="ownerPhone"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Owner Phone Number</FormLabel>
+            <FormLabel>{t('ownerPhoneNumber')}</FormLabel>
             <div className="flex">
               <FormField
                 control={form.control}
@@ -73,7 +76,7 @@ const OwnerInformationForm: React.FC<OwnerInformationFormProps> = ({ form }) => 
               />
               <FormControl>
                 <Input 
-                  placeholder="Enter phone number" 
+                  placeholder={t('enterPhoneNumber')}
                   {...field} 
                   className="glass-input rounded-l-none flex-1" 
                 />
