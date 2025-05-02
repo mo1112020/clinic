@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 
 export type Language = 'en' | 'tr';
@@ -175,6 +174,15 @@ export const translations: TranslationsType = {
   save: { en: 'Save', tr: 'Kaydet' },
   saving: { en: 'Saving...', tr: 'Kaydediliyor...' },
   addItem: { en: 'Add Item', tr: 'Öğe Ekle' },
+  
+  // Additional translations for the animal form
+  success: { en: 'Success', tr: 'Başarılı' },
+  error: { en: 'Error', tr: 'Hata' },
+  animalCreatedSuccessfully: { en: 'Animal registered successfully', tr: 'Hayvan başarıyla kaydedildi' },
+  animalUpdatedSuccessfully: { en: 'Animal updated successfully', tr: 'Hayvan başarıyla güncellendi' },
+  failedToSaveAnimal: { en: 'Failed to save animal', tr: 'Hayvan kaydedilemedi' },
+  chipNumberAlreadyExists: { en: 'An animal with this chip number already exists', tr: 'Bu çip numarasına sahip bir hayvan zaten mevcut' },
+  failedToLoadAnimalData: { en: 'Failed to load animal data', tr: 'Hayvan verisi yüklenemedi' },
 };
 
 interface LanguageContextType {

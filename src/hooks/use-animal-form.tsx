@@ -107,7 +107,8 @@ export function useAnimalForm(animalId?: string) {
         
         toast({
           title: t('success'),
-          description: t('animalCreatedSuccessfully', { name: data.name }),
+          // Fix here: The t() function is expecting only 1 argument
+          description: t('animalCreatedSuccessfully'),
         });
       } else {
         result = await updateAnimal(animalId!, animalData);
@@ -115,7 +116,8 @@ export function useAnimalForm(animalId?: string) {
         
         toast({
           title: t('success'),
-          description: t('animalUpdatedSuccessfully', { name: data.name }),
+          // Fix here: The t() function is expecting only 1 argument
+          description: t('animalUpdatedSuccessfully'),
         });
       }
       
