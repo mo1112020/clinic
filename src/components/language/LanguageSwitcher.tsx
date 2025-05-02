@@ -1,7 +1,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Languages } from "lucide-react";
-import { useLanguage, Language } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Language } from "@/translations/merge-translations";
 import { 
   DropdownMenu,
   DropdownMenuContent,
