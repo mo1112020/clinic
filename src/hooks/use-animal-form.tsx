@@ -7,10 +7,12 @@ import { useNavigate } from 'react-router-dom';
 import { getAnimalById, createAnimal, updateAnimal } from '@/services/animals';
 import { animalFormSchema, AnimalFormValues, defaultAnimalFormValues } from '@/schemas/animal-form-schema';
 import { AnimalType } from '@/types/database.types';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export function useAnimalForm(animalId?: string) {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isNewAnimal = !animalId;
@@ -18,6 +20,7 @@ export function useAnimalForm(animalId?: string) {
   const form = useForm<AnimalFormValues>({
     resolver: zodResolver(animalFormSchema),
     defaultValues: defaultAnimalFormValues,
+    mode: 'onChange', // Enable validation as the user types
   });
   
   useEffect(() => {
@@ -61,8 +64,8 @@ export function useAnimalForm(animalId?: string) {
         } catch (error) {
           console.error('Error fetching animal:', error);
           toast({
-            title: 'Error',
-            description: 'Failed to load animal data.',
+            title: t('error'),
+            description: t('failedToLoadAnimalData'),
             variant: 'destructive',
           });
         } finally {
@@ -72,63 +75,70 @@ export function useAnimalForm(animalId?: string) {
       
       fetchAnimal();
     }
-  }, [animalId, isNewAnimal, form, toast]);
+  }, [animalId, isNewAnimal, form, toast, t]);
   
   const onSubmit = async (data: AnimalFormValues) => {
-    console.log('Submitting form with data:', data);
+    console.log('onSubmit called in useAnimalForm with data:', data);
     setIsSubmitting(true);
+    
     try {
       // Combine country code with phone number
       const fullPhoneNumber = `${data.ownerPhoneCountryCode} ${data.ownerPhone}`;
       
+      const animalData = {
+        animalType: data.animalType,
+        customAnimalType: data.animalType === 'other' ? data.customAnimalType : undefined,
+        name: data.name,
+        breed: data.breed,
+        chipNumber: data.chipNumber,
+        ownerName: data.ownerName,
+        ownerId: data.ownerId,
+        ownerPhone: fullPhoneNumber,
+        healthNotes: data.healthNotes,
+      };
+      
+      console.log('Prepared animal data for submission:', animalData);
+      
+      let result;
+      
       if (isNewAnimal) {
-        const result = await createAnimal({
-          animalType: data.animalType,
-          customAnimalType: data.animalType === 'other' ? data.customAnimalType : undefined,
-          name: data.name,
-          breed: data.breed,
-          chipNumber: data.chipNumber,
-          ownerName: data.ownerName,
-          ownerId: data.ownerId,
-          ownerPhone: fullPhoneNumber,
-          healthNotes: data.healthNotes,
-        });
-        
+        result = await createAnimal(animalData);
         console.log('Create animal result:', result);
         
         toast({
-          title: 'Animal created successfully',
-          description: `${data.name} has been added to the system.`,
+          title: t('success'),
+          description: t('animalCreatedSuccessfully', { name: data.name }),
         });
       } else {
-        const result = await updateAnimal(animalId!, {
-          animalType: data.animalType,
-          customAnimalType: data.animalType === 'other' ? data.customAnimalType : undefined,
-          name: data.name,
-          breed: data.breed,
-          chipNumber: data.chipNumber,
-          ownerName: data.ownerName,
-          ownerId: data.ownerId,
-          ownerPhone: fullPhoneNumber,
-          healthNotes: data.healthNotes,
-        });
-        
+        result = await updateAnimal(animalId!, animalData);
         console.log('Update animal result:', result);
         
         toast({
-          title: 'Animal updated successfully',
-          description: `${data.name} has been updated in the system.`,
+          title: t('success'),
+          description: t('animalUpdatedSuccessfully', { name: data.name }),
         });
       }
       
+      // Navigate only after successful submission
       navigate('/animals/search');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving animal:', error);
+      
+      // More detailed error handling
+      let errorMessage = t('failedToSaveAnimal');
+      
+      if (error?.message?.includes('chip_number')) {
+        errorMessage = t('chipNumberAlreadyExists');
+      }
+      
       toast({
-        title: 'Error',
-        description: `Failed to ${isNewAnimal ? 'create' : 'update'} animal. Please try again.`,
+        title: t('error'),
+        description: errorMessage,
         variant: 'destructive',
       });
+      
+      // Don't navigate on error
+      throw error; // Re-throw to be caught by the form's error handler
     } finally {
       setIsSubmitting(false);
     }

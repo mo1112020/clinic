@@ -17,15 +17,20 @@ const AnimalForm = () => {
   const { form, isLoading, isSubmitting, isNewAnimal, onSubmit } = useAnimalForm(id);
   const { t } = useLanguage();
   
-  // Debug submission process
+  // Enhanced debug logging
   useEffect(() => {
     console.log('Animal form rendered, isSubmitting:', isSubmitting);
   }, [isSubmitting]);
 
+  // Enhanced form submission handler with better error handling
   const handleFormSubmit = async (data: any) => {
     try {
       console.log('Form submission triggered with data:', data);
+      
+      // Call the submission handler from the hook
       await onSubmit(data);
+      
+      // Success toast is handled inside the hook after successful submission
     } catch (error) {
       console.error('Error submitting form:', error);
       toast({

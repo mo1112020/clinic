@@ -14,12 +14,16 @@ export async function createAnimal(data: AnimalFormData): Promise<Animal> {
       idNumber: data.ownerId,
       phoneNumber: data.ownerPhone
     });
+    
+    console.log('Owner created/updated with ID:', ownerId);
 
     // Parse health notes to array if provided
     const proneDiseasesArray = data.healthNotes ? [data.healthNotes] : null;
     
+    console.log('Checking for existing animal with chip number:', data.chipNumber);
+    
     // Check if an animal with this chip number already exists (if chip number provided)
-    if (data.chipNumber) {
+    if (data.chipNumber && data.chipNumber.trim() !== '') {
       const { data: existingAnimal } = await supabase
         .from('animals')
         .select('id')
@@ -27,9 +31,12 @@ export async function createAnimal(data: AnimalFormData): Promise<Animal> {
         .maybeSingle();
         
       if (existingAnimal) {
+        console.error('Duplicate chip number detected:', data.chipNumber);
         throw new Error(`An animal with chip number '${data.chipNumber}' already exists. Please use a different chip number.`);
       }
     }
+    
+    console.log('Creating new animal record with owner ID:', ownerId);
     
     // Then create the animal linked to the owner
     const { data: animalData, error: animalError } = await supabase
@@ -37,9 +44,9 @@ export async function createAnimal(data: AnimalFormData): Promise<Animal> {
       .insert({
         name: data.name,
         animal_type: data.animalType,
-        custom_animal_type: data.customAnimalType,
+        custom_animal_type: data.customAnimalType || null,
         breed: data.breed || null,
-        chip_number: data.chipNumber || null,
+        chip_number: data.chipNumber && data.chipNumber.trim() !== '' ? data.chipNumber : null,
         prone_diseases: proneDiseasesArray,
         owner_id: ownerId,
         created_at: new Date().toISOString(),
