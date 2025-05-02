@@ -8,17 +8,19 @@ import { useAnimalForm } from '@/hooks/use-animal-form';
 import AnimalInformationForm from '@/components/animals/AnimalInformationForm';
 import OwnerInformationForm from '@/components/animals/OwnerInformationForm';
 import AnimalFormActions from '@/components/animals/AnimalFormActions';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const AnimalForm = () => {
   const { id } = useParams();
   const { form, isLoading, isSubmitting, isNewAnimal, onSubmit } = useAnimalForm(id);
+  const { t } = useLanguage();
 
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-[50vh]">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-primary" />
-          <p className="text-muted-foreground">Loading animal data...</p>
+          <p className="text-muted-foreground">{t('loadingAnimalData')}</p>
         </div>
       </div>
     );
@@ -27,9 +29,9 @@ const AnimalForm = () => {
   return (
     <Card className="max-w-4xl mx-auto glass-card">
       <CardHeader>
-        <CardTitle className="text-2xl">{isNewAnimal ? 'Register New Patient' : 'Edit Patient'}</CardTitle>
+        <CardTitle className="text-2xl">{isNewAnimal ? t('registerNewPatient') : t('editPatient')}</CardTitle>
         <CardDescription>
-          {isNewAnimal ? 'Add a new animal to the system' : 'Update the animal information'}
+          {isNewAnimal ? t('addNewAnimal') : t('updateAnimalInfo')}
         </CardDescription>
       </CardHeader>
       <CardContent>

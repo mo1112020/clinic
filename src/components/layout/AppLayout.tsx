@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { LanguageSwitcher } from '@/components/language/LanguageSwitcher';
+import { useLocation } from 'react-router-dom';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -17,6 +18,7 @@ interface AppLayoutProps {
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const isMobile = useIsMobile();
+  const location = useLocation();
   
   // Auto-close sidebar on mobile
   React.useEffect(() => {
@@ -26,6 +28,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       setSidebarOpen(true);
     }
   }, [isMobile]);
+  
+  // Close sidebar when navigating on mobile
+  React.useEffect(() => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  }, [location.pathname, isMobile]);
   
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
@@ -78,8 +87,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           </div>
         </div>
         
-        {/* Page content with overflow scrolling */}
-        <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto">
+        {/* Page content with overflow scrolling - important for the key prop to reset scroll */}
+        <main 
+          key={location.pathname} 
+          className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto"
+        >
           {children}
         </main>
       </div>

@@ -8,6 +8,7 @@ import { AddInventoryItemDialog } from '@/components/inventory/AddInventoryItemD
 import { EditInventoryItemDialog } from '@/components/inventory/EditInventoryItemDialog';
 import { useInventory } from '@/hooks/use-inventory';
 import { InventoryItem } from '@/types/database.types';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const InventoryManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -18,6 +19,7 @@ const InventoryManagement = () => {
   const [currentEditItem, setCurrentEditItem] = useState<InventoryItem | null>(null);
   const [sortBy, setSortBy] = useState('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const { t } = useLanguage();
   
   // Use the custom hook to fetch inventory data from Supabase
   const { 
@@ -60,8 +62,8 @@ const InventoryManagement = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Inventory Management</h1>
-        <p className="text-muted-foreground">Manage your clinic's stock and supplies.</p>
+        <h1 className="text-3xl font-bold tracking-tight mb-2">{t('inventoryManagement')}</h1>
+        <p className="text-muted-foreground">{t('manageStock')}</p>
       </div>
       
       <InventoryStatCards 
@@ -75,8 +77,8 @@ const InventoryManagement = () => {
         <CardHeader>
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <CardTitle>Inventory Items</CardTitle>
-              <CardDescription>Manage your clinic's stock and supplies</CardDescription>
+              <CardTitle>{t('inventoryItems')}</CardTitle>
+              <CardDescription>{t('manageStockAndSupplies')}</CardDescription>
             </div>
             <AddInventoryItemDialog 
               open={addItemDialogOpen}
@@ -112,8 +114,8 @@ const InventoryManagement = () => {
         <CardFooter className="flex justify-between">
           <div className="text-sm text-muted-foreground">
             {isLoading ? 
-              'Loading items...' : 
-              `Showing ${inventoryItems.length} ${inventoryItems.length === 1 ? 'item' : 'items'}`
+              t('loadingItems') : 
+              `${t('showing')} ${inventoryItems.length} ${inventoryItems.length === 1 ? t('item') : t('items')}`
             }
           </div>
         </CardFooter>

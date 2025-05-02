@@ -9,11 +9,13 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAnimals } from '@/hooks/use-animals';
 import { AnimalType } from '@/types/database.types';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const AnimalSearch = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchBy, setSearchBy] = useState('name');
   const { animals, isLoading, error } = useAnimals(undefined, searchQuery, searchBy);
+  const { t } = useLanguage();
   
   const handleSearch = () => {
     // The useAnimals hook will automatically update based on the searchQuery and searchBy
@@ -46,26 +48,26 @@ const AnimalSearch = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Search Records</h1>
-        <p className="text-muted-foreground">Find patient records quickly by name, chip number, or owner.</p>
+        <h1 className="text-3xl font-bold tracking-tight mb-2">{t('searchRecords')}</h1>
+        <p className="text-muted-foreground">{t('findPatientRecords')}</p>
       </div>
       
       <Card className="glass-card">
         <CardHeader>
-          <CardTitle>Search Patients</CardTitle>
-          <CardDescription>Enter the patient information to search</CardDescription>
+          <CardTitle>{t('searchPatients')}</CardTitle>
+          <CardDescription>{t('enterPatientInfo')}</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="name" onValueChange={(value) => setSearchBy(value)}>
             <TabsList className="grid grid-cols-3 mb-4">
-              <TabsTrigger value="name">By Name</TabsTrigger>
-              <TabsTrigger value="chip">By Chip No.</TabsTrigger>
-              <TabsTrigger value="owner">By Owner</TabsTrigger>
+              <TabsTrigger value="name">{t('byName')}</TabsTrigger>
+              <TabsTrigger value="chip">{t('byChip')}</TabsTrigger>
+              <TabsTrigger value="owner">{t('byOwner')}</TabsTrigger>
             </TabsList>
             
             <div className="flex gap-2">
               <Input
-                placeholder={`Search by ${searchBy === 'name' ? 'animal name' : searchBy === 'chip' ? 'chip number' : 'owner name'}`}
+                placeholder={`${t('search')} ${searchBy === 'name' ? t('animalName').toLowerCase() : searchBy === 'chip' ? t('chipNo').toLowerCase() : t('ownerName').toLowerCase()}`}
                 className="glass-input"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -73,7 +75,7 @@ const AnimalSearch = () => {
               />
               <Button onClick={handleSearch} className="btn-primary">
                 <Search className="h-4 w-4 mr-2" />
-                Search
+                {t('search')}
               </Button>
             </div>
           </Tabs>
@@ -82,15 +84,17 @@ const AnimalSearch = () => {
       
       <Card>
         <CardHeader>
-          <CardTitle>Search Results</CardTitle>
-          <CardDescription>Found {animals.length} {animals.length === 1 ? 'result' : 'results'}</CardDescription>
+          <CardTitle>{t('searchResults')}</CardTitle>
+          <CardDescription>
+            {t('found')} {animals.length} {animals.length === 1 ? t('result') : t('results')}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="flex justify-center items-center h-[200px]">
               <div className="text-center">
                 <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-primary" />
-                <p className="text-muted-foreground">Loading animals...</p>
+                <p className="text-muted-foreground">{t('loadingAnimals')}</p>
               </div>
             </div>
           ) : error ? (
@@ -99,7 +103,7 @@ const AnimalSearch = () => {
             </div>
           ) : animals.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No results found. Try a different search.</p>
+              <p className="text-muted-foreground">{t('noResultsFound')}</p>
             </div>
           ) : (
             <motion.div 
@@ -121,7 +125,7 @@ const AnimalSearch = () => {
                         </div>
                         <div>
                           <p className="font-medium">{animal.name}</p>
-                          <p className="text-sm text-muted-foreground capitalize">{animal.type} • {animal.breed}</p>
+                          <p className="text-sm text-muted-foreground capitalize">{t(animal.type)} • {animal.breed}</p>
                         </div>
                       </div>
                       <div className="hidden md:flex items-center gap-6">
@@ -139,7 +143,7 @@ const AnimalSearch = () => {
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{animal.owner ? animal.owner.name : 'No Owner'}</span>
+                        <span className="text-sm font-medium">{animal.owner ? animal.owner.name : t('noOwner')}</span>
                       </div>
                     </div>
                   </Link>

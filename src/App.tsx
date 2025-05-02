@@ -1,5 +1,5 @@
 
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
@@ -16,8 +16,20 @@ import DogsList from './pages/animals/DogsList';
 import CatsList from './pages/animals/CatsList';
 import BirdsList from './pages/animals/BirdsList';
 import MedicalHistory from './pages/MedicalHistory';
+import { useEffect } from 'react';
 
 function App() {
+  // To fix navigation reload issue
+  const location = useLocation();
+  
+  // Prevent scroll position reset when navigating between pages
+  useEffect(() => {
+    // We only scroll to top for new routes, not for hash changes
+    if (!location.hash) {
+      window.scrollTo(0, 0);
+    }
+  }, [location.pathname]);
+  
   return (
     <AuthProvider>
       <LanguageProvider>

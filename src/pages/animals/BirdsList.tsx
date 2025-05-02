@@ -9,10 +9,12 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAnimals } from '@/hooks/use-animals';
 import { format } from 'date-fns';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const BirdsList = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [queryToSearch, setQueryToSearch] = useState('');
+  const { t } = useLanguage();
   
   // Use the custom hook to fetch birds data from Supabase
   const { animals: birds, isLoading, error } = useAnimals('bird', queryToSearch);
@@ -34,18 +36,18 @@ const BirdsList = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Birds</h1>
-        <p className="text-muted-foreground">List of all registered birds at Canki Vet Clinic.</p>
+        <h1 className="text-3xl font-bold tracking-tight mb-2">{t('birds')}</h1>
+        <p className="text-muted-foreground">{t('registeredBirds')}</p>
       </div>
       
       <Card className="glass-card">
         <CardHeader>
-          <CardTitle>Search Birds</CardTitle>
+          <CardTitle>{t('searchBirds')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-2">
             <Input
-              placeholder="Search by name, breed, chip number, or owner"
+              placeholder={t('searchByNameBreed')}
               className="glass-input"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -53,7 +55,7 @@ const BirdsList = () => {
             />
             <Button onClick={handleSearch} className="btn-primary">
               <Search className="h-4 w-4 mr-2" />
-              Search
+              {t('search')}
             </Button>
           </div>
         </CardContent>
@@ -64,7 +66,7 @@ const BirdsList = () => {
           <CardTitle>
             <div className="flex items-center">
               <Bird className="h-5 w-5 mr-2 text-purple-500" />
-              Birds Registry
+              {t('birdsRegistry')}
             </div>
           </CardTitle>
         </CardHeader>
@@ -72,27 +74,27 @@ const BirdsList = () => {
           {isLoading ? (
             <div className="text-center py-12">
               <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-primary" />
-              <p className="text-muted-foreground">Loading birds...</p>
+              <p className="text-muted-foreground">{t('loadingBirds')}</p>
             </div>
           ) : error ? (
             <div className="text-center py-12 text-destructive">
-              <p>Error loading birds: {error}</p>
+              <p>{t('errorBirds')} {error}</p>
             </div>
           ) : birds.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No birds found. Try a different search.</p>
+              <p className="text-muted-foreground">{t('noBirds')}</p>
             </div>
           ) : (
             <div className="rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Breed</TableHead>
-                    <TableHead>Chip No.</TableHead>
-                    <TableHead>Owner</TableHead>
-                    <TableHead>Contact</TableHead>
-                    <TableHead>Last Visit</TableHead>
+                    <TableHead>{t('name')}</TableHead>
+                    <TableHead>{t('breed')}</TableHead>
+                    <TableHead>{t('chipNo')}</TableHead>
+                    <TableHead>{t('owner')}</TableHead>
+                    <TableHead>{t('contact')}</TableHead>
+                    <TableHead>{t('lastVisit')}</TableHead>
                     <TableHead></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -130,7 +132,7 @@ const BirdsList = () => {
                         <Link to={`/animals/${bird.id}`}>
                           <Button variant="outline" size="sm">
                             <File className="h-4 w-4 mr-2" />
-                            View
+                            {t('view')}
                           </Button>
                         </Link>
                       </TableCell>
