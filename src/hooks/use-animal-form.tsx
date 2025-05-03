@@ -48,6 +48,26 @@ export function useAnimalForm(animalId?: string) {
           if (animalType === 'other' && animal.custom_animal_type) {
             customAnimalType = animal.custom_animal_type;
           }
+
+          // Parse age information
+          let ageYears: number | undefined = undefined;
+          let ageMonths: number | undefined = undefined;
+          
+          if (animal.age) {
+            const ageMatch = animal.age.match(/(\d+)\s*years?,?\s*(\d+)?\s*months?/i);
+            if (ageMatch) {
+              ageYears = parseInt(ageMatch[1], 10);
+              if (ageMatch[2]) {
+                ageMonths = parseInt(ageMatch[2], 10);
+              }
+            } else {
+              // Just a simple number of years
+              const yearsMatch = animal.age.match(/(\d+)\s*years?/i);
+              if (yearsMatch) {
+                ageYears = parseInt(yearsMatch[1], 10);
+              }
+            }
+          }
           
           form.reset({
             animalType: animalType,
@@ -55,6 +75,8 @@ export function useAnimalForm(animalId?: string) {
             name: animal.name,
             breed: animal.breed || '',
             chipNumber: animal.chip_number || '',
+            ageYears: ageYears,
+            ageMonths: ageMonths,
             ownerName: animal.owner.full_name,
             ownerId: animal.owner.id_number,
             ownerPhoneCountryCode: countryCode,
@@ -85,12 +107,21 @@ export function useAnimalForm(animalId?: string) {
       // Combine country code with phone number
       const fullPhoneNumber = `${data.ownerPhoneCountryCode} ${data.ownerPhone}`;
       
+      // Format age as a string if provided
+      let formattedAge: string | undefined = undefined;
+      if (data.ageYears !== undefined || data.ageMonths !== undefined) {
+        const years = data.ageYears !== undefined ? `${data.ageYears} years` : '';
+        const months = data.ageMonths !== undefined ? `${data.ageMonths} months` : '';
+        formattedAge = [years, months].filter(Boolean).join(', ');
+      }
+      
       const animalData = {
         animalType: data.animalType,
         customAnimalType: data.animalType === 'other' ? data.customAnimalType : undefined,
         name: data.name,
         breed: data.breed,
         chipNumber: data.chipNumber,
+        age: formattedAge,
         ownerName: data.ownerName,
         ownerId: data.ownerId,
         ownerPhone: fullPhoneNumber,

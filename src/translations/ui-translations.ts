@@ -56,6 +56,12 @@ export const uiTranslations = {
   ownerPhoneNumber: { en: 'Owner Phone Number', tr: 'Sahip Telefon Numarası' },
   enterPhoneNumber: { en: 'Enter phone number', tr: 'Telefon numarasını girin' },
   
+  // Age fields
+  ageYears: { en: 'Age (Years)', tr: 'Yaş (Yıl)' },
+  ageMonths: { en: 'Age (Months)', tr: 'Yaş (Ay)' },
+  enterAgeYears: { en: 'Enter years', tr: 'Yıl girin' },
+  enterAgeMonths: { en: 'Enter months (0-11)', tr: 'Ay girin (0-11)' },
+  
   // Form Actions
   cancel: { en: 'Cancel', tr: 'İptal' },
   registering: { en: 'Registering...', tr: 'Kaydediliyor...' },

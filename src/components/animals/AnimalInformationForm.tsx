@@ -131,6 +131,61 @@ const AnimalInformationForm: React.FC<AnimalInformationFormProps> = ({ form }) =
         />
       </div>
       
+      {/* New Age Fields */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormField
+          control={form.control}
+          name="ageYears"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t('ageYears')}</FormLabel>
+              <FormControl>
+                <Input 
+                  type="number" 
+                  min="0"
+                  max="100"
+                  placeholder={t('enterAgeYears')} 
+                  {...field} 
+                  className="glass-input"
+                  value={field.value === undefined ? '' : field.value}
+                  onChange={(e) => {
+                    const value = e.target.value === '' ? undefined : parseInt(e.target.value, 10);
+                    field.onChange(value);
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="ageMonths"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t('ageMonths')}</FormLabel>
+              <FormControl>
+                <Input 
+                  type="number"
+                  min="0"
+                  max="11"
+                  placeholder={t('enterAgeMonths')} 
+                  {...field} 
+                  className="glass-input"
+                  value={field.value === undefined ? '' : field.value}
+                  onChange={(e) => {
+                    const value = e.target.value === '' ? undefined : parseInt(e.target.value, 10);
+                    field.onChange(value);
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+      
       <FormField
         control={form.control}
         name="chipNumber"
