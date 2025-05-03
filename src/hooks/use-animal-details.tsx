@@ -33,6 +33,8 @@ export function useAnimalDetails(animalId: string): UseAnimalDetailsResult {
     try {
       // Fetch animal and owner data
       const animalData = await getAnimalById(animalId);
+      console.log('Animal data in fetchAnimalData:', animalData);
+      
       setAnimal({
         id: animalData.id,
         name: animalData.name,
@@ -40,11 +42,13 @@ export function useAnimalDetails(animalId: string): UseAnimalDetailsResult {
         customAnimalType: animalData.custom_animal_type,
         breed: animalData.breed || '',
         chipNo: animalData.chip_number,
-        ageYears: animalData.age_years,
-        ageMonths: animalData.age_months,
+        ageYears: animalData.age_years !== null ? animalData.age_years : undefined,
+        ageMonths: animalData.age_months !== null ? animalData.age_months : undefined,
         healthNotes: animalData.prone_diseases ? animalData.prone_diseases.join(', ') : '',
         owner_id: animalData.owner_id,
-        created_at: animalData.created_at
+        created_at: animalData.created_at,
+        last_visit: animalData.last_visit,
+        next_appointment: animalData.next_appointment
       });
       
       setOwner({
