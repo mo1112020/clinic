@@ -11,6 +11,8 @@ export type Database = {
     Tables: {
       animals: {
         Row: {
+          age_months: number | null
+          age_years: number | null
           animal_type: string
           breed: string | null
           chip_number: string | null
@@ -24,6 +26,8 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          age_months?: number | null
+          age_years?: number | null
           animal_type: string
           breed?: string | null
           chip_number?: string | null
@@ -37,6 +41,8 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          age_months?: number | null
+          age_years?: number | null
           animal_type?: string
           breed?: string | null
           chip_number?: string | null
