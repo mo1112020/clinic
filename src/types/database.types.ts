@@ -7,7 +7,8 @@ export interface Animal {
   type: AnimalType;
   breed: string;
   chipNo?: string;
-  age?: string;
+  ageYears?: number;
+  ageMonths?: number;
   healthNotes?: string;
   owner_id: string;
   owner?: Owner;

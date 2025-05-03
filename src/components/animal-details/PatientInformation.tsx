@@ -24,6 +24,23 @@ const PatientInformation: React.FC<PatientInformationProps> = ({ animal }) => {
     }
   };
 
+  // Format age data from years and months into a readable string
+  const formatAge = () => {
+    // If we have neither years nor months, return "Not specified"
+    if (!animal.ageYears && !animal.ageMonths) {
+      return 'Not specified';
+    }
+    
+    const years = animal.ageYears ? `${animal.ageYears} year${animal.ageYears !== 1 ? 's' : ''}` : '';
+    const months = animal.ageMonths ? `${animal.ageMonths} month${animal.ageMonths !== 1 ? 's' : ''}` : '';
+    
+    if (years && months) {
+      return `${years}, ${months}`;
+    }
+    
+    return years || months;
+  };
+
   return (
     <Card className="glass-card lg:col-span-2">
       <CardHeader>
@@ -43,7 +60,7 @@ const PatientInformation: React.FC<PatientInformationProps> = ({ animal }) => {
         >
           <div className="space-y-1">
             <p className="text-sm font-medium text-muted-foreground">Animal Type</p>
-            <p className="font-medium capitalize">{animal.type}</p>
+            <p className="font-medium capitalize">{animal.type === 'other' && animal.customAnimalType ? animal.customAnimalType : animal.type}</p>
           </div>
           <div className="space-y-1">
             <p className="text-sm font-medium text-muted-foreground">Breed</p>
@@ -51,7 +68,7 @@ const PatientInformation: React.FC<PatientInformationProps> = ({ animal }) => {
           </div>
           <div className="space-y-1">
             <p className="text-sm font-medium text-muted-foreground">Age</p>
-            <p className="font-medium">{animal.age || 'Not specified'}</p>
+            <p className="font-medium">{formatAge()}</p>
           </div>
           <div className="space-y-1">
             <p className="text-sm font-medium text-muted-foreground">Microchip Number</p>

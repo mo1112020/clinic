@@ -40,6 +40,8 @@ export function useAnimalDetails(animalId: string): UseAnimalDetailsResult {
         customAnimalType: animalData.custom_animal_type,
         breed: animalData.breed || '',
         chipNo: animalData.chip_number,
+        ageYears: animalData.age_years,
+        ageMonths: animalData.age_months,
         healthNotes: animalData.prone_diseases ? animalData.prone_diseases.join(', ') : '',
         owner_id: animalData.owner_id,
         created_at: animalData.created_at
