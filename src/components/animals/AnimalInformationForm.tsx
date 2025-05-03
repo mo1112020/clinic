@@ -34,7 +34,13 @@ const AnimalInformationForm: React.FC<AnimalInformationFormProps> = ({ form }) =
           <FormItem className="space-y-2">
             <FormLabel>{t('animalType')}</FormLabel>
             <RadioGroup
-              onValueChange={field.onChange}
+              onValueChange={(value) => {
+                field.onChange(value);
+                // If switching from "other" to a standard type, clear customAnimalType
+                if (value !== 'other') {
+                  form.setValue('customAnimalType', '');
+                }
+              }}
               defaultValue={field.value}
               className="flex flex-wrap gap-4"
             >

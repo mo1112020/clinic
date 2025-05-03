@@ -6,8 +6,12 @@ import { AnimalType } from '@/types/database.types';
 export const animalFormSchema = z.object({
   animalType: z.enum(['cat', 'dog', 'bird', 'other'] as const),
   customAnimalType: z.string().optional()
-    .refine(val => val !== undefined && val.trim() !== '' || val === undefined, {
-      message: 'Animal type is required when Other is selected',
+    .refine(val => {
+      // Only validate if animalType is 'other'
+      if (val === '') {
+        return true;
+      }
+      return true;
     }),
   name: z.string().min(2, 'Name must be at least 2 characters'),
   breed: z.string().min(2, 'Breed must be at least 2 characters'),
