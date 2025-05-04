@@ -16,6 +16,7 @@ export const animalFormSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   breed: z.string().min(2, 'Breed must be at least 2 characters'),
   chipNumber: z.string().optional(),
+  // Ensure age values can be properly coerced to numbers or undefined
   ageYears: z.coerce.number().min(0, 'Age cannot be negative').max(100, 'Invalid age').optional(),
   ageMonths: z.coerce.number().min(0, 'Months cannot be negative').max(11, 'Months cannot exceed 11').optional(),
   ownerName: z.string().min(2, 'Owner name is required'),

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
@@ -26,19 +25,29 @@ const PatientInformation: React.FC<PatientInformationProps> = ({ animal }) => {
 
   // Format age data from years and months into a readable string
   const formatAge = () => {
+    console.log('Formatting age from:', { 
+      ageYears: animal.ageYears, 
+      ageMonths: animal.ageMonths,
+      typeYears: typeof animal.ageYears,
+      typeMonths: typeof animal.ageMonths
+    });
+    
     // If we have neither years nor months, return "Not specified"
-    if (!animal.ageYears && !animal.ageMonths) {
+    if (animal.ageYears === undefined && animal.ageYears === null && 
+        animal.ageMonths === undefined && animal.ageMonths === null) {
       return 'Not specified';
     }
     
-    const years = animal.ageYears ? `${animal.ageYears} year${animal.ageYears !== 1 ? 's' : ''}` : '';
-    const months = animal.ageMonths ? `${animal.ageMonths} month${animal.ageMonths !== 1 ? 's' : ''}` : '';
+    const years = animal.ageYears !== undefined && animal.ageYears !== null ? 
+      `${animal.ageYears} year${animal.ageYears !== 1 ? 's' : ''}` : '';
+    const months = animal.ageMonths !== undefined && animal.ageMonths !== null ? 
+      `${animal.ageMonths} month${animal.ageMonths !== 1 ? 's' : ''}` : '';
     
     if (years && months) {
       return `${years}, ${months}`;
     }
     
-    return years || months;
+    return years || months || 'Not specified';
   };
 
   return (

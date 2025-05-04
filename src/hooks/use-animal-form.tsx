@@ -49,25 +49,11 @@ export function useAnimalForm(animalId?: string) {
             customAnimalType = animal.custom_animal_type;
           }
 
-          // Parse age information
-          let ageYears: number | undefined = undefined;
-          let ageMonths: number | undefined = undefined;
+          // Parse age information - use direct age_years and age_months from db
+          const ageYears = animal.age_years;
+          const ageMonths = animal.age_months;
           
-          if (animal.age) {
-            const ageMatch = animal.age.match(/(\d+)\s*years?,?\s*(\d+)?\s*months?/i);
-            if (ageMatch) {
-              ageYears = parseInt(ageMatch[1], 10);
-              if (ageMatch[2]) {
-                ageMonths = parseInt(ageMatch[2], 10);
-              }
-            } else {
-              // Just a simple number of years
-              const yearsMatch = animal.age.match(/(\d+)\s*years?/i);
-              if (yearsMatch) {
-                ageYears = parseInt(yearsMatch[1], 10);
-              }
-            }
-          }
+          console.log('Loading animal with age data:', { ageYears, ageMonths });
           
           form.reset({
             animalType: animalType,
@@ -107,13 +93,13 @@ export function useAnimalForm(animalId?: string) {
       // Combine country code with phone number
       const fullPhoneNumber = `${data.ownerPhoneCountryCode} ${data.ownerPhone}`;
       
-      // Format age as a string if provided
-      let formattedAge: string | undefined = undefined;
-      if (data.ageYears !== undefined || data.ageMonths !== undefined) {
-        const years = data.ageYears !== undefined ? `${data.ageYears} years` : '';
-        const months = data.ageMonths !== undefined ? `${data.ageMonths} months` : '';
-        formattedAge = [years, months].filter(Boolean).join(', ');
-      }
+      // Log age values to debug
+      console.log('Form age values:', { 
+        ageYears: data.ageYears, 
+        ageMonths: data.ageMonths,
+        typeYears: typeof data.ageYears,
+        typeMonths: typeof data.ageMonths
+      });
       
       const animalData = {
         animalType: data.animalType,
@@ -121,7 +107,9 @@ export function useAnimalForm(animalId?: string) {
         name: data.name,
         breed: data.breed,
         chipNumber: data.chipNumber,
-        age: formattedAge,
+        // Pass the raw age values directly, not as a formatted string
+        ageYears: data.ageYears,
+        ageMonths: data.ageMonths,
         ownerName: data.ownerName,
         ownerId: data.ownerId,
         ownerPhone: fullPhoneNumber,
