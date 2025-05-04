@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { fetchMedicalRecords } from '@/services/documents/fetch-documents';
 
 export interface MedicalHistoryRecord {
   id: string;
@@ -22,57 +22,29 @@ export function useMedicalHistory(animalType?: string, searchQuery?: string) {
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchMedicalHistory = async () => {
+    const loadMedicalHistory = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-        // This is a placeholder - in a real app, you would fetch from a medical_history table
-        // Since we don't have that table, we'll use vaccinations as an example
-        let query = supabase
-          .from('vaccinations')
-          .select(`
-            *,
-            animals (
-              id,
-              name,
-              animal_type,
-              owners (
-                full_name
-              )
-            )
-          `);
-
-        if (animalType && animalType !== 'all') {
-          query = query.eq('animals.animal_type', animalType);
-        }
-
-        if (searchQuery) {
-          query = query.or(
-            `animals.name.ilike.%${searchQuery}%,animals.owners.full_name.ilike.%${searchQuery}%,vaccine_name.ilike.%${searchQuery}%`
-          );
-        }
-
-        const { data, error } = await query;
-
-        if (error) throw error;
-
-        // Transform data for the medical history format
-        const formattedData = data.map(item => ({
-          id: item.id,
-          patientName: item.animals?.name || 'Unknown',
-          patientType: item.animals?.animal_type || 'Unknown',
-          owner: item.animals?.owners?.full_name || 'Unknown',
-          date: item.scheduled_date,
-          procedure: item.completed ? 'Vaccination (Completed)' : 'Vaccination (Scheduled)',
-          details: `${item.vaccine_name} vaccination`,
-          veterinarian: 'Unknown', // Removed hardcoded name
-          animalId: item.animal_id
+        const records = await fetchMedicalRecords(animalType, searchQuery);
+        
+        // Transform the fetched records into the format expected by the UI
+        const formattedData = records.map(record => ({
+          id: record.id,
+          patientName: record.animals?.name || 'Unknown',
+          patientType: record.animals?.animal_type || 'Unknown',
+          owner: record.animals?.owners?.full_name || 'Unknown',
+          date: record.date,
+          procedure: 'Medical Examination',
+          details: record.description,
+          veterinarian: 'Clinic Staff', // We don't have veterinarian data in the current schema
+          animalId: record.animal_id
         }));
 
         setMedicalHistory(formattedData);
       } catch (err) {
-        console.error('Error fetching medical history:', err);
+        console.error('Error loading medical history:', err);
         setError('Failed to load medical history');
         toast({
           title: 'Error',
@@ -84,7 +56,7 @@ export function useMedicalHistory(animalType?: string, searchQuery?: string) {
       }
     };
 
-    fetchMedicalHistory();
+    loadMedicalHistory();
   }, [animalType, searchQuery, toast]);
 
   return { medicalHistory, isLoading, error };

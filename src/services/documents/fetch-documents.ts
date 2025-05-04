@@ -61,3 +61,43 @@ export async function fetchAnimals() {
 
   return data || [];
 }
+
+/**
+ * Fetches medical records with proper joins to animals and owners tables
+ */
+export async function fetchMedicalRecords(animalType?: string, searchQuery?: string) {
+  let query = supabase
+    .from('medical_records')
+    .select(`
+      *,
+      animals (
+        id,
+        name,
+        animal_type,
+        owner_id,
+        owners (
+          id,
+          full_name
+        )
+      )
+    `);
+
+  if (animalType && animalType !== 'all') {
+    query = query.eq('animals.animal_type', animalType);
+  }
+
+  if (searchQuery) {
+    query = query.or(
+      `animals.name.ilike.%${searchQuery}%,animals.owners.full_name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`
+    );
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('Error fetching medical records:', error);
+    throw error;
+  }
+
+  return data || [];
+}
