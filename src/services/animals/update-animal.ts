@@ -30,6 +30,8 @@ export async function updateAnimal(id: string, data: AnimalFormData): Promise<An
     // Parse health notes to array if provided
     const proneDiseasesArray = data.healthNotes ? [data.healthNotes] : null;
     
+    console.log('Updating animal with age data:', { age_years: data.ageYears, age_months: data.ageMonths });
+    
     // Then update the animal
     const { data: animalData, error: animalError } = await supabase
       .from('animals')
@@ -41,6 +43,8 @@ export async function updateAnimal(id: string, data: AnimalFormData): Promise<An
         chip_number: data.chipNumber || null,
         prone_diseases: proneDiseasesArray,
         owner_id: ownerId,
+        age_years: data.ageYears || null,
+        age_months: data.ageMonths || null,
       })
       .eq('id', id)
       .select()
@@ -69,6 +73,8 @@ export async function updateAnimal(id: string, data: AnimalFormData): Promise<An
       customAnimalType: animalData.custom_animal_type || undefined,
       breed: animalData.breed || '',
       chipNo: animalData.chip_number || undefined,
+      ageYears: animalData.age_years || undefined,
+      ageMonths: animalData.age_months || undefined,
       healthNotes: animalData.prone_diseases ? animalData.prone_diseases.join(', ') : undefined,
       owner_id: animalData.owner_id,
       created_at: animalData.created_at,

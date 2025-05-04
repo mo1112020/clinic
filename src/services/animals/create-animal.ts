@@ -37,6 +37,7 @@ export async function createAnimal(data: AnimalFormData): Promise<Animal> {
     }
     
     console.log('Creating new animal record with owner ID:', ownerId);
+    console.log('Age data being saved:', { age_years: data.ageYears, age_months: data.ageMonths });
     
     // Then create the animal linked to the owner
     const { data: animalData, error: animalError } = await supabase
@@ -50,6 +51,8 @@ export async function createAnimal(data: AnimalFormData): Promise<Animal> {
         prone_diseases: proneDiseasesArray,
         owner_id: ownerId,
         created_at: new Date().toISOString(),
+        age_years: data.ageYears || null,
+        age_months: data.ageMonths || null,
       })
       .select()
       .single();
@@ -77,6 +80,8 @@ export async function createAnimal(data: AnimalFormData): Promise<Animal> {
       customAnimalType: animalData.custom_animal_type || undefined,
       breed: animalData.breed || '',
       chipNo: animalData.chip_number || undefined,
+      ageYears: animalData.age_years || undefined,
+      ageMonths: animalData.age_months || undefined,
       healthNotes: animalData.prone_diseases ? animalData.prone_diseases.join(', ') : undefined,
       owner_id: animalData.owner_id,
       created_at: animalData.created_at,

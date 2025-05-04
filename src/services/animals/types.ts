@@ -11,4 +11,6 @@ export interface AnimalFormData {
   ownerId: string;
   ownerPhone: string;
   healthNotes?: string;
+  ageYears?: number;
+  ageMonths?: number;
 }
