@@ -1,25 +1,25 @@
+
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import { format } from 'date-fns';
-import { Dog, Cat, Bird, Calendar, Clock, Clipboard } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Cat, Dog, Bird, Calendar, Dna } from 'lucide-react';
 import { Animal } from '@/types/database.types';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface PatientInformationProps {
   animal: Animal;
 }
 
 const PatientInformation: React.FC<PatientInformationProps> = ({ animal }) => {
+  const { t } = useLanguage();
+
   const getAnimalIcon = () => {
     switch (animal.type) {
-      case 'dog':
-        return <Dog className="h-5 w-5" />;
-      case 'cat':
-        return <Cat className="h-5 w-5" />;
-      case 'bird':
-        return <Bird className="h-5 w-5" />;
-      default:
-        return null;
+      case 'dog': return <Dog className="h-5 w-5 text-amber-500" />;
+      case 'cat': return <Cat className="h-5 w-5 text-green-500" />;
+      case 'bird': return <Bird className="h-5 w-5 text-purple-500" />;
+      default: return <Dna className="h-5 w-5 text-blue-500" />;
     }
   };
 
@@ -32,9 +32,9 @@ const PatientInformation: React.FC<PatientInformationProps> = ({ animal }) => {
       typeMonths: typeof animal.ageMonths
     });
     
-    // If we have neither years nor months, return "Not specified"
-    if (animal.ageYears === undefined && animal.ageYears === null && 
-        animal.ageMonths === undefined && animal.ageMonths === null) {
+    // Fix: Correct condition to check if both years and months are null or undefined
+    if ((animal.ageYears === undefined || animal.ageYears === null) && 
+        (animal.ageMonths === undefined || animal.ageMonths === null)) {
       return 'Not specified';
     }
     
