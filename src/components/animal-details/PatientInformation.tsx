@@ -2,8 +2,8 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import { Badge } from '@/components/ui/badge';
-import { Cat, Dog, Bird, Calendar, Dna } from 'lucide-react';
+import { format } from 'date-fns';
+import { Cat, Dog, Bird, Calendar, Clock, Clipboard as ClipboardIcon, Dna } from 'lucide-react';
 import { Animal } from '@/types/database.types';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -83,7 +83,7 @@ const PatientInformation: React.FC<PatientInformationProps> = ({ animal }) => {
             <p className="text-sm font-medium text-muted-foreground">Microchip Number</p>
             {animal.chipNo ? (
               <div className="flex items-center gap-2">
-                <Clipboard className="h-4 w-4 text-muted-foreground" />
+                <ClipboardIcon className="h-4 w-4 text-muted-foreground" />
                 <p className="font-medium">{animal.chipNo}</p>
               </div>
             ) : (
