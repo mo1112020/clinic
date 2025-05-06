@@ -30,17 +30,21 @@ export function useMedicalHistory(animalType?: string, searchQuery?: string) {
         const records = await fetchMedicalRecords(animalType, searchQuery);
         
         // Transform the fetched records into the format expected by the UI
-        const formattedData = records.map(record => ({
-          id: record.id,
-          patientName: record.animals?.name || 'Unknown',
-          patientType: record.animals?.animal_type || 'Unknown',
-          owner: record.animals?.owners?.full_name || 'Unknown',
-          date: record.date,
-          procedure: 'Medical Examination',
-          details: record.description,
-          veterinarian: 'Clinic Staff', // We don't have veterinarian data in the current schema
-          animalId: record.animal_id
-        }));
+        // We're now only processing records with valid animal and owner data
+        // This is guaranteed by the inner join in the SQL query
+        const formattedData = records
+          .filter(record => record.animals && record.animals.name && record.animals.owners)
+          .map(record => ({
+            id: record.id,
+            patientName: record.animals.name,
+            patientType: record.animals.animal_type,
+            owner: record.animals.owners.full_name,
+            date: record.date,
+            procedure: 'Medical Examination',
+            details: record.description,
+            veterinarian: 'Clinic Staff', // Default value
+            animalId: record.animal_id
+          }));
 
         setMedicalHistory(formattedData);
       } catch (err) {

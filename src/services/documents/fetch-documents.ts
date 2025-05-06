@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 export async function fetchMedicalFiles(categoryFilter?: string) {
@@ -63,18 +64,19 @@ export async function fetchAnimals() {
 
 /**
  * Fetches medical records with proper joins to animals and owners tables
+ * Only returns records where both animal and owner data exists
  */
 export async function fetchMedicalRecords(animalType?: string, searchQuery?: string) {
   let query = supabase
     .from('medical_records')
     .select(`
       *,
-      animals (
+      animals!inner (
         id,
         name,
         animal_type,
         owner_id,
-        owners (
+        owners!inner (
           id,
           full_name
         )
