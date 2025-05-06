@@ -90,7 +90,8 @@ export async function fetchMedicalRecords(animalType?: string, searchQuery?: str
 
   // Handle search query - needs to be applied separately from the animal type filter
   if (searchQuery && searchQuery.trim() !== '') {
-    // Use ilike with the search query for each field separately
+    // Use ilike for case insensitive search on multiple columns
+    // We need to search in different fields but using OR clauses instead of comma-separated
     query = query.or(`animals.name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
   }
 
