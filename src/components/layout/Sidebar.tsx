@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -12,7 +13,6 @@ import {
   Package, 
   LayoutDashboard,
   PlusCircle,
-  Activity,
   LogOut
 } from 'lucide-react';
 
@@ -30,7 +30,6 @@ export const Sidebar: React.FC = () => {
     { icon: Bird, label: t('birds'), path: '/animals/birds' },
     { icon: Calendar, label: t('vaccinations'), path: '/vaccinations' },
     { icon: Package, label: t('inventory'), path: '/inventory' },
-    { icon: Activity, label: t('medicalHistory'), path: '/medical-history' },
   ];
 
   const handleLogout = () => {

@@ -15,7 +15,6 @@ import InventoryManagement from './pages/inventory/InventoryManagement';
 import DogsList from './pages/animals/DogsList';
 import CatsList from './pages/animals/CatsList';
 import BirdsList from './pages/animals/BirdsList';
-import MedicalHistory from './pages/MedicalHistory';
 import { useEffect } from 'react';
 
 function App() {
@@ -86,11 +85,6 @@ function App() {
           <Route path="/inventory" element={
             <ProtectedRoute>
               <AppLayout><InventoryManagement /></AppLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/medical-history" element={
-            <ProtectedRoute>
-              <AppLayout><MedicalHistory /></AppLayout>
             </ProtectedRoute>
           } />
           
