@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -14,11 +14,24 @@ import { useLanguage } from '@/contexts/LanguageContext';
 const MedicalHistory = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentTab, setCurrentTab] = useState('all');
+  const [searchInput, setSearchInput] = useState(''); // New state for the search input
   const { medicalHistory, isLoading, error } = useMedicalHistory(currentTab, searchQuery);
   const { t } = useLanguage();
   
   const handleTabChange = (value: string) => {
     setCurrentTab(value);
+  };
+
+  // Handle search button click
+  const handleSearch = () => {
+    setSearchQuery(searchInput);
+  };
+
+  // Handle Enter key press in search input
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
   };
 
   const getAnimalIcon = (type: string) => {
@@ -78,10 +91,11 @@ const MedicalHistory = () => {
               <Input
                 placeholder={t('searchPlaceholder')}
                 className="glass-input"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyPress={handleKeyPress}
               />
-              <Button className="btn-primary whitespace-nowrap">
+              <Button className="btn-primary whitespace-nowrap" onClick={handleSearch}>
                 <Search className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline">{t('search')}</span>
               </Button>

@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export async function fetchMedicalFiles(categoryFilter?: string) {
@@ -82,14 +81,15 @@ export async function fetchMedicalRecords(animalType?: string, searchQuery?: str
       )
     `);
 
+  // Handle animal type filtering
   if (animalType && animalType !== 'all') {
     query = query.eq('animals.animal_type', animalType);
   }
 
-  if (searchQuery) {
-    query = query.or(
-      `animals.name.ilike.%${searchQuery}%,animals.owners.full_name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`
-    );
+  // Handle search query - needs to be applied separately from the animal type filter
+  if (searchQuery && searchQuery.trim() !== '') {
+    // Use ilike with the search query for each field separately
+    query = query.or(`animals.name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
   }
 
   const { data, error } = await query;
