@@ -1,4 +1,3 @@
-
 import { Language } from '@/contexts/LanguageContext';
 
 type TranslationsType = {
@@ -22,6 +21,7 @@ export const translations: TranslationsType = {
   records: { en: 'Records', tr: 'Kayıtlar' },
   medicalHistory: { en: 'Medical History', tr: 'Medikal Geçmiş' },
   logout: { en: 'Logout', tr: 'Çıkış' },
+  search: { en: 'Search', tr: 'Arama' },
   
   // Medical History page
   medicalRecords: { en: 'Medical Records', tr: 'Medikal Kayıtlar' },

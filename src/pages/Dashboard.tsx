@@ -58,7 +58,7 @@ const Dashboard = () => {
     { title: t('addNewPatient'), description: t('registerNewAnimal'), icon: Dog, color: "bg-canki", link: "/animals/new" },
     { title: t('upcomingVaccinations'), description: t('viewScheduledReminders'), icon: Calendar, color: "bg-amber-500", link: "/vaccinations" },
     { title: t('inventoryManagement'), description: t('checkStockLevels'), icon: ShoppingCart, color: "bg-emerald-500", link: "/inventory" },
-    { title: t('recentActivity'), description: t('viewLatestActivity'), icon: Clock, color: "bg-purple-500", link: "/animals/search" },
+    { title: t('search'), description: t('viewLatestActivity'), icon: Clock, color: "bg-purple-500", link: "/animals/search" },
   ];
 
   return (
