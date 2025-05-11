@@ -1,3 +1,4 @@
+
 import { Language } from '@/contexts/LanguageContext';
 
 type TranslationsType = {
@@ -45,7 +46,6 @@ export const translations: TranslationsType = {
   // Additional translations for Medical History page
   viewAndSearchRecords: { en: 'View and search medical records', tr: 'Medikal kayıtları görüntüle ve ara' },
   searchPlaceholder: { en: 'Search by patient name, owner...', tr: 'Hasta adı, sahip bilgisi ile ara...' },
-  search: { en: 'Search', tr: 'Ara' },
   loadingRecords: { en: 'Loading records...', tr: 'Kayıtlar yükleniyor...' },
   noRecordsFound: { en: 'No medical records found', tr: 'Medikal kayıt bulunamadı' },
   
