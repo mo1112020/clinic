@@ -1,70 +1,129 @@
-# Welcome to your Lovable project
+# Pet Manager Clinic Application
 
-## Project info
+A modern, full-stack web application for managing veterinary clinics, built with React, TypeScript, and Supabase.
 
-**URL**: https://lovable.dev/projects/bcaa0433-8b10-4ad9-85fe-73f090670ce4
+## Features
 
-## How can I edit this code?
+- 🐾 **Animal Management**
 
-There are several ways of editing your application.
+  - Track patient information
+  - Manage medical history
+  - Document handling
+  - Owner information management
 
-**Use Lovable**
+- 💉 **Vaccination Management**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/bcaa0433-8b10-4ad9-85fe-73f090670ce4) and start prompting.
+  - Schedule vaccinations
+  - Track vaccination history
+  - Set up vaccination reminders
+  - Generate vaccination reports
 
-Changes made via Lovable will be committed automatically to this repo.
+- 📦 **Inventory Management**
 
-**Use your preferred IDE**
+  - Track medical supplies
+  - Manage stock levels
+  - Generate inventory reports
+  - Low stock alerts
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- 🔐 **Authentication & Authorization**
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+  - Secure login system
+  - Role-based access control
+  - Protected routes
 
-Follow these steps:
+- 🌐 **Multi-language Support**
+  - Language switching capability
+  - Internationalization ready
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## Tech Stack
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+- **Frontend:**
 
-# Step 3: Install the necessary dependencies.
-npm i
+  - React 18
+  - TypeScript
+  - Vite
+  - Tailwind CSS
+  - Shadcn UI Components
+  - React Router DOM
+  - React Query
+  - React Hook Form
+  - Zod (Schema Validation)
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+- **Backend:**
+  - Supabase
+  - PostgreSQL Database
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v16 or higher)
+- npm or yarn
+- Git
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/mo1112020/clinic.git
+   cd clinic
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+The application will be available at `http://localhost:8080`
+
+## Project Structure
+
+```
+src/
+├── components/         # React components
+│   ├── animal-details/ # Animal management components
+│   ├── animals/        # Animal list and form components
+│   ├── auth/          # Authentication components
+│   ├── inventory/     # Inventory management components
+│   ├── layout/        # Layout components
+│   ├── ui/            # Reusable UI components
+│   └── vaccinations/  # Vaccination management components
+├── contexts/          # React contexts
+├── hooks/            # Custom React hooks
+├── lib/              # Utility functions
+├── types/            # TypeScript type definitions
+└── App.tsx           # Main application component
 ```
 
-**Edit a file directly in GitHub**
+## Available Scripts
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
 
-**Use GitHub Codespaces**
+## Contributing
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## What technologies are used for this project?
+## License
 
-This project is built with .
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/bcaa0433-8b10-4ad9-85fe-73f090670ce4) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
-# clinic
