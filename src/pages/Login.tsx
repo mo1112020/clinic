@@ -58,7 +58,7 @@ const Login = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <img 
-            src="/lovable-uploads/794ea767-dad6-4f2c-9607-84ace668de52.png" 
+            src="/uploads/794ea767-dad6-4f2c-9607-84ace668de52.png" 
             alt="Canki-Klinik" 
             className="mx-auto w-48 h-48 mb-6 object-cover"
           />
