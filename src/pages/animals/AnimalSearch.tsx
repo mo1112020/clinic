@@ -19,7 +19,6 @@ const AnimalSearch = () => {
   
   const handleSearch = () => {
     // The useAnimals hook will automatically update based on the searchQuery and searchBy
-    console.log('Searching with query:', searchQuery, 'by:', searchBy);
   };
 
   const getAnimalIcon = (type: AnimalType) => {

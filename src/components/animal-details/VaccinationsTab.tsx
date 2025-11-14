@@ -26,7 +26,9 @@ const VaccinationsTab: React.FC<VaccinationsTabProps> = ({
 }) => {
   const { toast } = useToast();
   
-  // Helper function to determine vaccination status
+  // this function to determine vaccination status (completed, overdue, upcoming, today)
+  // it checks the vaccination status and next due date to return appropriate status
+
   const getVaccinationStatus = (vaccination: Vaccination) => {
     if (vaccination.status === 'completed' || vaccination.completed) return 'completed';
     
@@ -36,7 +38,7 @@ const VaccinationsTab: React.FC<VaccinationsTabProps> = ({
     return 'upcoming';
   };
   
-  // Function to mark vaccination as completed
+  // this one Function is to mark vaccination as completed
   const markVaccinationAsCompleted = async (e: React.MouseEvent, vaccination: Vaccination) => {
     e.preventDefault();
     
@@ -53,7 +55,10 @@ const VaccinationsTab: React.FC<VaccinationsTabProps> = ({
         description: `${vaccination.name} has been marked as administered.`,
       });
       
-      // Refresh data if parent component provided this function
+      // if onVaccinationScheduled callback is provided, call it to refresh the data or update UI
+      // this is useful to update the UI after marking a vaccination as completed
+      // it can be used to refetch data or update the state in the parent component
+      
       if (onVaccinationScheduled) {
         onVaccinationScheduled();
       }

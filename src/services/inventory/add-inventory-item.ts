@@ -9,8 +9,6 @@ export interface InventoryItemData {
 
 export async function addInventoryItem(data: InventoryItemData) {
   try {
-    console.log('Adding inventory item with data:', data);
-    
     const { data: item, error } = await supabase
       .from('inventory')
       .insert({
@@ -26,7 +24,6 @@ export async function addInventoryItem(data: InventoryItemData) {
       throw error;
     }
     
-    console.log('Item added successfully:', item);
     return item;
   } catch (error) {
     console.error('Error adding inventory item:', error);

@@ -23,16 +23,11 @@ const PatientInformation: React.FC<PatientInformationProps> = ({ animal }) => {
     }
   };
 
-  // Format age data from years and months into a readable string
+  // Format ages to appear as "X years, Y months"
+  // Ensure that ageYears and ageMonths are checked for undefined or null
+  // because the animal object is not always complete and can have missing values
   const formatAge = () => {
-    console.log('Formatting age from:', { 
-      ageYears: animal.ageYears, 
-      ageMonths: animal.ageMonths,
-      typeYears: typeof animal.ageYears,
-      typeMonths: typeof animal.ageMonths
-    });
-    
-    // Fix: Correct condition to check if both years and months are null or undefined
+    // Check if both years and months are null or undefined
     if ((animal.ageYears === undefined || animal.ageYears === null) && 
         (animal.ageMonths === undefined || animal.ageMonths === null)) {
       return 'Not specified';
@@ -90,6 +85,7 @@ const PatientInformation: React.FC<PatientInformationProps> = ({ animal }) => {
               <p className="font-medium text-muted-foreground">Not registered</p>
             )}
           </div>
+          
         </motion.div>
         
         <motion.div
@@ -122,6 +118,7 @@ const PatientInformation: React.FC<PatientInformationProps> = ({ animal }) => {
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <p className="text-sm font-medium text-muted-foreground">Last Visit</p>
               </div>
+            
               <p className="font-medium">{animal.last_visit ? format(new Date(animal.last_visit), 'MMMM d, yyyy') : 'No visits recorded'}</p>
             </div>
             {animal.next_appointment && (

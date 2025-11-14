@@ -70,6 +70,7 @@ export function EditInventoryItemDialog({ open, onOpenChange, item, onItemUpdate
       });
       
       // Call the callback to update the item in the local state
+      
       if (onItemUpdated && data) {
         onItemUpdated(data);
       }

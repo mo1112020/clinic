@@ -1,4 +1,6 @@
 
+// i will work on this file later to make it more organized and readable 
+// also i don't like it being like this because the translations shouldn't be here 
 // Animal-related translations
 export const animalTranslations = {
   // Animal details page

@@ -33,7 +33,6 @@ export function useAnimalDetails(animalId: string): UseAnimalDetailsResult {
     try {
       // Fetch animal and owner data
       const animalData = await getAnimalById(animalId);
-      console.log('Animal data in fetchAnimalData:', animalData);
       
       setAnimal({
         id: animalData.id,
@@ -59,15 +58,15 @@ export function useAnimalDetails(animalId: string): UseAnimalDetailsResult {
         id_number: animalData.owner.id_number
       });
       
-      // Fetch vaccinations
+      // Fetch vaccinations from the database
       const vaccinationData = await fetchVaccinations(animalId);
       setVaccinations(vaccinationData);
       
-      // Fetch medical records
+      // Fetch medical records from the database
       const medicalRecordsData = await fetchMedicalRecords(animalId);
       setMedicalHistory(medicalRecordsData);
       
-      // For demo, using sample documents
+      
       setDocuments([
         {
           id: '1',
@@ -126,29 +125,9 @@ export function useAnimalDetails(animalId: string): UseAnimalDetailsResult {
 
       if (error) throw error;
 
+      // Return empty array if no records exist
       if (data.length === 0) {
-        // If no records exist, let's create an initial one
-        const initialRecord = {
-          animal_id: animalId,
-          date: new Date().toISOString().split('T')[0],
-          description: 'Routine checkup',
-          notes: 'Patient is in good health. Weight: 10kg. No concerns.'
-        };
-
-        const { data: newRecordData, error: insertError } = await supabase
-          .from('medical_records')
-          .insert(initialRecord)
-          .select();
-
-        if (insertError) throw insertError;
-
-        return newRecordData.map(record => ({
-          id: record.id,
-          animal_id: record.animal_id,
-          date: record.date,
-          description: record.description,
-          notes: record.notes,
-        }));
+        return [];
       }
 
       return data.map(record => ({
@@ -166,7 +145,8 @@ export function useAnimalDetails(animalId: string): UseAnimalDetailsResult {
 
   useEffect(() => {
     fetchAnimalData();
-  }, [animalId, toast]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [animalId]);
 
   return {
     animal,

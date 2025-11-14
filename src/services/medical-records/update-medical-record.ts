@@ -7,8 +7,8 @@ export const updateMedicalRecord = async (
   description?: string
 ) => {
   try {
-    // Validate recordId - should be a UUID
-    if (!recordId || typeof recordId !== 'string' || recordId.length < 10) {
+    // Validate recordId
+    if (!recordId || typeof recordId !== 'string' || recordId.trim().length === 0) {
       throw new Error('Invalid medical record ID format');
     }
 
@@ -20,8 +20,6 @@ export const updateMedicalRecord = async (
       updatePayload.description = description;
     }
     
-    console.log(`Updating medical record: ${recordId}`, updatePayload);
-
     const { data, error } = await supabase
       .from('medical_records')
       .update(updatePayload)
@@ -30,7 +28,6 @@ export const updateMedicalRecord = async (
 
     if (error) throw error;
 
-    console.log('Update successful:', data);
     return { data, error: null };
   } catch (error) {
     console.error('Error updating medical record:', error);

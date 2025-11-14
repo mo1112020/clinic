@@ -26,8 +26,6 @@ export function useInventory(
     setError(null);
 
     try {
-      console.log('Fetching inventory with filters:', { searchQuery, categoryFilter, stockFilter, sortBy, sortDirection });
-      
       let query = supabase.from('inventory').select('*');
 
       if (searchQuery) {
@@ -60,8 +58,6 @@ export function useInventory(
         console.error('Supabase error:', error);
         throw error;
       }
-
-      console.log('Inventory data received:', data);
 
       // Map database inventory to application InventoryItem type
       const mappedItems: InventoryItem[] = data.map(item => ({

@@ -31,10 +31,7 @@ export async function getOrCreateOwner(data: OwnerData): Promise<string> {
     
     if (ownerData && ownerData.length > 0 && ownerData[0].id) {
       ownerId = ownerData[0].id;
-      console.log('Owner created or updated:', ownerData[0]);
     } else {
-      console.error('No owner data returned or empty array:', ownerData);
-      
       // Attempt to fetch the owner by id_number since upsert might have succeeded
       // but not returned data due to RLS issues
       const { data: fetchedOwner, error: fetchError } = await supabase
@@ -48,7 +45,6 @@ export async function getOrCreateOwner(data: OwnerData): Promise<string> {
         throw new Error('Failed to create or find owner');
       }
       
-      console.log('Found owner after upsert:', fetchedOwner);
       ownerId = fetchedOwner.id;
     }
 

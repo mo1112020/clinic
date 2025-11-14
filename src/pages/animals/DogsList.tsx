@@ -149,3 +149,8 @@ const DogsList = () => {
 };
 
 export default DogsList;
+
+
+//in the fututre i will make a list for other animals like cats, birds, etc. and make a single component for all animals
+// and then use that component in the list for each animal type. This will help to keep the code DRY and maintainable.
+// I will also add a filter for the animal type in the search input, so that users can search for specific animal types.

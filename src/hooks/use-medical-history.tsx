@@ -28,7 +28,6 @@ export function useMedicalHistory(animalType?: string, searchQuery?: string) {
 
       try {
         const records = await fetchMedicalRecords(animalType, searchQuery);
-        
         // Transform the fetched records into the format expected by the UI
         // We're now only processing records with valid animal and owner data
         // This is guaranteed by the inner join in the SQL query
@@ -61,7 +60,8 @@ export function useMedicalHistory(animalType?: string, searchQuery?: string) {
     };
 
     loadMedicalHistory();
-  }, [animalType, searchQuery, toast]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [animalType, searchQuery]);
 
   return { medicalHistory, isLoading, error };
 }

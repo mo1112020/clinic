@@ -78,7 +78,6 @@ A modern, full-stack web application for managing veterinary clinics, built with
    yarn install
    ```
 
-
 3. Start the development server:
    ```bash
    npm run dev
@@ -125,5 +124,3 @@ src/
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-

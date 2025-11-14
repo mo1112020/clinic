@@ -84,7 +84,8 @@ export function useAnimals(type?: AnimalType, searchQuery?: string, searchBy: st
     };
 
     fetchAnimals();
-  }, [type, searchQuery, searchBy, toast]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [type, searchQuery, searchBy]);
 
   return { animals, isLoading, error };
 }

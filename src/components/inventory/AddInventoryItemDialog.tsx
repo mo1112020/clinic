@@ -16,6 +16,7 @@ type NewInventoryItem = {
   price: number;
   reorderLevel: number;
 }
+// fix this later but the app is working fine now 
 
 type AddInventoryItemDialogProps = {
   open: boolean;
@@ -45,7 +46,6 @@ export function AddInventoryItemDialog({ open, onOpenChange, onItemAdded }: AddI
     }
     
     setIsSubmitting(true);
-    console.log('Adding new inventory item:', newItem);
     
     try {
       const addedItem = await addInventoryItem({
@@ -60,6 +60,10 @@ export function AddInventoryItemDialog({ open, onOpenChange, onItemAdded }: AddI
       });
       
       // Call the callback to add the item to the local state
+      // This is useful to update the UI immediately after adding the item
+      // It can be used to refresh the inventory list or update the state in the parent component
+      // This is useful to update the UI immediately after adding the item
+      
       if (onItemAdded) {
         onItemAdded(addedItem);
       }

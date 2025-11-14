@@ -20,7 +20,7 @@ export function useAnimalForm(animalId?: string) {
   const form = useForm<AnimalFormValues>({
     resolver: zodResolver(animalFormSchema),
     defaultValues: defaultAnimalFormValues,
-    mode: 'onChange', // Enable validation as the user types
+    mode: 'onChange', 
   });
   
   useEffect(() => {
@@ -32,7 +32,7 @@ export function useAnimalForm(animalId?: string) {
           
           // Handle phone number with country code
           let phoneNumber = animal.owner.phone_number || '';
-          let countryCode = '+90'; // Default
+          let countryCode = '+90'; // Default for Turkey because the app is primarily for Turkey
           
           // Try to extract country code if present
           const phoneMatch = phoneNumber.match(/^(\+\d+)\s*(.*)$/);
@@ -42,7 +42,7 @@ export function useAnimalForm(animalId?: string) {
           }
           
           // Determine if this is a custom animal type
-          let animalType: AnimalType = animal.animal_type as AnimalType;
+          const animalType: AnimalType = animal.animal_type as AnimalType;
           let customAnimalType = '';
           
           if (animalType === 'other' && animal.custom_animal_type) {
@@ -52,8 +52,6 @@ export function useAnimalForm(animalId?: string) {
           // Parse age information - use direct age_years and age_months from db
           const ageYears = animal.age_years;
           const ageMonths = animal.age_months;
-          
-          console.log('Loading animal with age data:', { ageYears, ageMonths });
           
           form.reset({
             animalType: animalType,
@@ -86,20 +84,11 @@ export function useAnimalForm(animalId?: string) {
   }, [animalId, isNewAnimal, form, toast, t]);
   
   const onSubmit = async (data: AnimalFormValues) => {
-    console.log('onSubmit called in useAnimalForm with data:', data);
     setIsSubmitting(true);
     
     try {
       // Combine country code with phone number
       const fullPhoneNumber = `${data.ownerPhoneCountryCode} ${data.ownerPhone}`;
-      
-      // Log age values to debug
-      console.log('Form age values:', { 
-        ageYears: data.ageYears, 
-        ageMonths: data.ageMonths,
-        typeYears: typeof data.ageYears,
-        typeMonths: typeof data.ageMonths
-      });
       
       const animalData = {
         animalType: data.animalType,
@@ -116,13 +105,10 @@ export function useAnimalForm(animalId?: string) {
         healthNotes: data.healthNotes,
       };
       
-      console.log('Prepared animal data for submission:', animalData);
-      
       let result;
       
       if (isNewAnimal) {
         result = await createAnimal(animalData);
-        console.log('Create animal result:', result);
         
         toast({
           title: t('success'),
@@ -130,7 +116,6 @@ export function useAnimalForm(animalId?: string) {
         });
       } else {
         result = await updateAnimal(animalId!, animalData);
-        console.log('Update animal result:', result);
         
         toast({
           title: t('success'),
@@ -140,13 +125,13 @@ export function useAnimalForm(animalId?: string) {
       
       // Navigate only after successful submission
       navigate('/animals/search');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error saving animal:', error);
       
       // More detailed error handling
       let errorMessage = t('failedToSaveAnimal');
       
-      if (error?.message?.includes('chip_number')) {
+      if (error instanceof Error && error.message?.includes('chip_number')) {
         errorMessage = t('chipNumberAlreadyExists');
       }
       

@@ -29,7 +29,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     }
   }, [isMobile]);
   
-  // Close sidebar when navigating on mobile
+  // Close sidebar when navigating on mobile to be more user-friendly and responsive
+
   React.useEffect(() => {
     if (isMobile) {
       setSidebarOpen(false);
@@ -40,7 +41,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   return (
     <div className="h-screen flex w-full overflow-hidden">
-      {/* Sidebar - now fixed position */}
+      {/* Sidebar */}
       <AnimatePresence mode="wait">
         {sidebarOpen && (
           <motion.div
@@ -70,7 +71,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       
       {/* Main content with overflow handling */}
       <div className="flex-1 w-full h-screen flex flex-col overflow-hidden transition-all duration-300 ease-in-out">
-        {/* Navbar - fixed at top */}
+        {/* Navbar  */}
         <div className="sticky top-0 z-10 bg-background/70 backdrop-blur-md border-b border-border h-16 flex items-center px-4">
           <Button 
             variant="ghost" 
@@ -87,7 +88,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           </div>
         </div>
         
-        {/* Page content with overflow scrolling - important for the key prop to reset scroll */}
+        {/* Page content with overflow scrolling  */}
         <main 
           key={location.pathname} 
           className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto"

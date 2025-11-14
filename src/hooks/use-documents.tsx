@@ -23,23 +23,17 @@ export function useDocuments(animalType?: string, categoryFilter?: string, searc
       setError(null);
 
       try {
-        console.log('Fetching documents with filters:', { animalType, categoryFilter, searchQuery });
-        
         // Fetch all animals and medical files
         const [animalsData, filesData] = await Promise.all([
           fetchAnimals(),
           fetchMedicalFiles(categoryFilter)
         ]);
-
-        console.log('Animals data fetched:', animalsData);
         
         // Apply filters to animals
         const filteredAnimals = filterAnimalsBySearchQuery(
           filterAnimalsByType(animalsData, animalType),
           searchQuery
         );
-        
-        console.log('Filtered animals:', filteredAnimals);
 
         // Format documents array
         let formattedDocuments: any[] = [];
@@ -60,7 +54,6 @@ export function useDocuments(animalType?: string, categoryFilter?: string, searc
           formattedDocuments = [...formattedDocuments, ...fileDocuments];
         }
 
-        console.log('Formatted documents:', formattedDocuments);
         setDocuments(formattedDocuments);
       } catch (err: any) {
         console.error('Error in useDocuments hook:', err);
@@ -76,7 +69,8 @@ export function useDocuments(animalType?: string, categoryFilter?: string, searc
     };
 
     fetchAndProcessDocuments();
-  }, [animalType, categoryFilter, searchQuery, toast]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [animalType, categoryFilter, searchQuery]);
 
   // Return only the necessary data for displaying documents
   return { documents, isLoading, error };

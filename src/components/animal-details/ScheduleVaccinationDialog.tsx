@@ -30,7 +30,7 @@ export function ScheduleVaccinationDialog({
   const { toast } = useToast();
 
   const handleSchedule = async (e?: React.MouseEvent) => {
-    // Prevent default behavior if event is provided
+    
     if (e) {
       e.preventDefault();
     }

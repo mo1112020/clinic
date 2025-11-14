@@ -5,7 +5,6 @@ import { AnimalFormData } from './types';
 import { getOrCreateOwner } from '../owners/owner-service';
 
 export async function createAnimal(data: AnimalFormData): Promise<Animal> {
-  console.log('Creating animal with data:', data);
   
   try {
     // First, create or update the owner
@@ -14,13 +13,9 @@ export async function createAnimal(data: AnimalFormData): Promise<Animal> {
       idNumber: data.ownerId,
       phoneNumber: data.ownerPhone
     });
-    
-    console.log('Owner created/updated with ID:', ownerId);
 
     // Parse health notes to array if provided
     const proneDiseasesArray = data.healthNotes ? [data.healthNotes] : null;
-    
-    console.log('Checking for existing animal with chip number:', data.chipNumber);
     
     // Check if an animal with this chip number already exists (if chip number provided)
     if (data.chipNumber && data.chipNumber.trim() !== '') {
@@ -31,13 +26,9 @@ export async function createAnimal(data: AnimalFormData): Promise<Animal> {
         .maybeSingle();
         
       if (existingAnimal) {
-        console.error('Duplicate chip number detected:', data.chipNumber);
         throw new Error(`An animal with chip number '${data.chipNumber}' already exists. Please use a different chip number.`);
       }
     }
-    
-    console.log('Creating new animal record with owner ID:', ownerId);
-    console.log('Age data being saved:', { age_years: data.ageYears, age_months: data.ageMonths });
     
     // Then create the animal linked to the owner
     const { data: animalData, error: animalError } = await supabase

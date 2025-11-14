@@ -18,7 +18,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     if (allTranslations[key] && allTranslations[key][language]) {
       return allTranslations[key][language];
     }
-    return key; // Fallback to key if translation not found
+    return key; 
   };
 
   return (
@@ -36,5 +36,5 @@ export const useLanguage = () => {
   return context;
 };
 
-// Re-export Language type for convenience with proper TypeScript syntax for isolatedModules
+
 export type { Language };

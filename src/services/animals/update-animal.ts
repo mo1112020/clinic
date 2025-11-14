@@ -30,8 +30,6 @@ export async function updateAnimal(id: string, data: AnimalFormData): Promise<An
     // Parse health notes to array if provided
     const proneDiseasesArray = data.healthNotes ? [data.healthNotes] : null;
     
-    console.log('Updating animal with age data:', { age_years: data.ageYears, age_months: data.ageMonths });
-    
     // Then update the animal
     const { data: animalData, error: animalError } = await supabase
       .from('animals')
@@ -62,8 +60,6 @@ export async function updateAnimal(id: string, data: AnimalFormData): Promise<An
       
       throw new Error(`Error updating animal: ${animalError.message}`);
     }
-
-    console.log('Animal updated successfully:', animalData);
     
     // Transform the result to match the Animal type expected by the application
     const animal: Animal = {

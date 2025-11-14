@@ -236,7 +236,7 @@ export function useVaccinations(filter: 'today' | 'upcoming' | 'overdue' | 'all'
       const formattedDate = format(new Date(vaccination.date), 'dd.MM.yyyy');
       
       // Create Turkish message with the exact format requested by the user
-      const message = `sayin ${vaccination.ownerName}, sevgili ${vaccination.animalName}'in ${vaccination.vaccineName} aşı uygulama zamanı gelmiştir (${formattedDate}). Kliniğimize bekleriz. Sağlıklı günler dileriz.`;
+      const message = `Sayin ${vaccination.ownerName}, sevgili ${vaccination.animalName}'in ${vaccination.vaccineName} aşı uygulama zamanı gelmiştir (${formattedDate}). Kliniğimize bekleriz. Sağlıklı günler dileriz.`;
       
       // Open WhatsApp with the message
       window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');

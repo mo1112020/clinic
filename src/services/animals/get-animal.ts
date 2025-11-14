@@ -17,9 +17,6 @@ export async function getAnimalById(id: string): Promise<any> {
     throw new Error(`Error fetching animal: ${error.message}`);
   }
 
-  // Add console log to debug the data returned from Supabase
-  console.log('Animal data from database:', data);
-
   return {
     ...data,
     owner: data.owners,

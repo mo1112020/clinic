@@ -16,7 +16,9 @@ export interface Country {
   dialCode: string;
 }
 
-// Common country codes with flags
+// Common country codes with flags i did it here because there was a lot of errors in the backend 
+// future plan i will make this stored in the database and fetch it from there
+
 export const countries: Country[] = [
   { name: 'Turkey', code: 'TR', flag: '🇹🇷', dialCode: '+90' },
   { name: 'United States', code: 'US', flag: '🇺🇸', dialCode: '+1' },

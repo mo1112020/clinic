@@ -14,6 +14,8 @@ interface AnimalFormActionsProps {
 const AnimalFormActions: React.FC<AnimalFormActionsProps> = ({ isSubmitting, isNewAnimal }) => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  // This component handles the actions for the animal form, including submit and cancel buttons
+  // It uses Framer Motion for animations and Lucide icons for visual elements
   
   return (
     <motion.div 

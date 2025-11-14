@@ -13,13 +13,6 @@ export async function scheduleVaccination(data: ScheduleVaccinationData) {
   try {
     const formattedDate = format(data.scheduledDate, 'yyyy-MM-dd');
     
-    // Log the data being sent to Supabase
-    console.log('Scheduling vaccination with data:', {
-      animal_id: data.animalId,
-      vaccine_name: data.vaccineName,
-      scheduled_date: formattedDate
-    });
-    
     const { data: vaccination, error } = await supabase
       .from('vaccinations')
       .insert({

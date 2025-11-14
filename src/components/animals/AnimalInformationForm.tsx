@@ -36,7 +36,10 @@ const AnimalInformationForm: React.FC<AnimalInformationFormProps> = ({ form }) =
             <RadioGroup
               onValueChange={(value) => {
                 field.onChange(value);
-                // If switching from "other" to a standard type, clear customAnimalType
+                // If switching from other to a standard type, clear customAnimalType
+                // If switching to other show the custom field
+                // If the value is not other clear the customAnimalType field
+
                 if (value !== 'other') {
                   form.setValue('customAnimalType', '');
                 }
@@ -131,7 +134,7 @@ const AnimalInformationForm: React.FC<AnimalInformationFormProps> = ({ form }) =
         />
       </div>
       
-      {/* New Age Fields */}
+      {/* i did this Age Fields later i have to check later but it's working  */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           control={form.control}
